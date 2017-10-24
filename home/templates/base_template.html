@@ -1,0 +1,116 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <noscript>
+        <style>
+            body{
+                display: none;
+            }
+        </style>
+        <meta http-equiv="refresh" content="0;url={% url 'noscript_page' %}" >
+    </noscript>
+
+    <title>{{ TITLE }}</title>
+
+    {% block stylesheets %}
+        <link href="{% static "main/font-awesome/css/font-awesome.css" %}" rel="stylesheet" />
+        <link href="{% static "main/css/bootstrap.css" %}" rel="stylesheet" />
+        <link href="{% static "main/css/jquery-ui.css" %}" rel="stylesheet" />
+        <link href="{% static "main/css/custom.css" %}" rel="stylesheet" />
+        <link href="{% static "main/css/jquery.enhsplitter.css" %}" rel="stylesheet" />
+        <link href="{% static "main/css/jquery-ui-timepicker-addon.css" %}" rel="stylesheet" />
+        <link href="{% static "main/css/base.css" %}" rel="stylesheet" />
+    {% endblock %}
+
+
+</head>
+<body class="nav-md">
+
+<div class="container body">
+    <div class="main_container">
+
+        {% include "sidebar.html" %}
+
+        {% include "header.html" %}
+
+        <div class="right_col" role="main">
+            <div class="">
+
+                <div class="page-title ">
+                    <div class="title_left">
+                        <h3>{{ title }}</h3>
+                    </div>
+                    {% if not no_search %}
+
+                        <div class="title_right">
+                            <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                                {% if perms.users.can_view_user and perms.finance.can_view_contribution and perms.finance.can_view_investment and perms.finance.can_view_loan %}
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="make_search_input" data="{{ search_table }}" onkeyup="make_search(this)" placeholder="Search for...">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-success" onclick="make_search(this)" style="color: white" type="button">Go!</button>
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    {% endif %}
+                </div>
+                <div class="clearfix"></div>
+
+                {% block content %}
+                {% endblock %}
+
+            </div>
+        </div>
+
+        {% include "footer.html" %}
+
+      </div>
+    </div>
+
+{% block javascript %}
+
+    <script type="text/javascript">
+
+        var MEDIA_URL = '{{ MEDIA_URL }}';
+        var SELECTED_USER = '{{ user.account_id }}';
+        var default_slider = '{{ default_rate }}';
+
+        var i = '{{ perms.finance.can_modify_investment }}';
+        var url = '{{ table_url }}';
+
+        if(i == undefined || i == ''){
+            i=false
+        }
+        {% if perms.finance.can_modify_contribution %}
+            var can_modify = true;
+        {% else %}
+            var can_modify = false;
+        {% endif %}
+
+    </script>
+
+    <script type="text/javascript" src="{% static 'main/js/jquery.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'main/js/jquery-ui.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'main/js/bootstrap.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'main/js/custom.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'main/js/jquery.enhsplitter.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'main/js/jquery.stickytableheaders.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'main/js/jquery-ui-timepicker-addon.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'main/js/base.formset.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'main/js/base.js' %}" ></script>
+{% endblock %}
+
+  </body>
+</html>

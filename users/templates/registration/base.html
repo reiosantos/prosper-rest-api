@@ -1,0 +1,56 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ TITLE }}</title>
+    <link href="{% static "main/font-awesome/css/font-awesome.css" %}" rel="stylesheet" />
+    <link href="{% static "main/css/bootstrap.css" %}" rel="stylesheet" />
+    <link href="{% static "main/css/AdminLTE.css" %}" rel="stylesheet" />
+     <style>
+         .checkbox{
+             margin-left: 20px;
+         }
+         .register-box li{
+             color: red;
+             list-style: none;
+         }
+         .login-page {
+             background: #2a3f54;
+         }
+         .login-logo a{
+             color: white;
+         }
+         .errorlist, .errorlist li{
+             list-style: none;
+             color: red;
+         }
+        </style>
+
+</head>
+<body  class="login-page">
+
+<div class="login-box">
+    <div class="login-logo">
+        <img src="{% static 'main/images/logo.jpg' %}" class="img-thumbnail center-block" width="100px" height="100px" />
+        <a href="{% url 'home_page' %}"><b>{{ COMPANY_NAME }}</b></a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="login-box-body">
+
+        {% block main %}{% endblock %}
+
+    </div>
+    <!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->
+
+</body>
+</html>

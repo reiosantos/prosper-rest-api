@@ -1,0 +1,125 @@
+{% extends 'content_version_1.html' %}
+
+{% load static %}
+{% load crispy_forms_tags crispy_forms_field crispy_forms_utils crispy_forms_filters %}
+
+{% block top_content %}
+
+     <table id="datatable-responsive" class="table table-striped table-bordered nowrap" cellspacing="0" style="width: 100%;">
+        <thead>
+        <tr>
+            <th>Account Number</th>
+            <th>Member name</th>
+            <th>Deposit (UGX)</th>
+            <th>Penalty (UGX)</th>
+            <th>Total paid (UGX)</th>
+            <th>Deposit Date</th>
+            <th>Deposit Slip</th>
+
+        </tr>
+        </thead>
+        <tbody id="contribution-table">
+        {% if contributions %}
+            {% for c in contributions %}
+                <tr>
+                    <td data="{{ c.id }}" >{{ c.user.account_id }}</td>
+                    <td>{{ c.user }}</td>
+                    <td>{{ c.deposit }}</td>
+                    <td>{{ c.penalty }}</td>
+                    <td>{{ c.total }}</td>
+                    <td>{{ c.contribution_date }}</td>
+                    <td data="{{ c.deposit_slip }}" >{{ c.deposit_slip }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="8"> <h5 style="color: black; text-align: left">No contributions</h5> </td>
+            </tr>
+        {% endif %}
+
+        </tbody>
+    </table>
+
+{% endblock %}
+
+
+{% block left_title %}
+    <a class="btn btn-success btn-xs pull-left" href="{% url 'contributions' %}" ><i class="fa fa-plus" ></i> New </a>
+    <h2>Contributions <small>enter or edit information below.</small></h2> <p style="float: right; color: red" id="warn">{% if not perms.finance.can_modify_contribution or not perms.finance.can_add_contribution %} you don't have permissions to modify or add a contribution {% endif %}</p>
+{% endblock %}
+
+
+{% block bottom_left_content %}
+    <form class="form-horizontal admin_contribution_form" enctype="multipart/form-data" action="{% url 'contributions' %}" method="post">
+
+        {% crispy form %}
+
+        {% if perms.finance.can_add_contribution and perms.finance.can_modify_contribution and user.is_authenticated %}
+            <div class="form-group">
+                <div class="aab controls col-sm-3"></div>
+                <div class="controls col-sm-9">
+                    <input name="submit" value="Save contribution" class="btn btn-primary" id="submit-id-submit" type="submit">
+                    <input name="cancel" value="Clear" class="btn" id="button-id-cancel" type="reset">
+                </div>
+            </div>
+        {% endif %}
+
+    </form>
+{% endblock %}
+
+{% block bottom_right_content %}
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            {% if message %}  <p class="pull-right label-success"> {{ message }} </p> {% endif %}
+            {% if error %} <p class="pull-right label-danger"> {{ error }} </p> {% endif %}
+
+        </div>
+    </div>
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'contributions' %}" method="post" >
+
+                <h5 class="text-danger">Upload statement Here (Excel format)</h5>
+                {% crispy excel_form %}
+
+                {% if perms.finance.can_add_contribution and perms.finance.can_modify_contribution and user.is_authenticated %}
+                    <div class="form-group">
+                        <div class="aab controls col-sm-3"></div>
+                        <div class="controls col-sm-9">
+                            <input name="submit" value="Upload File" class="btn-primary" id="submit-id-submit" type="submit" />
+                        </div>
+                    </div>
+                {% endif %}
+
+            </form>
+
+        </div>
+    </div>
+    <div class="row right-li-links" style="padding: 10px;">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+
+            <h4 style="color: blue">Latest Contributions ({{ num }})</h4>
+            {% if new_contributions %}
+                <ul class="contributions_list">
+                    {% for cont in new_contributions %}
+                        <li data="{{ cont.user.account_id }}">{{ cont.user }} | {{ cont.contribution_date|date:"M, D d, Y" }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5 style="color: black">No new contributions</h5>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            <iframe width="100%" frameborder="0" id="preview" ></iframe>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+

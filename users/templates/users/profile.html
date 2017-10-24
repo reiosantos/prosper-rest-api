@@ -1,0 +1,244 @@
+{% extends 'content_version_3.html' %}
+
+{% load static i18n %}
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block normal_content %}
+
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-2 col-xs-12 col-lg-2">
+            <img src="{{ MEDIA_URL }}{{ user.photo }}" alt="No Preview Available" class="center-block img-thumbnail" width="150" height="150" />
+        </div>
+        <div class="col-sm-12 col-md-8 col-xs-12 col-lg-8">
+            <table class="table">
+                <tr>
+                    <td><b>Account No.:</b> </td><td>{{ user.account_id }}</td>
+                </tr>
+                <tr>
+                    <td><b>First Name:</b> </td><td> {{ user.first_name }}</td>
+                </tr>
+                <tr>
+                    <td><b>Last Name:</b> </td><td> {{ user.last_name }}</td>
+                </tr>
+                <tr>
+                    <td><b>Email:</b> </td><td>{{ user.email }}</td>
+                </tr>
+                <tr>
+                    <td><b>Contact:</b> </td><td>{{ user.contact }}</td>
+                </tr>
+                <tr>
+                    <td><b>Address:</b> </td><td>{{ user.address }}</td>
+                </tr>
+                <tr>
+                    <td><b>Date Joined:</b> </td><td>{{ user.date_joined }}</td>
+                </tr>
+                <tr>
+                    <td><b>Username:</b> </td><td>{{ user.username }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="color: red; font-weight: bold" >{{ summary.time_since }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-12 col-md-2 col-xs-12 col-lg-2">
+
+            <a class="btn btn-round btn-danger center-block" href="{% url 'password_change' %}" ><i class="fa fa-lock" ></i> Change Password</a>
+            <a class="btn btn-round btn-primary center-block" href="{% url 'profile_graph' %}" ><i class="fa fa-line-chart" ></i> Toggle Graphical</a>
+        </div>
+    </div>
+
+    <div class="row" style="overflow-y: auto; max-height: 500px;">
+        <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12 pro">
+
+            <div class="x_panel">
+                <div class="x_title">
+                    <b style="font-size: 16px">Contributions</b>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <ul>
+                        <li>Monthly Contribution: <span>{{ summary.monthly }} UGX</span></li>
+                        <li>Contribution this Month: <span>{{ summary.this_month }} UGX</span></li>
+                        <li>Unpaid Bal. this month: <span>{{ summary.balance }} UGX</span></li>
+                        <li>Total Unpaid Balances.: <span>{{ summary.total_balance }} UGX</span></li>
+                        <li>Total Contibutions to-date: <span>{{ summary.ever_made }} UGX</span></li>
+                        <li>Expected Amount to-date: <span>{{ summary.expected }} UGX</span></li>
+                        <li style="color: blue">Your Balance with us: <span>{{ summary.excess }} UGX</span></li>
+                    </ul>
+                    <div class="row" style="overflow:auto;">
+                        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+                            <h5>All Contributions ever</h5>
+                            <table class="table table-bordered">
+                                <thead>
+                                <th>Date</th>
+                                <th>Deposit(UGX)</th>
+                                <th>Actual(UGX)</th>
+                                </thead>
+                                <tbody>
+                                {% if contributions %}
+                                    {% for contribution in contributions %}
+                                         <tr><td>{{ contribution.contribution_date|date:'Y M' }}</td><td>{{ contribution.deposit }}</td><td>{{ contribution.total }}</td></tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3">
+                                        You have made no Contribution
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12 pro">
+
+            <div class="x_panel">
+                <div class="x_title">
+                    <b style="font-size: 16px">Investments</b>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <b>Investments I manage</b>
+                    <ul>
+                        {% if i_manage %}
+
+                            {% for i in i_manage %}
+                                {% if perms.finance.can_modify_investment %}
+                                    {% ifequal c.project_status "cancelled" %}
+                                        <li class="ref" data-href='{% url "investments_update" i.id %}' class="not_approved" >{{ i }}</li>
+                                    {% else %}
+                                        <li class="ref" data-href='{% url "investments_update" i.id %}' >{{ i }}</li>
+                                    {% endifequal %}
+                                {% else %}
+                                    {% ifequal i.project_status "cancelled" %}
+                                        <li class="ref" class="not_approved">{{ i }}</li>
+                                    {% else %}
+                                        <li class="ref" >{{ i }}</li>
+                                    {% endifequal %}
+                                {% endif %}
+                            {% endfor %}
+
+                        {% else %}
+                            <li style="color: red; font-weight: bold" >You don't manage any investments</li>
+                        {% endif %}
+
+                    </ul>
+
+                    <hr>
+
+                    <b>Those am on a team</b>
+                    <ul>
+                        {% if a_member %}
+                            {% for i in a_member %}
+                                {% if perms.finance.can_modify_investment %}
+                                    {% ifequal c.project_status "cancelled" %}
+                                        <li class="ref" data-href='{% url "investments_update" i.id %}' class="not_approved" >{{ i }}</li>
+                                    {% else %}
+                                        <li class="ref" data-href='{% url "investments_update" i.id %}' >{{ i }}</li>
+                                    {% endifequal %}
+                                {% else %}
+                                    {% ifequal i.project_status "cancelled" %}
+                                        <li class="ref" class="not_approved">{{ i }}</li>
+                                    {% else %}
+                                        <li class="ref" >{{ i }}</li>
+                                    {% endifequal %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li style="color: red; font-weight: bold" >You're not involved on any project</li>
+                        {% endif %}
+                    </ul>
+
+                    <hr>
+
+                    <b>Other Projects/Investments</b>
+                        <ul>
+                            {% if others %}
+
+                                {% for i in others %}
+                                    <li class="ref" >{{ i }}</li>
+                                {% endfor %}
+
+                            {% else %}
+                                <li style="color: red; font-weight: bold" >No investment(s) Yet</li>
+                            {% endif %}
+
+                        </ul>
+
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12 pro">
+
+            <div class="x_panel">
+                <div class="x_title">
+                    <b style="font-size: 16px">Loan</b>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+
+                    {% if on_loan %}
+                        <ul>
+                            <li>Loan Date: <span>{{ on_loan.loan_date }}</span></li>
+                            <li>Duration (months): <span>{{ on_loan.loan_duration }}</span></li>
+                            <li>Amount: <span>{{ on_loan.loan_amount }} UGX</span></li>
+                            <li>Interest.: <span>{{ on_loan.loan_interest }} UGX</span></li>
+                            <li>Total Amount: <span>{{ on_loan.total_amount }} UGX</span></li>
+                            <li>Amount returned: <span>{{ on_loan.amount_paid }} UGX</span></li>
+                            <li>Loan Balance: <span>{{ on_loan.outstanding_balance }} UGX</span></li>
+                        </ul>
+                        <div class="row" style="overflow:auto;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+                                <h5>Payment Details</h5>
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <th>Date</th>
+                                    <th>Amount(UGX)</th>
+                                    </thead>
+                                    <tbody>
+                                    {% if on_pay %}
+                                        {% for pay in on_pay %}
+                                             <tr><td>{{ pay.pay_date }}</td><td>{{ pay.paid_amount }}</td></tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="3">
+                                            You have not made any payment for the loan
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <ul>
+                            <li style="color: green; font-weight: bold" >You don't have any Loan</li>
+                        </ul>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
