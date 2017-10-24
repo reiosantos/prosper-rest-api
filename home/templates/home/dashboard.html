@@ -108,7 +108,7 @@
         <div class="col-sm-12 col-md-8 col-xs-12 col-lg-8 dashboard">
 
             <ul class="nav nav-tabs">
-                <li class="active" ><a href="#expenses" data-toggle="tab">Expenses</a></li>
+                <li class="active" ><a href="#expenses" data-toggle="tab">General Expenses</a></li>
                 <li><a href="#contributions" data-toggle="tab">Contributions</a></li>
                 <li><a href="#loans" data-toggle="tab">Loans</a></li>
                 <li><a href="#investments" data-toggle="tab">Investments</a></li>
@@ -121,33 +121,23 @@
 
                     <table style="margin-top: 0" class="table dashboard-tables contributions table-bordered table-striped">
                         <thead>
-                            <th>Name</th>
-                            <th>Membership Status</th>
-                            <th>Total Paid ( UGX )</th>
-                            <th>Total Outstanding ( UGX )</th>
+                            <th>Particular</th>
+                            <th>Amount Invested (UGX)</th>
+                            <th>Recoupled(UGX)</th>
+                            <th>Interest (UGX)</th>
                         </thead>
                         <tbody>
-                        {% if all_contributions %}
-                            {% for c in all_contributions %}
-                                {% if not forloop.last %}
-                                    <tr>
-                                        <td>{{ c.name }}</td>
-                                        <td>{{ c.status }}</td>
-                                        <td>{{ c.paid }}</td>
-                                        <td>{{ c.balance }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            {% with all_contributions|last as fin %}
+                        {% if all_expenses %}
+                            {% for e in all_expenses %}
                                 <tr>
-                                    <td>Totals</td>
-                                    <td></td>
-                                    <td>{{ fin.total_paid }}</td>
-                                    <td>{{ fin.total_balance }}</td>
+                                    <td>{{ e.name }}</td>
+                                    <td>{{ e.status }}</td>
+                                    <td>{{ e.paid }}</td>
+                                    <td>{{ e.balance }}</td>
                                 </tr>
-                            {% endwith %}
+                            {% endfor %}
                         {% else %}
-                             <tr><td colspan="4">No Contribution</td></tr>
+                             <tr><td colspan="4">No Expense Made</td></tr>
                         {% endif %}
                         </tbody>
                     </table>
