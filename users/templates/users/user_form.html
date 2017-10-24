@@ -1,0 +1,24 @@
+{% extends 'content_version_2.html' %}
+
+{% load static %}
+{% load crispy_forms_tags crispy_forms_field crispy_forms_utils crispy_forms_filters %}
+
+{% block left_title %} <h2>User form<small>enter required information below.</small></h2> {% endblock %}
+
+{% block bottom_left_content %}
+
+    {% crispy form %}
+
+{% endblock %}
+
+{% block bottom_right_content %}
+
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            <h4>Your Photo</h4> {% if message %} <p class="pull-right label-success"> {{ message }} </p> {% endif %}
+            <img id="user_preview" src="" alt="No Preview Available" class="center-block img-thumbnail" width="150" height="150" />
+
+        </div>
+    </div>
+
+{% endblock %}

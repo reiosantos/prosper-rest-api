@@ -1,0 +1,108 @@
+{% extends 'content_version_1.html' %}
+
+{% load static %}
+{% load crispy_forms_tags crispy_forms_field crispy_forms_utils crispy_forms_filters %}
+
+{% block top_content %}
+
+    <table id="datatable-responsive" class="table table-striped table-bordered nowrap" cellspacing="0" style="width: 100%;">
+        <thead>
+        <tr>
+            <th>Account Number</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Address</th>
+            <th>Username</th>
+            <th>User Type</th>
+            <th>Status</th>
+            <th>Join Date</th>
+            <th>Is Superuser</th>
+        </tr>
+        </thead>
+        <tbody id="user-table">
+        {% if old_users %}
+            {% for user_o in old_users %}
+
+                {% if not user_o.user_status == "active" %}
+                    <tr class="not_approved">
+                {% else %}
+                    <tr>
+                {% endif %}
+
+                    <td data="{{ user_o.account_id }}" >{{ user_o.account_id }}</td>
+                    <td>{{ user_o.first_name }}</td>
+                    <td>{{ user_o.last_name }}</td>
+                    <td>{{ user_o.email }}</td>
+                    <td>{{ user_o.contact }}</td>
+                    <td>{{ user_o.address }}</td>
+                    <td>{{ user_o.username }}</td>
+                    <td>{{ user_o.user_type }}</td>
+                    <td>{{ user_o.user_status }}</td>
+                    <td>{{ user_o.date_joined }}</td>
+                    <td>{{ user_o.is_superuser }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="11"> <h5 style="color: black; text-align: left">No registered users</h5> </td>
+            </tr>
+        {% endif %}
+
+        </tbody>
+    </table>
+
+{% endblock %}
+
+
+{% block left_title %}
+    <a class="btn btn-success btn-xs pull-left" href="{% url 'manage_users' %}" ><i class="fa fa-plus" ></i> New </a>
+    <h2>User form<small>enter or edit information below.</small></h2>
+    <p style="float: right; color: red">{% if not perms.users.can_modify_user or not perms.users.can_add_user %} you don't have permissions to modify or add user {% endif %}</p>
+{% endblock %}
+
+{% block bottom_left_content %}
+    <form class="form-horizontal admin_user_form" enctype="multipart/form-data" action="{% url 'manage_users' %}" method="post">
+
+        {% crispy form %}
+
+        {% if perms.users.can_modify_user or perms.users.can_add_user and user.is_authenticated %}
+            <div class="form-group">
+                <div class="aab controls col-sm-3"></div>
+                <div class="controls col-sm-9">
+                    <input name="submit" value="Save User" class="btn btn-primary" id="submit-id-submit" type="submit">
+                    <input name="cancel" value="Clear" class="btn" id="button-id-cancel" type="reset">
+                </div>
+            </div>
+        {% endif %}
+
+    </form>
+{% endblock %}
+
+{% block bottom_right_content %}
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            <h4>Member Photo</h4> {% if message %} <p class="pull-right label-success"> {{ message }} </p> {% endif %}
+            <img id="user_preview" src="" alt="No Preview Available" class="center-block img-thumbnail" width="150" height="150" />
+
+        </div>
+    </div>
+    <div class="row" style="padding: 10px;">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+
+            <h4 style="color: blue">New user requests</h4>
+            {% if new_users %}
+                <ul class="users_list">
+                    {% for user_o in new_users %}
+                        <li data="{{ user_o.account_id }}">{{ user_o }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5 style="color: black">No requests from users</h5>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base_template.html' %}
+
+{% block content %}
+     <!-- page content -->
+    <div id="main-div2">
+        <div id="bottom-div">
+            <div id="left-div">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-xs-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+
+                                {% block left_title %}{% endblock %}
+
+                                <ul class="nav navbar-right panel_toolbox">
+                                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+
+                                {% block bottom_left_content %}{% endblock %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="right-div">
+
+               {% block bottom_right_content %}{% endblock %}
+
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock %}

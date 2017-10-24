@@ -1,0 +1,58 @@
+{% extends 'content_version_2.html' %}
+
+{% load static %}
+{% load crispy_forms_tags crispy_forms_field crispy_forms_utils crispy_forms_filters %}
+
+{% block left_title %}
+    <a class="btn btn-success btn-xs pull-left" href="{% url 'contributions' %}" ><i class="fa fa-plus" ></i> New </a>
+    <h2>Contributions <small>enter or edit information below.</small></h2>
+{% endblock %}
+
+{% block bottom_left_content %}
+
+    <form class="form-horizontal admin_contribution_form" enctype="multipart/form-data" action="{% url 'contributions' %}" method="post">
+
+        {% crispy form %}
+
+        <div class="form-group">
+            <div class="aab controls col-sm-3"></div>
+            <div class="controls col-sm-9">
+                <input name="submit" value="Save contribution" class="btn btn-primary" id="submit-id-submit" type="submit">
+                <input name="cancel" value="Clear" class="btn" id="button-id-cancel" type="reset">
+            </div>
+        </div>
+
+    </form>
+
+{% endblock %}
+
+{% block bottom_right_content %}
+
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            {% if message %}  <p class="pull-right label-success"> {{ message }} </p> {% endif %}
+            {% if error %} <p class="pull-right label-danger"> {{ error }} </p> {% endif %}
+
+        </div>
+    </div>
+
+     <div class="row right-li-links">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+
+            <h5 style="color: blue">My Last Contribution(s) ({{ my_num }}) minus penalty</h5>
+            {% if my_contributions %}
+                <ul class="contributions_list">
+                    {% for cont in my_contributions %}
+                        <li>{{ cont.total }} UGX | {{ cont.contribution_date|date:"M, D d, Y" }}</li>
+                    {% endfor %}
+                </ul>
+
+                <i style="color: red">Total Contributions Ever : UGX {{ my_total.total_sum }}</i>
+            {% else %}
+                <h5 style="color: black">No new contributions</h5>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock %}

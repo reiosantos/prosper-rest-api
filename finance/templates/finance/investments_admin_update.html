@@ -1,0 +1,192 @@
+{% extends 'content_version_1.html' %}
+
+{% load static %}
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block top_content %}
+
+     <table id="datatable-responsive" class="table table-striped table-bordered nowrap" cellspacing="0" style="width: 100%;">
+        <thead>
+        <tr>
+            <th>Project Manager</th>
+            <th>Project Name</th>
+            <th>Commencement Date</th>
+            <th>Age/Length( months)</th>
+            <th>Capital Invested(UGX)</th>
+            <th>Interest(UGX)</th>
+            <th>Loss(UGX)</th>
+            <th>Status</th>
+            <th>Rating (%)</th>
+
+        </tr>
+        </thead>
+        <tbody id="investment-table">
+        {% if all_investments %}
+            {% for c in all_investments %}
+                {% if perms.finance.can_modify_investment %}
+                    {% ifequal c.project_status "cancelled" %}
+                        <tr data-href='{% url "investments_update" c.id %}' class="not_approved" >
+                    {% else %}
+                        <tr data-href='{% url "investments_update" c.id %}' >
+                    {% endifequal %}
+                {% else %}
+                    {% ifequal c.project_status "cancelled" %}
+                        <tr class="not_approved" >
+                    {% else %}
+                        <tr>
+                    {% endifequal %}
+                {% endif %}
+
+                    <td data="{{ c.id }}" >{{ c.project_manager }}</td>
+                    <td>{{ c.project_name }}</td>
+                    <td>{{ c.start_date }}</td>
+                    <td>{{ c.project_age }}</td>
+                    <td>{{ c.total_capital_invested }}</td>
+                    <td>{{ c.interest }}</td>
+                    <td>{{ c.loss }}</td>
+                    <td>{{ c.project_status }}</td>
+                    <td>{{ c.project_rating }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="8"> <h5 style="color: black; text-align: left">No Investments</h5> </td>
+            </tr>
+        {% endif %}
+
+        </tbody>
+    </table>
+
+{% endblock %}
+
+
+{% block left_title %}
+    <a class="btn btn-success btn-xs pull-left" href="{% url 'investments' %}" ><i class="fa fa-plus" ></i> New </a>
+    {% comment %}
+    <a class="btn btn-info btn-xs pull-left" href="{% url 'investments_update' %}" ><i class="fa fa-upload" ></i> Update </a>
+    {% endcomment %}
+    <h2>Investments <small>enter or edit information below.</small></h2>
+    <p style="float: right; color: red">{% if not perms.finance.can_modify_investment %} you don't have permissions to modify an investment {% endif %}</p>
+{% endblock %}
+
+
+{% block bottom_left_content %}
+
+    {% if has_investments %}
+        <form class="form-horizontal admin_investment_form item" id="admin_investment_form" enctype="multipart/form-data" action="{% url 'investments_update' %}" method="post">
+
+        {% csrf_token %}
+
+        <div class="tab-content panel-body">
+            <div class="tab-pane active" id="investment" >
+                <div class="form-group">
+                    <div class="controls col-sm-12">
+
+                        {% crispy investment_form %}
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="controls col-sm-12 admin_investment_formset">
+                        <fieldset>
+                            <legend> Financial Break Down</legend>
+
+                            {% if perms.finance.can_modify_investment and user.is_authenticated and investment_form %}
+                                <a class="add-row btn-xs btn-success" id="add" href="javascript:void(0)"> <i class="fa fa-plus"></i> add expense row</a>
+                            {% endif %}
+
+                            <table class="table" cellspacing="0" style="width: 100%;" >
+                                <thead>
+                                <th>Action</th>
+                                <th style="display: none" >Investment</th>
+                                <th>Date</th>
+                                <th>Particulars</th>
+                                <th>Amount spent(UGX)</th>
+                                <th>Returned(UGX)</th>
+                                <th>Cash at hand(UGX)</th>
+                                </thead>
+                                <tbody>
+                                {% for form in financial_forms %}
+                                    <tr class="form-set" >
+                                        <td>
+                                            <span class="pull-right">
+                                                <a class="delete-row btn btn-xs btn-danger delete" href="javascript:void(0)"><i class="fa fa-trash"></i> &times;</a>
+                                            </span>
+                                        </td>
+                                        <td style="display: none" >{{ form.investment }}</td>
+                                        <td>{{ form.date }}{{ form.date.errors }}</td>
+                                        <td>{{ form.particulars }}{{ form.particulars.errors }}</td>
+                                        <td>{{ form.amount_spent }}{{ form.amount_spent.errors }}</td>
+                                        <td>{{ form.amount_returned }}{{ form.amount_returned.errors }}</td>
+                                        <td>{{ form.cash_at_hand }}{{ form.cash_at_hand.errors }}</td>
+                                        {{ form.id }}
+                                        {% csrf_token %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </fieldset>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="controls col-sm-12">
+                        {% if perms.finance.can_modify_investment and user.is_authenticated and investment_form %}
+                            <div class="form-group">
+                                <div class="aab controls col-sm-3"></div>
+                                <div class="controls col-sm-9">
+                                    <input name="submit" value="Save Investment" class="btn btn-primary" id="submit-id-submit" type="submit">
+                                    <input name="cancel" value="Clear" class="btn" id="button-id-cancel" type="reset">
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {{ financial_forms.management_form }}
+
+    </form>
+    {% else %}
+
+        No investments to update
+
+    {% endif %}
+
+{% endblock %}
+
+{% block bottom_right_content %}
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            {% if message %}  <p class="pull-right label-success"> {{ message }} </p> {% endif %}
+            {% if error %} <p class="pull-right label-danger"> {{ error }} </p> {% endif %}
+
+        </div>
+    </div>
+    <div class="row right-li-links" style="padding: 10px;">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+
+            <h4 style="color: blue">Latest Investments ({{ num }})</h4>
+            {% if new_investments %}
+                <ul class="investments_list">
+                    {% for cont in new_investments %}
+                        <li data="{{ cont.id }}">{{ cont.project_manager }} | {{ cont.create_date|date:"M, D d, Y" }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5 style="color: black">No new Investments</h5>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+

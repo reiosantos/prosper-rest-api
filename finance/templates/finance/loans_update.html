@@ -1,0 +1,204 @@
+{% extends 'content_version_1.html' %}
+
+{% load static %}
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block top_content %}
+
+     <table id="datatable-responsive" class="table table-striped table-bordered nowrap" cellspacing="0" style="width: 100%;">
+        <thead>
+        <tr>
+            <th>User Name</th>
+            <th>Loan Date</th>
+            <th>Duration</th>
+            <th>Amount (UGX)</th>
+            <th>Interest (UGX)</th>
+            <th>Total (UGX)</th>
+            <th>Paid Amount (UGX)</th>
+            <th>Balance (UGX)</th>
+            <th>Profit (UGX)</th>
+            <th>Loan Status</th>
+
+        </tr>
+        </thead>
+        <tbody id="loan-table">
+        {% if all_loans %}
+            {% for c in all_loans %}
+                {% ifequal c.loan_status "cancelled" %}
+                    <tr data-href='{% url "loans_update" c.id %}' class="not_approved" >
+                        {% else %}
+
+                        {% ifequal c.loan_status "completed" %}
+                            <tr data-href='{% url "loans_update" c.id %}' class="completed" >
+                                {% else %}
+                            <tr data-href='{% url "loans_update" c.id %}' >
+                        {% endifequal %}
+                {% endifequal %}
+
+                    <td>{{ c.user }}</td>
+                    <td>{{ c.loan_date }}</td>
+                    <td>{{ c.loan_duration }}</td>
+                    <td>{{ c.loan_amount }}</td>
+                    <td>{{ c.loan_interest }}</td>
+                    <td>{{ c.total_amount }}</td>
+                    <td>{{ c.amount_paid }}</td>
+                    <td>{{ c.outstanding_balance }}</td>
+                    <td>{{ c.profit_earned }}</td>
+                    <td>{{ c.loan_status }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="8"> <h5 style="color: black; text-align: left">No Loans</h5> </td>
+            </tr>
+        {% endif %}
+
+        </tbody>
+    </table>
+
+{% endblock %}
+
+
+{% block left_title %}
+    <a class="btn btn-success btn-xs pull-left" href="{% url 'loans' %}" ><i class="fa fa-plus" ></i> New </a>
+    <h2>Loans Update <small>enter or edit information below.</small></h2> <p style="float: right; color: red" id="warn">{% if not perms.finance.can_modify_loan %} you don't have permissions to modify a loan {% endif %}</p>
+{% endblock %}
+
+
+{% block bottom_left_content %}
+    <form class="form-horizontal admin_loan_form" enctype="multipart/form-data" action="{% url 'loans_update' %}" method="post">
+
+        {% csrf_token %}
+
+        <div class="tab-content panel-body">
+            <div class="tab-pane active" id="loan" >
+                <div class="form-group">
+                    <div class="controls col-sm-12">
+
+                        {% crispy loan_form %}
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="controls col-sm-12 admin_loan_formset">
+                        <fieldset>
+                            <legend> Payments Break Down</legend>
+
+                            {% if perms.finance.can_modify_loan and user.is_authenticated and loan_form %}
+                                <a class="add-row btn-xs btn-success" id="add" href="javascript:void(0)"> <i class="fa fa-plus"></i> add payment row</a>
+                            {% endif %}
+
+                            <table class="table" cellspacing="0" style="width: 100%;" >
+                                <thead>
+                                <th>Action</th>
+                                <th style="display: none" >Payment Id</th>
+                                <th>Date</th>
+                                <th>Amount(UGX)</th>
+                                </thead>
+                                <tbody>
+                                {% if payment_forms %}
+                                    {% for form in payment_forms %}
+                                        <tr class="form-set" >
+                                            <td>
+                                                <span class="pull-right">
+                                                    <a class="delete-row btn btn-xs btn-danger delete" href="javascript:void(0)"><i class="fa fa-trash"></i> &times;</a>
+                                                </span>
+                                            </td>
+                                            <td style="display: none" >{{ form.loan }}{{ form.loan.errors }}</td>
+                                            <td>{{ form.pay_date }}{{ form.pay_date.errors }}</td>
+                                            <td>{{ form.paid_amount }}{{ form.paid_amount.errors }}</td>
+
+                                            {{ form.id }}{{ form.id.errors }}
+                                            {% csrf_token %}
+                                        </tr>
+                                    {% endfor %}
+
+                                {% endif %}
+                                </tbody>
+                            </table>
+
+                        </fieldset>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="controls col-sm-12">
+                        {% if perms.finance.can_modify_loan and loan_form and user.is_authenticated %}
+                            <div class="form-group">
+                                <div class="aab controls col-sm-3"></div>
+                                <div class="controls col-sm-9">
+                                    <input name="submit" value="Save Loan" class="btn btn-primary" id="submit-id-submit" type="submit">
+                                    <input name="cancel" value="Clear" class="btn" id="button-id-cancel" type="reset">
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {{ payment_forms.management_form }}
+
+    </form>
+{% endblock %}
+
+{% block bottom_right_content %}
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            {% if message %}  <p class="pull-right label-success"> {{ message }} </p> {% endif %}
+            {% if error %} <p class="pull-right label-danger"> {{ error }} </p> {% endif %}
+
+        </div>
+    </div>
+    <div class="row" style="border-bottom: 1px solid gray">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            <form class="form-horizontal admin_interest_form" action="{% url 'loans' %}" method="post" >
+
+                <h5 class="text-danger">Loan Interest Rate. (%) </h5>
+
+                {% crispy interest_form %}
+
+                {% if perms.finance.can_add_interest and perms.finance.can_modify_interest and user.is_authenticated %}
+                    <div class="form-group">
+                        <div class="aab controls col-sm-3"></div>
+                        <div class="controls col-sm-9">
+                            <input name="submit" value="Save rate" class="btn-primary" id="submit-id-submit" type="submit" />
+                        </div>
+                    </div>
+                {% endif %}
+
+            </form>
+
+        </div>
+    </div>
+    <div class="row right-li-links" style="padding: 10px;">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+
+            <h4 style="color: blue">On Loan ( {{ num_on_loan }} )</h4>
+            {% if new_loans %}
+                <ul class="loans_list">
+                    {% for cont in new_loans %}
+                        <li data="{{ cont.id }}" data-href='{% url "loans_update" cont.id %}' >{{ cont.user }} | {{ cont.loan_date|date:"M, D d, Y" }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5 style="color: black">No Loan(s) out</h5>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-xs-12">
+            <iframe width="100%" frameborder="0" id="preview" ></iframe>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+

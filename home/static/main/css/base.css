@@ -1,0 +1,235 @@
+
+input:focus{
+    color: blue;
+}
+.asteriskField{
+    color: red;
+}
+#main-div1, #main-div2, #main-div2 #bottom-div{
+    width: 100%;
+    height: 100%;
+    min-height: 700px; /*652px*/
+    border: solid 1px lightgrey;
+}
+#left-div, #right-div{
+    padding: 10px;
+    width: 100%;
+}
+#right-div{
+    overflow: auto;
+}
+.right-li-links li, .ref, .users_list li{
+    cursor: pointer;
+    color: black;
+    width: 100%;
+    padding: 1px;
+    list-style-type: circle;
+}
+.right-li-links li:hover, .ref:hover, .users_list li:hover{
+    background-color: lightgrey;
+}
+.table th {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+	text-align: left;
+	color: #FFF;
+    white-space: nowrap;
+	background-color: #555;
+}
+.table tbody td {
+    color: black;
+    white-space: nowrap;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+	border-top: 1px solid #E0E0E0;
+}
+.table tbody tr:nth-child(2n) {
+	/*background-color: #9FAFD1;*/
+	background-color: rgba(87, 168, 129, 0.22);
+	opacity: 0.8;
+}
+.table tr:hover td, tr.not_approved:hover td{
+    color: #fff;
+    cursor: pointer;
+    /*background-color: #2a3f54;*/
+    background-color: rgba(42, 63, 84, 0.4);
+}
+.table tbody tr:hover{
+    opacity: 1;
+}
+.label-success, .label-danger{
+    color: white;
+    min-width: 100px;
+    padding: 5px
+}
+tr.not_approved td{
+    color: red;
+}
+tr.completed td{
+    color: green;
+}
+.ui-state-default{
+    background-color: lightgrey !important;
+}
+.ui-slider-handle{
+    background-color: white !important;
+    border-radius: 15px !important;
+    border-color: blue !important;
+    border-style: outset !important;
+    border-width: 2px !important;
+}
+div.slider-rate{
+    margin-top: 10px;
+}
+/*
+.x_panel, .x_title, .x_content {
+    margin: 2px !important;
+    padding: 0px !important;
+}*/
+.add-row{
+    display: inline-block;
+    padding: 6px;
+    margin-bottom: 10px;
+    font-weight: normal;
+    line-height: 1.02857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+.delete-row{
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.ui-datepicker{
+    z-index: 99999 !important;
+}
+tr.form-set input[type='text'],
+tr.form-set input[type='number'],
+tr.form-set input[type='datetime'],
+tr.form-set input[type='date'],
+tr.form-set input[type='tel'],
+tr.form-set input[type='password'],
+tr.form-set input[type='email'] {
+    display: block;
+    height: 24px;
+    padding: 5px;
+    line-height: 1.02857143;
+    color: #555;
+    border-radius: 0px;
+    background-color: #fff;
+    background-image: none;
+    border: 0px solid #ccc;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+tr.form-set input[type='text']:focus,
+tr.form-set input[type='number']:focus,
+tr.form-set input[type='datetime']:focus,
+tr.form-set input[type='date']:focus,
+tr.form-set input[type='tel']:focus,
+tr.form-set input[type='password']:focus,
+tr.form-set input[type='email']:focus {
+    border-color: darkred;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px blue, 0 0 8px red;
+    box-shadow: inset 0 1px 1px blue, 0 0 8px red;
+}
+.table tbody tr.form-set:nth-child(2n){
+    background-color: rgba(231,233,236,0.79);
+}
+.table tbody tr.form-set:nth-child(2n) input {
+	background-color: rgba(231,233,236,0.79);
+	opacity: 1;
+    color: black;
+}
+tr.form-set:hover input[type='text'],
+tr.form-set:hover input[type='number'],
+tr.form-set:hover input[type='datetime'],
+tr.form-set:hover input[type='date'],
+tr.form-set:hover input[type='tel'],
+tr.form-set:hover input[type='password'],
+tr.form-set:hover input[type='email'] {
+    background: white !important;
+}
+#investment .admin_investment_formset,
+#loan .admin_investment_formset{
+    width: 100%;
+    overflow: auto;
+}
+ul.errorlist {
+    margin: 0 0 4px;
+    padding: 0;
+    color: #ba2121;
+    background: #fff;
+}
+
+ul.errorlist li {
+    font-size: 13px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+ul.errorlist li:first-child {
+    margin-top: 0;
+}
+
+ul.errorlist li a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+td ul.errorlist {
+    margin: 0;
+    padding: 0;
+}
+
+td ul.errorlist li {
+    margin: 0;
+}
+.has-error input{
+    border-bottom: 1px solid red !important;
+    background: white !important;
+}
+.pro ul, .dashboard ul{
+    margin-left: 0;
+    padding-left: 0;
+    list-style: none;
+    color: black;
+}
+.pro ul li{
+    border-bottom: 1px solid gray;
+}
+.pro li span, .dashboard ul:not(.cash) li span{
+    color: blue;
+    float: right;
+}
+.dashboard ul.cash li span{
+    color: darkred;
+    float: right;
+}
+table.dashboard-tables{
+    margin: 5px 0 5px 0;
+}
+table.dashboard-tables.contributions tbody tr:last-child{
+    background: rgba(232,232,232,0.31);
+    font-weight: bolder;
+    text-align: right;
+    border-top: 2px solid red;
+}

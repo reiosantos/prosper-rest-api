@@ -1,0 +1,124 @@
+{% load static %}
+
+<div class="col-md-3 left_col">
+    <div class="left_col scroll-view">
+        <div class="navbar nav_title" style="border: 0;">
+
+            <a href="{% url 'home_page' %}" class="site_title"><i class="fa fa-globe"></i> <span>{{ COMPANY_NAME }}</span></a>
+        </div>
+        <div class="clearfix"></div>
+
+        <!-- menu profile quick info -->
+        <a href="{% url 'profile_page' %}">
+            <div class="profile clearfix">
+                <div class="profile_pic">
+                    <img src="{{ MEDIA_URL }}{{ user.photo }}" alt="...." class="img-circle profile_img" />
+                </div>
+                <div class="profile_info">
+                    <span>Welcome,</span>
+                    <h2>{{ user }}</h2>
+                </div>
+            </div>
+        </a>
+        <!-- /menu profile quick info -->
+        <br />
+        <!-- sidebar menu -->
+        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+            <div class="menu_section">
+                <h3>General</h3>
+                <ul class="nav side-menu">
+                    <li><a><i class="fa fa-home"></i> Home<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+
+                            {% ifequal user.user_type 'admin' %}
+                                 <li><a href="{% url 'home_page' %}">Dashboard</a></li>
+                            {% endifequal %}
+
+                            <li><a href="{% url 'profile_page' %}">Your Profile</a></li>
+                        </ul>
+                    </li>
+                    <li><a><i class="fa fa-users"></i> Users<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+                            <li><a href="{% url 'add_user' %}">New User</a></li>
+
+                            {% if perms.users.can_view_user %}
+                                <li><a href="{% url 'manage_users' %}">Manage Users</a></li>
+                            {% endif %}
+
+                        </ul>
+                    </li>
+                    <li><a><i class="fa fa-credit-card"></i> Finance<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+
+                            {% if perms.finance.can_add_investment or perms.finance.can_modify_investment or perms.finance.can_view_investment  %}
+                                <li><a href="{% url 'investments' %}">Investments</a></li>
+                            {% endif %}
+
+                            <li><a href="{% url 'contributions' %}">Contributions</a></li>
+
+                            {% if perms.finance.can_add_loan or perms.finance.can_modify_loan or perms.finance.can_view_loan  %}
+                                <li><a href="{% url 'loans' %}">Loans</a></li>
+                            {% endif %}
+
+                            <li><a href="{% url 'statements' %}">Statements</a></li>
+                        </ul>
+                    </li>
+                    {% comment %}
+                     <li><a><i class="fa fa-bank"></i> Projects<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+                            <li><a href="{% url 'new_project' %}">New</a></li>
+                            <li><a href="{% url 'search_projects' %}">Search Projects</a></li>
+                        </ul>
+                    </li>
+                    {% endcomment %}
+                    <li><a><i class="fa fa-envelope"></i> Messages<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+                            <li><a href="{% url 'compose' %}">Compose</a></li>
+                            <li><a href="{% url 'inbox' %}">Inbox</a></li>
+                            <li><a href="{% url 'sent' %}">Sent</a></li>
+                        </ul>
+                    </li>
+                    <li><a><i class="fa fa-file-pdf-o"></i> Documents<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+                            <li><a href="{% url 'upload' %}">Upload Documents</a></li>
+                            <li><a href="{% url 'view_all' %}">View Documents</a></li>
+                        </ul>
+                    </li>
+                    <li><a><i class="fa fa-cogs"></i> Settings<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+                            <li><a href="{% url 'schedule_meeting' %}">Schedule Meetings</a></li>
+                            <li><a href="{% url 'all_meetings' %}">Meetings</a></li>
+                            <li><a href="{% url 'new_event' %}">Add Events</a></li>
+                            <li><a href="{% url 'all_events' %}">Events</a></li>
+                        </ul>
+                    </li>
+                    <li><a><i class="fa fa-shopping-basket"></i> Others<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+                            <li><a href="{% url 'ideas' %}">Ideas Box</a></li>
+                            <li><a href="{% url 'market' %}">Market Place</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /sidebar menu -->
+
+        <!-- /menu footer buttons -->
+        <div class="sidebar-footer hidden-small">
+            <!--
+            <a data-toggle="tooltip" data-placement="top" title="Settings">
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+            </a>
+            <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+                <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+            </a>
+            <a data-toggle="tooltip" data-placement="top" title="Lock">
+                <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+            </a>-->
+            <a data-toggle="tooltip" data-placement="top" title="Logout" href="{% url 'logout_user' %}">
+                <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+            </a>
+        </div>
+        <!-- /menu footer buttons -->
+    </div>
+</div>
