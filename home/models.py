@@ -38,7 +38,7 @@ class Expenses(models.Model):
                                    ])
 
     def __unicode__(self):
-        return self.particular
+        return self.particulars
 
     class Meta:
         default_permissions = ('modify',)
