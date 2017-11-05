@@ -47,7 +47,7 @@ def monthly_rate_today():
     form = DetailsForm()
 
     if dt and dt.count() > 0:
-
+        dt = dt[0]
         start_date = dt.start_date
         monthly_rate = dt.monthly_contribution
         months_passed = relativedelta.relativedelta(timezone.now(), start_date)
