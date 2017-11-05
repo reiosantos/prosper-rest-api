@@ -37,6 +37,30 @@ def custom_bad_request(request):
     return render(request, 'error/400.html', status=400)
 
 
+def monthly_rate_today():
+    dt = ClubDetails.objects.all()
+
+    today = date.today()
+    start_date = today
+    monthly_rate = 0
+    months_in_operation = 0
+    form = DetailsForm()
+
+    if dt and dt.count() > 0:
+
+        start_date = dt.start_date
+        monthly_rate = dt.monthly_contribution
+        months_passed = relativedelta.relativedelta(timezone.now(), start_date)
+        if months_passed.years:
+            months_in_operation = months_passed.years * 12
+        if months_passed.months:
+            months_in_operation += months_passed.months
+
+        form = DetailsForm(instance=dt)
+
+    return monthly_rate, today, start_date, months_in_operation, form
+
+
 def index(request):
 
     if not request.user.user_type == "admin":
@@ -45,19 +69,15 @@ def index(request):
     error = {}
     message = None
 
-    today = date.today()
-    start_date = today
-    monthly_rate = 0
+    monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
     total_membership = 0
     loan_rate = 0
-    months_in_operation = 0
 
     expected_total_contributions = 0
     expected_total_cash_at_hand = 0
     banked_cash_at_hand = 0
     un_banked_cash_at_hand = 0
 
-    form = DetailsForm()
     i_form = InterestForm()
 
     if request.POST:
@@ -81,19 +101,6 @@ def index(request):
                 form = save['form']
                 error['error'] = 'Failed to complete transaction.'
                 error['form'] = 'details'
-
-    dt = ClubDetails.objects.all()
-    if dt and dt.count() > 0:
-        dt = dt[0]
-        start_date = dt.start_date
-        monthly_rate = dt.monthly_contribution
-        months_passed = relativedelta.relativedelta(timezone.now(), start_date)
-        if months_passed.years:
-            months_in_operation = months_passed.years * 12
-        if months_passed.months:
-            months_in_operation += months_passed.months
-
-        form = DetailsForm(instance=dt)
 
     ir = Interest.objects.all()
     if ir and ir.count() > 0:
@@ -316,6 +323,9 @@ def all_loans():
 
 
 def cash_at_hand():
+
+    monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
+
     data = {}
 
     return data
