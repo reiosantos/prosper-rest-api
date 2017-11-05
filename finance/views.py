@@ -4,7 +4,7 @@ from datetime import date
 from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
-from django.forms.models import modelformset_factory, ModelMultipleChoiceField
+from django.forms.models import modelformset_factory
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -59,7 +59,6 @@ def investments(request):
     })
 
 
-# @permission_required(['can_modify_investment'], login_url='home_page')
 def investments_update(request, ids=False):
 
     if not request.user.has_perms(['can_modify_investment']):
