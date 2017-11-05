@@ -4,14 +4,16 @@ from decimal import Decimal
 from dateutil import relativedelta
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
+from django.forms import modelformset_factory
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_http_methods
 
 from finance.forms import InterestForm
 from finance.models import Interest, Contribution, Loan, Investment
-from home.forms import DetailsForm
-from home.models import ClubDetails
+from home.forms import DetailsForm, ExpensesForm
+from home.models import ClubDetails, Expenses
+from home.support.support_functions import RequiredFormset
 from users.models import User
 
 
@@ -36,6 +38,7 @@ def custom_bad_request(request):
     return render(request, 'error/400.html', status=400)
 
 
+@require_http_methods(['GET', 'POST'])
 def index(request):
 
     if not request.user.user_type == "admin":
@@ -43,15 +46,17 @@ def index(request):
 
     error = {}
     message = None
+    no_of_forms = 1
 
     monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
     loan_rate = 0
 
-    expected_total_cash_at_hand = 0
-    banked_cash_at_hand = 0
-    un_banked_cash_at_hand = 0
-
     i_form = InterestForm()
+    expenses_formset = modelformset_factory(Expenses,
+                                            ExpensesForm,
+                                            extra=no_of_forms, can_order=False,
+                                            can_delete=False, formset=RequiredFormset)
+    admin_expenses_formset = expenses_formset(queryset=Expenses.objects.none())
 
     if request.POST:
         interest = request.POST.get('hidden_interest', False)
@@ -74,6 +79,9 @@ def index(request):
                 form = save['form']
                 error['error'] = 'Failed to complete transaction.'
                 error['form'] = 'details'
+        else:
+            #to handle expense formset submissions
+            pass
 
     ir = Interest.objects.all()
     if ir and ir.count() > 0:
@@ -82,6 +90,7 @@ def index(request):
         i_form = InterestForm(instance=ir)
 
     total_membership, expected_total_contributions = expected_contributions(monthly_rate, today)
+    banked_cash_at_hand, un_banked_cash_at_hand, expected_total_cash_at_hand, variance = cash_at_hand()
 
     return render(request, 'home/dashboard.html',
                   {
@@ -89,6 +98,7 @@ def index(request):
                       'no_search': True,
                       'form': form,
                       'i_form': i_form,
+                      'expenses_forms': admin_expenses_formset,
                       'loan_rate': loan_rate,
                       'today': today,
                       'start_date': start_date,
@@ -99,6 +109,7 @@ def index(request):
                       'expected_total_cash_at_hand': expected_total_cash_at_hand,
                       'banked_cash_at_hand': banked_cash_at_hand,
                       'unbanked_cash_at_hand': un_banked_cash_at_hand,
+                      'variance': variance,
                       'error': error,
                       'message': message,
                       'all_contributions': all_contributions(monthly_rate, today),
@@ -139,7 +150,7 @@ def expected_contributions(monthly_rate=0, today=date.today()):
     if u:
         total_membership = u.count()
         for user in u:
-            expected_total_contributions += calculate_user_expected_amount(user, monthly_rate, today)
+            expected_total_contributions += calculate_user_expected_amount(user, monthly_rate)
 
     return total_membership, expected_total_contributions
 
@@ -220,6 +231,8 @@ def save_details(request, hid=None):
 
 def all_investments():
     investments = Investment.objects.all()
+    if not investments:
+        investments = None
     return investments
 
 
@@ -230,10 +243,11 @@ def all_contributions(monthly=0, today=None):
     c = Contribution.objects.all()
     users = User.objects.all()
 
+    total = Decimal(0)
+    outstanding = Decimal(0)
+
     data = []
     if users:
-        total = 0
-        outstanding = 0
         for us in users:
             d = c.filter(user=us).aggregate(totals=Sum('total'))
             if not d:
@@ -286,15 +300,15 @@ def all_contributions(monthly=0, today=None):
                 total += paid
                 outstanding += total_balance
 
-        data.append({
-            'total_paid': total,
-            'total_balance': outstanding
-        })
+    data.append({
+        'total_paid': total,
+        'total_balance': outstanding
+    })
 
     return data
 
 
-def calculate_user_expected_amount(user, monthly, today):
+def calculate_user_expected_amount(user=None, monthly=0):
 
     months_passed = relativedelta.relativedelta(timezone.now(), user.date_joined)
 
@@ -325,13 +339,73 @@ def calculate_user_expected_amount(user, monthly, today):
 
 
 def all_loans():
-    return Loan.objects.all().order_by('user__first_name', 'user__last_name')
+    loans = Loan.objects.all().order_by('user__first_name', 'user__last_name')
+    if not loans:
+        loans = None
+    return loans
 
 
 def cash_at_hand():
 
+    total_expected = 0
     monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
 
-    data = {}
+    contributions = all_contributions(monthly_rate, today)
+    contribution_paid = contributions[-1]['total_paid']
+    contribution_unpaid = contributions[-1]['total_balance']
 
-    return data
+    total_expected += (contribution_paid + contribution_unpaid)
+
+    project_interest_and_recouped = Investment.objects.aggregate(interest=Sum('interest'),
+                                                                 loss=Sum('loss'), recouped=Sum('amount_returned'))
+
+    if project_interest_and_recouped['interest'] is None:
+        project_interest_and_recouped['interest'] = 0
+    if project_interest_and_recouped['loss'] is None:
+        project_interest_and_recouped['loss'] = 0
+    if project_interest_and_recouped['recouped'] is None:
+        project_interest_and_recouped['recouped'] = 0
+
+    investments_cash = project_interest_and_recouped['interest'] + project_interest_and_recouped['recouped']
+    investments_cash -= project_interest_and_recouped['loss']
+
+    total_expected += project_interest_and_recouped['loss']
+
+    loans = Loan.objects.aggregate(profit=Sum('profit_earned'), paid=Sum('amount_paid'),
+                                   unpaid=Sum('outstanding_balance'), total=Sum('loan_amount'))
+
+    if loans['profit'] is None:
+        loans['profit'] = 0
+    if loans['paid'] is None:
+        loans['paid'] = 0
+    if loans['unpaid'] is None:
+        loans['unpaid'] = 0
+    if loans['total'] is None:
+        loans['total'] = 0
+
+    loan_paid = loans['paid'] + loans['profit']
+    loan_unpaid = loans['unpaid']
+
+    total_expected += loans['total']
+
+    exp = Expenses.objects.aggregate(recouped=Sum('recouped'), interest=Sum('interest'))
+
+    if exp['recouped'] is None:
+        exp['recouped'] = 0
+    if exp['interest'] is None:
+        exp['interest'] = 0
+
+    expenses_paid = exp['recouped'] + exp['interest']
+
+    actual_banked = contribution_paid + investments_cash + loan_paid + expenses_paid
+    actual_unbanked = contribution_unpaid + loan_unpaid
+
+    actual_expected = total_expected
+
+    variance = (actual_banked + actual_unbanked) - actual_expected
+
+    return actual_banked, actual_unbanked, actual_expected, variance
+
+
+def calculate_income_statement():
+    pass
