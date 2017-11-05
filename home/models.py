@@ -21,8 +21,9 @@ class ClubDetails(models.Model):
 
 
 class Expenses(models.Model):
-    particular = models.CharField(max_length=255, blank=False,)
+
     date = models.DateTimeField('Date', auto_now=False, default=timezone.now)
+    particulars = models.CharField(max_length=255, blank=False, )
     invested = models.DecimalField('Invested.', max_digits=12, decimal_places=2, default=0,
                                                validators=[
                                                    MinValueValidator(Decimal('00.00')),
