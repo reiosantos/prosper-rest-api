@@ -47,6 +47,12 @@
                         <li>Expected Total: <span>{{ expected_total_cash_at_hand }} UGX</span></li>
                         <li>Actual Banked Bal.: <span>{{ banked_cash_at_hand }} UGX</span></li>
                         <li>Unbanked Bal: <span>{{ unbanked_cash_at_hand }} UGX</span></li>
+                        <li class="list-seperator"><hr></li>
+                        {% if variance and variance < 0 %}
+                            <li style="color: red; font-weight: bolder;">Variance: <span>{{ variance }} UGX</span></li>
+                        {% else %}
+                            <li>Variance: <span>{{ variance }} UGX</span></li>
+                        {% endif %}
                     </ul>
 
                     <!-- Modal -->
@@ -113,34 +119,74 @@
                 <li><a href="#loans" data-toggle="tab">Loans</a></li>
                 <li><a href="#investments" data-toggle="tab">Investments</a></li>
             </ul>
-            <div class="tab-content" style="height: 100%; overflow-y: auto">
+            <div class="tab-content" style="height: 100%; overflow-y: auto;">
 
-                <div class="tab-pane fade in active" style="margin-top: 5px" id="expenses">
+                <div class="tab-pane fade in active" style="margin-top: 5px;" id="expenses">
 
-                    <a class="add-row btn-xs btn-success btn-round pull-right" id="add" href="javascript:void(0)"> <i class="fa fa-plus"></i> add expense</a>
+                    <form style="overflow: auto" class="form-horizontal admin_expense_form item" id="admin_expense_form" enctype="multipart/form-data" action="" method="post" >
 
-                    <table style="margin-top: 0" class="table dashboard-tables contributions table-bordered table-striped">
-                        <thead>
-                            <th>Particular</th>
-                            <th>Amount Invested (UGX)</th>
-                            <th>Re coupled(UGX)</th>
-                            <th>Interest (UGX)</th>
-                        </thead>
-                        <tbody>
-                        {% if all_expenses %}
-                            {% for e in all_expenses %}
-                                <tr>
-                                    <td>{{ e.name }}</td>
-                                    <td>{{ e.status }}</td>
-                                    <td>{{ e.paid }}</td>
-                                    <td>{{ e.balance }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                             <tr><td colspan="4">No Expense Made</td></tr>
-                        {% endif %}
-                        </tbody>
-                    </table>
+                        <div class="form-group">
+                            <div class="controls col-sm-12 admin_expense_formset">
+
+                            {% if perms.home.can_modify_expenses and user.is_authenticated and expenses_forms %}
+                                <a class="add-row btn-xs btn-success btn-round pull-right" id="add" href="javascript:void(0)"> <i class="fa fa-plus"></i> add expense</a>
+                            {% endif %}
+                                <fieldset>
+                                    <legend> Expenses</legend>
+
+                                    <table class="table dashboard-tables table-bordered table-striped" cellspacing="0" >
+                                        <thead>
+                                            <th></th>
+                                            <th>Date</th>
+                                            <th>Particular</th>
+                                            <th>Amount Invested (UGX)</th>
+                                            <th>Recouped(UGX)</th>
+                                            <th>Interest (UGX)</th>
+                                            </thead>
+                                            <tbody>
+
+                                            {% if expenses_forms %}
+                                                {% for form in expenses_forms %}
+                                                    <tr class="form-set" >
+                                                        <td>
+                                                            <span class="pull-right">
+                                                                <a class="delete-row btn btn-xs btn-danger delete" href="javascript:void(0)"><i class="fa fa-trash"></i> &times;</a>
+                                                            </span>
+                                                        </td>
+                                                        <td>{{ form.date }}{{ form.date.errors }}</td>
+                                                        <td>{{ form.particulars }}{{ form.particulars.errors }}</td>
+                                                        <td>{{ form.invested }}{{ form.invested.errors }}</td>
+                                                        <td>{{ form.recouped }}{{ form.recouped.errors }}</td>
+                                                        <td>{{ form.interest }}{{ form.interest.errors }}</td>
+                                                        {{ form.id }}
+
+                                                        {% csrf_token %}
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            </tbody>
+                                        </table>
+                                    </fieldset>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="controls col-sm-12">
+                                    {% if perms.home.can_modify_expenses and user.is_authenticated and expenses_forms %}
+                                        <div class="form-group">
+                                            <div class="aab controls col-sm-3"></div>
+                                            <div class="controls col-sm-9">
+                                                <input name="submit" value="Save Investment" class="btn btn-primary" id="submit-id-submit" type="submit">
+                                                <input name="cancel" value="Clear" class="btn" id="button-id-cancel" type="reset">
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {{ expenses_forms.management_form }}
+                        </form>
 
                 </div>
 
@@ -224,7 +270,6 @@
                             <th>Amount Invested (UGX)</th>
                             <th>Total Recouped (UGX)</th>
                             <th>Interest (UGX)</th>
-                            <th>Investment returns (UGX)</th>
                         </thead>
                         <tbody>
                         {% if all_investments %}
@@ -249,7 +294,6 @@
                                     <td>{{ i.total_capital_invested }}</td>
                                     <td>{{ i.amount_returned }}</td>
                                     <td>{{ i.interest }}</td>
-                                    <td>{{ i.outstanding_balance }}</td>
                                 </tr>
                             {% endfor %}
                         {% else %}
