@@ -10,9 +10,10 @@
         <tr>
             <th>Project Manager</th>
             <th>Project Name</th>
-            <th>Commencement Date</th>
+            <th>Start Date</th>
             <th>Age/Length( months)</th>
             <th>Capital Invested(UGX)</th>
+            <th>Recouped (UGX)</th>
             <th>Interest(UGX)</th>
             <th>Loss(UGX)</th>
             <th>Status</th>
@@ -42,6 +43,7 @@
                     <td>{{ c.start_date }}</td>
                     <td>{{ c.project_age }}</td>
                     <td>{{ c.total_capital_invested }}</td>
+                    <td>{{ c.amount_returned }}</td>
                     <td>{{ c.interest }}</td>
                     <td>{{ c.loss }}</td>
                     <td>{{ c.project_status }}</td>
