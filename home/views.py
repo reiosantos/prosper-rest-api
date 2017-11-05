@@ -4,7 +4,6 @@ from decimal import Decimal
 from dateutil import relativedelta
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
-
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.decorators.http import require_GET
@@ -37,30 +36,6 @@ def custom_bad_request(request):
     return render(request, 'error/400.html', status=400)
 
 
-def monthly_rate_today():
-    dt = ClubDetails.objects.all()
-
-    today = date.today()
-    start_date = today
-    monthly_rate = 0
-    months_in_operation = 0
-    form = DetailsForm()
-
-    if dt and dt.count() > 0:
-        dt = dt[0]
-        start_date = dt.start_date
-        monthly_rate = dt.monthly_contribution
-        months_passed = relativedelta.relativedelta(timezone.now(), start_date)
-        if months_passed.years:
-            months_in_operation = months_passed.years * 12
-        if months_passed.months:
-            months_in_operation += months_passed.months
-
-        form = DetailsForm(instance=dt)
-
-    return monthly_rate, today, start_date, months_in_operation, form
-
-
 def index(request):
 
     if not request.user.user_type == "admin":
@@ -70,10 +45,8 @@ def index(request):
     message = None
 
     monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
-    total_membership = 0
     loan_rate = 0
 
-    expected_total_contributions = 0
     expected_total_cash_at_hand = 0
     banked_cash_at_hand = 0
     un_banked_cash_at_hand = 0
@@ -108,11 +81,7 @@ def index(request):
         loan_rate = ir.interest
         i_form = InterestForm(instance=ir)
 
-    u = User.objects.all()
-    if u:
-        total_membership = u.count()
-        for user in u:
-            expected_total_contributions += calculate_user_expected_amount(user, monthly_rate, today)
+    total_membership, expected_total_contributions = expected_contributions(monthly_rate, today)
 
     return render(request, 'home/dashboard.html',
                   {
@@ -136,6 +105,43 @@ def index(request):
                       'all_loans': all_loans(),
                       'all_investments': all_investments(),
                   })
+
+
+def monthly_rate_today():
+    dt = ClubDetails.objects.all()
+
+    today = date.today()
+    start_date = today
+    monthly_rate = 0
+    months_in_operation = 0
+    form = DetailsForm()
+
+    if dt and dt.count() > 0:
+        dt = dt[0]
+        start_date = dt.start_date
+        monthly_rate = dt.monthly_contribution
+        months_passed = relativedelta.relativedelta(timezone.now(), start_date)
+        if months_passed.years:
+            months_in_operation = months_passed.years * 12
+        if months_passed.months:
+            months_in_operation += months_passed.months
+
+        form = DetailsForm(instance=dt)
+
+    return monthly_rate, today, start_date, months_in_operation, form
+
+
+def expected_contributions(monthly_rate=0, today=date.today()):
+    expected_total_contributions = Decimal(0)
+    total_membership = 0
+
+    u = User.objects.all()
+    if u:
+        total_membership = u.count()
+        for user in u:
+            expected_total_contributions += calculate_user_expected_amount(user, monthly_rate, today)
+
+    return total_membership, expected_total_contributions
 
 
 def save_interest(request, hid=None):
