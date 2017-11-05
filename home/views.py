@@ -244,7 +244,7 @@ def all_contributions(monthly=0, today=None):
                 total_b = Contribution.objects.filter(user=us).annotate(month=TruncMonth('contribution_date')) \
                     .values('month').annotate(paid=Sum('total')).order_by('-month')
 
-                total_balance = 0
+                total_balance = Decimal(0)
                 for t in total_b:
                     p = t['paid']
                     y = t['month'].year
@@ -313,3 +313,9 @@ def calculate_user_expected_amount(user, monthly, today):
 
 def all_loans():
     return Loan.objects.all().order_by('user__first_name', 'user__last_name')
+
+
+def cash_at_hand():
+    data = {}
+
+    return data

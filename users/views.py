@@ -309,7 +309,7 @@ def get_my_contributions(request, today):
     total_b = Contribution.objects.filter(user=request.user).annotate(month=TruncMonth('contribution_date')) \
         .values('month').annotate(paid=Sum('total')).order_by('-month')
 
-    total_balance = 0
+    total_balance = Decimal(0)
     for total in total_b:
         p = total['paid']
         y = total['month'].year
