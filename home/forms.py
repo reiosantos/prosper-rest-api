@@ -1,7 +1,7 @@
 from crispy_forms.bootstrap import AppendedText
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Reset, Submit, ButtonHolder, HTML, Hidden, Field
-from django.forms import ModelForm, DateInput
+from crispy_forms.layout import Layout, ButtonHolder, HTML, Hidden
+from django.forms import ModelForm, DateInput, TextInput
 
 from home.models import ClubDetails, Expenses
 
@@ -33,8 +33,9 @@ class DetailsForm(ModelForm):
         }
 
 
-class ExpenseForm(ModelForm):
+class ExpensesForm(ModelForm):
 
+    """
     helper = FormHelper()
     helper.label_class = 'col-sm-3'
     helper.field_class = 'col-sm-9'
@@ -59,4 +60,12 @@ class ExpenseForm(ModelForm):
         model = Expenses
         widgets = {
             'date': DateInput(format='%Y-%m-%d')
+        }
+    """
+    class Meta:
+        model = Expenses
+        fields = '__all__'
+        widgets = {
+            'particulars': TextInput(),
+            'date': DateInput(attrs={'class': 'input-sm date-input', 'placeholder': 'YYY-MM-DD'}),
         }
