@@ -4,6 +4,11 @@
 {% load crispy_forms_tags crispy_forms_filters %}
 
 {% block normal_content %}
+    <div class="row">
+        <div class="col-sm-12">
+            <a href="{% url 'print_function' what='admin_dashboard'  %}" target="_blank" class="btn btn-sm btn-round btn-success" ><i class="fa fa-print" ></i> Print <i class="fa fa-file-pdf-o" ></i></a>
+        </div>
+    </div>
 
     <div class="row" style="border-bottom: 1px solid gray">
         <div class="col-sm-12 col-md-4 col-xs-12 col-lg-4 dashboard">
