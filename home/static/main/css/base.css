@@ -234,3 +234,7 @@ table.dashboard-tables.contributions tbody tr:last-child{
     text-align: right;
     border-top: 2px solid red;
 }
+.btn.long-text {
+  white-space: normal;
+    font-size: 12px;
+}
