@@ -67,5 +67,5 @@ class ExpensesForm(ModelForm):
         fields = '__all__'
         widgets = {
             'particulars': TextInput(),
-            'date': DateInput(attrs={'class': 'input-sm date-input', 'placeholder': 'YYY-MM-DD'}),
+            'date': DateInput(format='%Y-%m-%d', attrs={'class': 'input-sm date-input', 'placeholder': 'YYY-MM-DD'}),
         }

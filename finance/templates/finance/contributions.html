@@ -43,11 +43,11 @@
             {% if my_contributions %}
                 <ul class="contributions_list">
                     {% for cont in my_contributions %}
-                        <li>{{ cont.total }} UGX | {{ cont.contribution_date|date:"M, D d, Y" }}</li>
+                        <li>{{ cont.total|floatformat:0 }} UGX | {{ cont.contribution_date|date:"M, D d, Y" }}</li>
                     {% endfor %}
                 </ul>
 
-                <i style="color: red">Total Contributions Ever : UGX {{ my_total.total_sum }}</i>
+                <i style="color: red">Total Contributions Ever : UGX {{ my_total.total_sum|floatformat:0 }}</i>
             {% else %}
                 <h5 style="color: black">No new contributions</h5>
             {% endif %}

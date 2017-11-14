@@ -38,12 +38,12 @@
                     <td>{{ c.user }}</td>
                     <td>{{ c.loan_date }}</td>
                     <td>{{ c.loan_duration }}</td>
-                    <td>{{ c.loan_amount }}</td>
-                    <td>{{ c.loan_interest }}</td>
-                    <td>{{ c.total_amount }}</td>
-                    <td>{{ c.amount_paid }}</td>
-                    <td>{{ c.outstanding_balance }}</td>
-                    <td>{{ c.profit_earned }}</td>
+                    <td>{{ c.loan_amount|floatformat:0 }}</td>
+                    <td>{{ c.loan_interest|floatformat:0 }}</td>
+                    <td>{{ c.total_amount|floatformat:0 }}</td>
+                    <td>{{ c.amount_paid|floatformat:0 }}</td>
+                    <td>{{ c.outstanding_balance|floatformat:0 }}</td>
+                    <td>{{ c.profit_earned|floatformat:0 }}</td>
                     <td>{{ c.loan_status }}</td>
                 </tr>
             {% endfor %}

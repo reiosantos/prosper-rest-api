@@ -42,10 +42,10 @@
                     <td>{{ c.project_name }}</td>
                     <td>{{ c.start_date }}</td>
                     <td>{{ c.project_age }}</td>
-                    <td>{{ c.total_capital_invested }}</td>
-                    <td>{{ c.amount_returned }}</td>
-                    <td>{{ c.interest }}</td>
-                    <td>{{ c.loss }}</td>
+                    <td>{{ c.total_capital_invested|floatformat:0 }}</td>
+                    <td>{{ c.amount_returned|floatformat:0 }}</td>
+                    <td>{{ c.interest|floatformat:0 }}</td>
+                    <td>{{ c.loss|floatformat:0 }}</td>
                     <td>{{ c.project_status }}</td>
                     <td>{{ c.project_rating }}</td>
                 </tr>

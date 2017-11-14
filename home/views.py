@@ -52,11 +52,12 @@ def index(request):
     loan_rate = 0
 
     i_form = InterestForm()
-    expenses_formset = modelformset_factory(Expenses,
+    expenses_form = modelformset_factory(Expenses,
                                             ExpensesForm,
                                             extra=no_of_forms, can_order=False,
                                             can_delete=False, formset=RequiredFormset)
-    admin_expenses_formset = expenses_formset(queryset=Expenses.objects.none())
+
+    admin_expenses_formset = expenses_form(queryset=Expenses.objects.all())
 
     if request.POST:
         interest = request.POST.get('hidden_interest', False)
@@ -81,7 +82,16 @@ def index(request):
                 error['form'] = 'details'
         else:
             #to handle expense formset submissions
-            pass
+            admin_expenses_formset = expenses_form(request.POST, request.FILES)
+            if admin_expenses_formset.is_valid():
+                Expenses.objects.all().delete()
+
+                for form in admin_expenses_formset.forms:
+                    if form.is_valid():
+                        form.save()
+                else:
+                    admin_expenses_formset = expenses_form(queryset=Expenses.objects.all())
+
 
     ir = Interest.objects.all()
     if ir and ir.count() > 0:
@@ -405,6 +415,11 @@ def cash_at_hand():
     variance = (actual_banked + actual_unbanked) - actual_expected
 
     return actual_banked, actual_unbanked, actual_expected, variance
+
+
+def expenses(save=False):
+
+    return
 
 
 def calculate_income_statement():

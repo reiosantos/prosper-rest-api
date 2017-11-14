@@ -24,9 +24,9 @@
                 <tr>
                     <td data="{{ c.id }}" >{{ c.user.account_id }}</td>
                     <td>{{ c.user }}</td>
-                    <td>{{ c.deposit }}</td>
-                    <td>{{ c.penalty }}</td>
-                    <td>{{ c.total }}</td>
+                    <td>{{ c.deposit|floatformat:0 }}</td>
+                    <td>{{ c.penalty|floatformat:0 }}</td>
+                    <td>{{ c.total|floatformat:0 }}</td>
                     <td>{{ c.contribution_date }}</td>
                     <td data="{{ c.deposit_slip }}" >{{ c.deposit_slip }}</td>
                 </tr>

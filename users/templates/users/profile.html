@@ -62,13 +62,13 @@
                 </div>
                 <div class="x_content">
                     <ul>
-                        <li>Monthly Contribution: <span>{{ summary.monthly }} UGX</span></li>
-                        <li>Contribution this Month: <span>{{ summary.this_month }} UGX</span></li>
-                        <li>Unpaid Bal. this month: <span>{{ summary.balance }} UGX</span></li>
-                        <li>Total Unpaid Balances.: <span>{{ summary.total_balance }} UGX</span></li>
-                        <li>Total Contibutions to-date: <span>{{ summary.ever_made }} UGX</span></li>
-                        <li>Expected Amount to-date: <span>{{ summary.expected }} UGX</span></li>
-                        <li style="color: blue">Your Balance with us: <span>{{ summary.excess }} UGX</span></li>
+                        <li>Monthly Contribution: <span>{{ summary.monthly|floatformat:0 }} UGX</span></li>
+                        <li>Contribution this Month: <span>{{ summary.this_month|floatformat:0 }} UGX</span></li>
+                        <li>Unpaid Bal. this month: <span>{{ summary.balance|floatformat:0 }} UGX</span></li>
+                        <li>Total Unpaid Balances.: <span>{{ summary.total_balance|floatformat:0 }} UGX</span></li>
+                        <li>Total Contibutions to-date: <span>{{ summary.ever_made|floatformat:0 }} UGX</span></li>
+                        <li>Expected Amount to-date: <span>{{ summary.expected|floatformat:0 }} UGX</span></li>
+                        <li style="color: blue">Your Balance with us: <span>{{ summary.excess|floatformat:0 }} UGX</span></li>
                     </ul>
                     <div class="row" style="overflow:auto;">
                         <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
@@ -82,7 +82,7 @@
                                 <tbody>
                                 {% if contributions %}
                                     {% for contribution in contributions %}
-                                         <tr><td>{{ contribution.contribution_date|date:'Y M' }}</td><td>{{ contribution.deposit }}</td><td>{{ contribution.total }}</td></tr>
+                                         <tr><td>{{ contribution.contribution_date|date:'Y M' }}</td><td>{{ contribution.deposit|floatformat:0 }}</td><td>{{ contribution.total|floatformat:0 }}</td></tr>
                                     {% endfor %}
                                 {% else %}
                                     <tr>
@@ -200,11 +200,11 @@
                         <ul>
                             <li>Loan Date: <span>{{ on_loan.loan_date }}</span></li>
                             <li>Duration (months): <span>{{ on_loan.loan_duration }}</span></li>
-                            <li>Amount: <span>{{ on_loan.loan_amount }} UGX</span></li>
-                            <li>Interest.: <span>{{ on_loan.loan_interest }} UGX</span></li>
-                            <li>Total Amount: <span>{{ on_loan.total_amount }} UGX</span></li>
-                            <li>Amount returned: <span>{{ on_loan.amount_paid }} UGX</span></li>
-                            <li>Loan Balance: <span>{{ on_loan.outstanding_balance }} UGX</span></li>
+                            <li>Amount: <span>{{ on_loan.loan_amount|floatformat:0 }} UGX</span></li>
+                            <li>Interest.: <span>{{ on_loan.loan_interest|floatformat:0 }} UGX</span></li>
+                            <li>Total Amount: <span>{{ on_loan.total_amount|floatformat:0 }} UGX</span></li>
+                            <li>Amount returned: <span>{{ on_loan.amount_paid|floatformat:0 }} UGX</span></li>
+                            <li>Loan Balance: <span>{{ on_loan.outstanding_balance|floatformat:0 }} UGX</span></li>
                         </ul>
                         <div class="row" style="overflow:auto;">
                             <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
@@ -217,7 +217,7 @@
                                     <tbody>
                                     {% if on_pay %}
                                         {% for pay in on_pay %}
-                                             <tr><td>{{ pay.pay_date }}</td><td>{{ pay.paid_amount }}</td></tr>
+                                             <tr><td>{{ pay.pay_date }}</td><td>{{ pay.paid_amount|floatformat:0 }}</td></tr>
                                         {% endfor %}
                                     {% else %}
                                         <tr>
