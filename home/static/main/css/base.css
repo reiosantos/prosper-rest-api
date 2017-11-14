@@ -47,7 +47,7 @@ input:focus{
     padding-left: 10px !important;
 	border-top: 1px solid #E0E0E0;
 }
-.table tbody tr:nth-child(2n) {
+.table:not(.no-style) tbody tr:nth-child(2n) {
 	/*background-color: #9FAFD1;*/
 	background-color: rgba(87, 168, 129, 0.22);
 	opacity: 0.8;
@@ -226,6 +226,7 @@ td ul.errorlist li {
 }
 table.dashboard-tables{
     margin: 5px 0 5px 0;
+    text-align: right;
 }
 table.dashboard-tables.contributions tbody tr:last-child{
     background: rgba(232,232,232,0.31);
