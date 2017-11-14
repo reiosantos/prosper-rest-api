@@ -1,0 +1,38 @@
+<table class="table dashboard-tables table-bordered table-striped">
+    <thead>
+    <th>Start Date</th>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Amount Invested (UGX)</th>
+    <th>Total Recouped (UGX)</th>
+    <th>Interest (UGX)</th>
+    </thead>
+    <tbody>
+    {% if all_investments %}
+        {% for i in all_investments %}
+            {% if perms.finance.can_modify_investment %}
+                {% ifequal i.project_status "cancelled" %}
+                    <tr data-href='{% url "investments_update" i.id %}' class="not_approved" >
+                        {% else %}
+                    <tr data-href='{% url "investments_update" i.id %}' >
+                {% endifequal %}
+            {% else %}
+            {% ifequal i.project_status "cancelled" %}
+                <tr class="not_approved" >
+                    {% else %}
+                <tr>
+            {% endifequal %}
+            {% endif %}
+        <td>{{ i.start_date|date:'N d, Y' }}</td>
+        <td>{{ i.project_name }}</td>
+        <td>{{ i.description }}</td>
+        <td>{{ i.total_capital_invested|floatformat:0 }}</td>
+        <td>{{ i.amount_returned|floatformat:0 }}</td>
+        <td>{{ i.interest|floatformat:0 }}</td>
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr><td colspan="4">No ongoing Investments</td></tr>
+    {% endif %}
+    </tbody>
+</table>

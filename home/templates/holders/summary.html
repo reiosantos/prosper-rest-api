@@ -1,0 +1,38 @@
+
+<ul>
+    <li>Start Date:
+        <button data-toggle="modal" data-target="#detailModal" class="btn btn-primary btn-xs" >
+            <i class=" fa fa-edit" ></i></button>
+        <span>{{ start_date|date:'l dS, N Y' }} </span>
+    </li>
+    <li>Today: <span>{{ today|date:'l dS, N Y' }}</span></li>
+    <li>Months in operation: <span>{{ months_in_operation }}</span></li>
+    <li>Total Membership: <span>{{ total_membership }}</span></li>
+    <li>Monthly Contribution:
+        <button id="monthly_button" data-toggle="modal" data-target="#detailModal" class="btn btn-success btn-xs" >
+            <i class=" fa fa-edit" ></i></button>
+        <span>{{ monthly_rate|floatformat:0 }} UGX</span>
+    </li>
+    <li>Loan Rate:
+        <button id="interest_button" data-toggle="modal" data-target="#interestModal" class="btn btn-success btn-xs" >
+            <i class=" fa fa-edit" ></i></button>
+        <span>{{ loan_rate|floatformat:0 }} %</span>
+    </li>
+    <li>Expected Contributions: <span>{{ expected_total_contributions|floatformat:0 }} UGX</span></li>
+</ul>
+
+{% if message %} <span class="label-success">{{ message }}</span>{% endif %}
+
+<hr>
+
+<b style="font-size: 16px; color: rgba(32,89,188,0.79)">Cash At Hand</b> <ul class="cash">
+    <li>Expected Total: <span>{{ expected_total_cash_at_hand|floatformat:0 }} UGX</span></li>
+    <li>Actual Banked Bal.: <span>{{ banked_cash_at_hand|floatformat:0 }} UGX</span></li>
+    <li>Unbanked Bal: <span>{{ unbanked_cash_at_hand|floatformat:0 }} UGX</span></li>
+    <li class="list-seperator"><hr></li>
+    {% if variance and variance < 0 %}
+        <li style="color: red; font-weight: bolder;">Variance: <span>{{ variance|floatformat:0 }} UGX</span></li>
+    {% else %}
+        <li>Variance: <span>{{ variance|floatformat:0 }} UGX</span></li>
+    {% endif %}
+</ul>

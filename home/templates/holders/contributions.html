@@ -1,0 +1,35 @@
+
+<table class="table dashboard-tables contributions table-bordered table-striped">
+    <thead>
+    <th>Name</th>
+    <th>Membership Status</th>
+    <th>Total Paid ( UGX )</th>
+    <th>Total Outstanding ( UGX )</th>
+    </thead>
+    <tbody>
+    {% if all_contributions %}
+        {% for c in all_contributions %}
+            {% if not forloop.last %}
+                <tr>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.status }}</td>
+                    <td>{{ c.paid|floatformat:0 }}</td>
+                    <td>{{ c.balance|floatformat:0 }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+
+        {% with all_contributions|last as fin %}
+            <tr>
+                <td>Totals</td>
+                <td></td>
+                <td>{{ fin.total_paid|floatformat:0 }}</td>
+                <td>{{ fin.total_balance|floatformat:0 }}</td>
+            </tr>
+        {% endwith %}
+
+    {% else %}
+        <tr><td colspan="4">No Contribution</td></tr>
+    {% endif %}
+    </tbody>
+</table>

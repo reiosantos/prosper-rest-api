@@ -1,0 +1,35 @@
+
+<table class="table no-style dashboard-tables table-bordered table-striped">
+    <thead>
+    <th>Description</th>
+    <th>Debit (UGX)</th>
+    <th>Credit (UGX)</th>
+    <th>Total Expected (UGX)</th>
+    </thead>
+    <tbody>
+    {% if income_statements %}
+        {% for year, var_list in income_statements.items %}
+            <tr><td colspan="4" style="text-align: center; background-color: rgba(73,115,180,0.55); font-weight: bolder">{{ year }}</td></tr>
+            {% for record in var_list %}
+                {% if not forloop.last %}
+                    <tr>
+                        <td>{{ record.description }}</td>
+                        <td>{{ record.debit|floatformat:0 }}</td>
+                        <td>{{ record.credit|floatformat:0 }}</td>
+                        <td>{{ record.total|floatformat:0 }}</td>
+                    </tr>
+                {% else %}
+                    <tr style="border-top: solid 2px #d9534f;">
+                        <td style="background: #d9534f; color: #fff; font-weight: bolder;">Totals</td>
+                        <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_debts }}</td>
+                        <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_credit }}</td>
+                        <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_cash }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        <tr><td colspan="4">Empty..........!!</td></tr>
+    {% endif %}
+    </tbody>
+</table>

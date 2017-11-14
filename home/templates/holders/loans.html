@@ -1,0 +1,29 @@
+
+<table class="table dashboard-tables table-bordered table-striped">
+    <thead>
+    <th>Disperse Date</th>
+    <th>Name</th>
+    <th>Loan Amount (UGX)</th>
+    <th>Total (UGX)</th>
+    <th>Repaid (UGX)</th>
+    <th>Balance (UGX)</th>
+    <th>Profit Earned (UGX)</th>
+    </thead>
+    <tbody>
+    {% if all_loans %}
+        {% for l in all_loans %}
+            <tr>
+                <td>{{ l.loan_date|date:'N d, Y' }}</td>
+                <td>{{ l.user }}</td>
+                <td>{{ l.loan_amount|floatformat:0 }}</td>
+                <td>{{ l.total_amount|floatformat:0 }}</td>
+                <td>{{ l.amount_paid|floatformat:0 }}</td>
+                <td>{{ l.outstanding_balance|floatformat:0 }}</td>
+                <td>{{ l.profit_earned|floatformat:0 }}</td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr><td colspan="5">No Loans granted yet</td></tr>
+    {% endif %}
+    </tbody>
+</table>
