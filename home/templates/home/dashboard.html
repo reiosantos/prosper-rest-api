@@ -17,43 +17,8 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <ul>
-                        <li>Start Date:
-                            <button data-toggle="modal" data-target="#detailModal" class="btn btn-primary btn-xs" >
-                            <i class=" fa fa-edit" ></i></button>
-                            <span>{{ start_date|date:'l dS, N Y' }} </span>
-                        </li>
-                        <li>Today: <span>{{ today|date:'l dS, N Y' }}</span></li>
-                        <li>Months in operation: <span>{{ months_in_operation }}</span></li>
-                        <li>Total Membership: <span>{{ total_membership }}</span></li>
-                        <li>Monthly Contribution:
-                            <button id="monthly_button" data-toggle="modal" data-target="#detailModal" class="btn btn-success btn-xs" >
-                            <i class=" fa fa-edit" ></i></button>
-                            <span>{{ monthly_rate }} UGX</span>
-                        </li>
-                        <li>Loan Rate:
-                            <button id="interest_button" data-toggle="modal" data-target="#interestModal" class="btn btn-success btn-xs" >
-                            <i class=" fa fa-edit" ></i></button>
-                            <span>{{ loan_rate }} %</span>
-                        </li>
-                        <li>Expected Contributions: <span>{{ expected_total_contributions }} UGX</span></li>
-                    </ul>
 
-                    {% if message %} <span class="label-success">{{ message }}</span>{% endif %}
-
-                    <hr>
-                    <b style="font-size: 16px; color: rgba(32,89,188,0.79)">Cash At Hand</b>
-                    <ul class="cash">
-                        <li>Expected Total: <span>{{ expected_total_cash_at_hand }} UGX</span></li>
-                        <li>Actual Banked Bal.: <span>{{ banked_cash_at_hand }} UGX</span></li>
-                        <li>Unbanked Bal: <span>{{ unbanked_cash_at_hand }} UGX</span></li>
-                        <li class="list-seperator"><hr></li>
-                        {% if variance and variance < 0 %}
-                            <li style="color: red; font-weight: bolder;">Variance: <span>{{ variance }} UGX</span></li>
-                        {% else %}
-                            <li>Variance: <span>{{ variance }} UGX</span></li>
-                        {% endif %}
-                    </ul>
+                    {% include 'holders/summary.html' %}
 
                     <!-- Modal -->
                     <div class="modal fade" id="detailModal" tabindex="-1" role="dialog"
@@ -118,191 +83,40 @@
                 <li><a href="#contributions" data-toggle="tab">Contributions</a></li>
                 <li><a href="#loans" data-toggle="tab">Loans</a></li>
                 <li><a href="#investments" data-toggle="tab">Investments</a></li>
+                <li><a href="#income_statement" data-toggle="tab">Income Statement</a></li>
             </ul>
-            <div class="tab-content" style="height: 100%; overflow-y: auto;">
+            <div class="tab-content" style="height: 100%; max-height: 500px; overflow-y: auto;">
 
                 <div class="tab-pane fade in active" style="margin-top: 5px;" id="expenses">
 
-                    <form style="overflow: auto" class="form-horizontal admin_expense_form item" id="admin_expense_form" enctype="multipart/form-data" action="" method="post" >
-
-                        <div class="form-group">
-                            <div class="controls col-sm-12 admin_expense_formset">
-
-                            {% if perms.home.can_modify_expenses and user.is_authenticated and expenses_forms %}
-                                <a class="add-row btn-xs btn-success btn-round pull-right" id="add" href="javascript:void(0)"> <i class="fa fa-plus"></i> add expense</a>
-                            {% endif %}
-                                <fieldset>
-                                    <legend> Expenses</legend>
-
-                                    <table class="table dashboard-tables table-bordered table-striped" cellspacing="0" >
-                                        <thead>
-                                            <th></th>
-                                            <th>Date</th>
-                                            <th>Particular</th>
-                                            <th>Amount Invested (UGX)</th>
-                                            <th>Recouped(UGX)</th>
-                                            <th>Interest (UGX)</th>
-                                            </thead>
-                                            <tbody>
-
-                                            {% if expenses_forms %}
-                                                {% for form in expenses_forms %}
-                                                    <tr class="form-set" >
-                                                        <td>
-                                                            <span class="pull-right">
-                                                                <a class="delete-row btn btn-xs btn-danger delete" href="javascript:void(0)"><i class="fa fa-trash"></i> &times;</a>
-                                                            </span>
-                                                        </td>
-                                                        <td>{{ form.date }}{{ form.date.errors }}</td>
-                                                        <td>{{ form.particulars }}{{ form.particulars.errors }}</td>
-                                                        <td>{{ form.invested }}{{ form.invested.errors }}</td>
-                                                        <td>{{ form.recouped }}{{ form.recouped.errors }}</td>
-                                                        <td>{{ form.interest }}{{ form.interest.errors }}</td>
-                                                        {{ form.id }}
-
-                                                        {% csrf_token %}
-                                                    </tr>
-                                                {% endfor %}
-                                            {% endif %}
-
-                                            </tbody>
-                                        </table>
-                                    </fieldset>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="controls col-sm-12">
-                                    {% if perms.home.can_modify_expenses and user.is_authenticated and expenses_forms %}
-                                        <div class="form-group">
-                                            <div class="aab controls col-sm-3"></div>
-                                            <div class="controls col-sm-9">
-                                                <input name="submit" value="Save Investment" class="btn btn-primary" id="submit-id-submit" type="submit">
-                                                <input name="cancel" value="Clear" class="btn" id="button-id-cancel" type="reset">
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            {{ expenses_forms.management_form }}
-                        </form>
+                    {% include 'holders/expenses.html' %}
 
                 </div>
 
                 <div class="tab-pane fade" id="contributions">
 
-                    <table class="table dashboard-tables contributions table-bordered table-striped">
-                        <thead>
-                            <th>Name</th>
-                            <th>Membership Status</th>
-                            <th>Total Paid ( UGX )</th>
-                            <th>Total Outstanding ( UGX )</th>
-                        </thead>
-                        <tbody>
-                        {% if all_contributions %}
-                            {% for c in all_contributions %}
-                                {% if not forloop.last %}
-                                    <tr>
-                                        <td>{{ c.name }}</td>
-                                        <td>{{ c.status }}</td>
-                                        <td>{{ c.paid }}</td>
-                                        <td>{{ c.balance }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            {% with all_contributions|last as fin %}
-                                <tr>
-                                    <td>Totals</td>
-                                    <td></td>
-                                    <td>{{ fin.total_paid }}</td>
-                                    <td>{{ fin.total_balance }}</td>
-                                </tr>
-                            {% endwith %}
-                        {% else %}
-                             <tr><td colspan="4">No Contribution</td></tr>
-                        {% endif %}
-                        </tbody>
-                    </table>
+                    {% include 'holders/contributions.html' %}
 
                 </div>
 
                 <div class="tab-pane fade" id="loans">
 
-                    <table class="table dashboard-tables table-bordered table-striped">
-                        <thead>
-                            <th>Disperse Date</th>
-                            <th>Name</th>
-                            <th>Loan Amount (UGX)</th>
-                            <th>Total (UGX)</th>
-                            <th>Repaid (UGX)</th>
-                            <th>Balance (UGX)</th>
-                            <th>Profit Earned (UGX)</th>
-                        </thead>
-                        <tbody>
-                        {% if all_loans %}
-                            {% for l in all_loans %}
-                                <tr>
-                                    <td>{{ l.loan_date|date:'N d, Y' }}</td>
-                                    <td>{{ l.user }}</td>
-                                    <td>{{ l.loan_amount }}</td>
-                                    <td>{{ l.total_amount }}</td>
-                                    <td>{{ l.amount_paid }}</td>
-                                    <td>{{ l.outstanding_balance }}</td>
-                                    <td>{{ l.profit_earned }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                             <tr><td colspan="5">No Loans granted yet</td></tr>
-                        {% endif %}
-                        </tbody>
-                    </table>
+                    {% include 'holders/loans.html' %}
 
                 </div>
 
                 <div class="tab-pane fade" id="investments">
 
-                    <table class="table dashboard-tables table-bordered table-striped">
-                        <thead>
-                            <th>Start Date</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Amount Invested (UGX)</th>
-                            <th>Total Recouped (UGX)</th>
-                            <th>Interest (UGX)</th>
-                        </thead>
-                        <tbody>
-                        {% if all_investments %}
-                            {% for i in all_investments %}
-                                {% if perms.finance.can_modify_investment %}
-                                    {% ifequal i.project_status "cancelled" %}
-                                        <tr data-href='{% url "investments_update" i.id %}' class="not_approved" >
-                                            {% else %}
-                                        <tr data-href='{% url "investments_update" i.id %}' >
-                                    {% endifequal %}
-                                {% else %}
-                                    {% ifequal i.project_status "cancelled" %}
-                                        <tr class="not_approved" >
-                                            {% else %}
-                                        <tr>
-                                    {% endifequal %}
-                                {% endif %}
-
-                                    <td>{{ i.start_date|date:'N d, Y' }}</td>
-                                    <td>{{ i.project_name }}</td>
-                                    <td>{{ i.description }}</td>
-                                    <td>{{ i.total_capital_invested }}</td>
-                                    <td>{{ i.amount_returned }}</td>
-                                    <td>{{ i.interest }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                             <tr><td colspan="4">No ongoing Investments</td></tr>
-                        {% endif %}
-                        </tbody>
-                    </table>
+                    {% include 'holders/investments.html' %}
 
                 </div>
+
+                <div class="tab-pane fade" id="income_statement">
+
+                    {% include 'holders/income_statement.html' %}
+
+                </div>
+
             </div>
 
         </div>
