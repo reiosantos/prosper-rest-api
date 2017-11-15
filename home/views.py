@@ -2,11 +2,14 @@ from datetime import date
 from decimal import Decimal
 
 from dateutil import relativedelta
+from django.core.exceptions import PermissionDenied
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
 from django.forms import modelformset_factory
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.views import View
 from django.views.decorators.http import require_GET, require_http_methods
 
 from finance.forms import InterestForm
@@ -92,7 +95,6 @@ def index(request):
                 else:
                     admin_expenses_formset = expenses_form(queryset=Expenses.objects.all())
 
-
     ir = Interest.objects.all()
     if ir and ir.count() > 0:
         ir = ir[0]
@@ -125,6 +127,7 @@ def index(request):
                       'all_contributions': all_contributions(monthly_rate, today),
                       'all_loans': all_loans(),
                       'all_investments': all_investments(),
+                      'income_statements': calculate_income_statement(),
                   })
 
 
@@ -417,10 +420,75 @@ def cash_at_hand():
     return actual_banked, actual_unbanked, actual_expected, variance
 
 
-def expenses(save=False):
-
-    return
-
-
 def calculate_income_statement():
-    pass
+    data = {
+        '2015':[
+            {'description':'contributions', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
+            {'description':'expenses', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
+            {'description':'recouped', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
+            {'description':'Bank interest', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
+            {'total_debts':'12000000', 'total_credit':'230000', 'total_cash':'23000000' },
+        ],
+        '2016': [
+            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
+        ],
+        '2017': [
+            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
+        ],
+        '2018': [
+            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
+        ],
+        '2019': [
+            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
+            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
+        ],
+    }
+
+    """
+    contributions = Contribution.objects.annotate(year=TruncYear('contribution_date')) \
+                    .values('year').annotate(paid=Sum('total')).order_by('-year')
+    """
+
+    return data
+
+
+class PrintFunction(View):
+
+    def get(self, request, what=None):
+
+        if not request.user.is_authenticated():
+            return redirect('login_user')
+
+        if not what:
+            return HttpResponse('Nothing to print')
+
+        response = 'Server Could not process your request due to... Malformed URL'
+
+        if what == 'admin_dashboard':
+            if not request.user.user_type == "admin":
+                raise PermissionDenied('permission denied')
+
+            response = 'preparing to print.... the dashboard'
+
+        elif what == 'user_profile':
+            response = 'Preparing to print your ugly profile'
+
+        return HttpResponse(response)
+
+    def post(self, request, what=None):
+        return redirect('print_function')
