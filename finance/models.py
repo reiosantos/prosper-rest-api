@@ -17,7 +17,7 @@ from users.models import User
 
 class Contribution(models.Model):
 
-    user = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=get_id, to_field='account_id')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=get_id, to_field='account_id')
     contribution_date = models.DateTimeField('deposit date', auto_now=False, default=timezone.now)
     deposit = models.DecimalField('deposit', max_digits=11, default=0, blank=False, decimal_places=2,
                                   help_text='your contribution this month')
@@ -52,8 +52,7 @@ class Investment(models.Model):
     )
     create_date = models.DateTimeField(u'Created on', auto_now=False, default=timezone.now)
     project_name = models.CharField(ugettext_lazy('Project name'), max_length=255, null=False, default='', blank=False)
-    project_manager = models.ForeignKey(User, related_name='project_man', on_delete=models.SET_DEFAULT,
-                                        default=get_id, to_field='account_id')
+    project_manager = models.ForeignKey(User, related_name='project_man', on_delete=models.CASCADE, default=get_id, to_field='account_id')
     project_team = models.ManyToManyField(User, verbose_name='team members', blank=True, related_name='team_members',
                                           help_text='Select specific members for this project.')
     start_date = models.DateTimeField('Project start date', auto_now=False, default=timezone.now)
@@ -87,7 +86,7 @@ class Investment(models.Model):
 
 class InvestmentFinancialStatement(models.Model):
 
-    investment = models.ForeignKey(Investment, on_delete=models.SET_DEFAULT, default=get_id,
+    investment = models.ForeignKey(Investment, on_delete=models.CASCADE, default=get_id,
                                    help_text='select the investment under progres')
     date = models.DateTimeField(u'Acttivity date', auto_now=False, default=timezone.now,
                                 help_text='date of activity instantiation')
@@ -130,8 +129,7 @@ class Loan(models.Model):
     )
     loan_date = models.DateTimeField('loan date', auto_now=False, default=timezone.now,
                                      help_text='loan start date')
-    user = models.ForeignKey(User, to_field='account_id', on_delete=models.SET_DEFAULT,
-                             default=get_id, help_text='user taking loan')
+    user = models.ForeignKey(User, to_field='account_id', on_delete=models.CASCADE, default=get_id, help_text='user taking loan')
     loan_duration = models.DecimalField('Loan Duration(months)', max_digits=3, decimal_places=1, default=1.0,
                                         validators=[
                                             MinValueValidator(Decimal('00.00')),
@@ -204,7 +202,7 @@ class Loan(models.Model):
 class LoanPayment(models.Model):
 
     pay_date = models.DateTimeField('payment date', auto_now=False, default=timezone.now)
-    loan = models.ForeignKey(Loan, on_delete=models.SET_DEFAULT, default=get_id, help_text='loan being repayed')
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE, help_text='loan being repayed')
     paid_amount = models.DecimalField('Amount paid.', max_digits=12, decimal_places=2, default=0,
                                       validators=[
                                           MinValueValidator(Decimal('00.00')),

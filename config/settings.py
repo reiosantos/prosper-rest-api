@@ -91,6 +91,8 @@ SERVER_EMAIL = COMPANY_EMAIL
 
 MEDIA_ROOT = os.path.join(MAIN_HOME_DIR, 'uploads')
 
+REPORT_ROOT = os.path.join(MAIN_HOME_DIR, 'reports')
+
 MEDIA_URL = '/uploads/'
 
 LOGIN_URL = 'login_user'

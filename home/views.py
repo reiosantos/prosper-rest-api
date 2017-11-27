@@ -1,3 +1,4 @@
+import os
 from datetime import date
 from dateutil import relativedelta
 from decimal import Decimal
@@ -16,6 +17,7 @@ from django.views import View
 from django.views.decorators.http import require_GET, require_http_methods
 from weasyprint import HTML
 
+from config.settings import REPORT_ROOT
 from finance.forms import InterestForm
 from finance.models import Interest, Contribution, Loan, Investment
 from home.forms import DetailsForm, ExpensesForm
@@ -480,7 +482,6 @@ class PrintFunction(View):
 
         if not what:
             raise Resolver404('Not Found')
-        #env = Environment(loader=django.DjangoTemplates)
 
         if what == 'admin_dashboard':
             if not request.user.user_type == "admin":
@@ -501,16 +502,15 @@ class PrintFunction(View):
                 out_put = template.render(temp_vars)
 
             except TemplateDoesNotExist:
-                raise Resolver404('User Tempolate Not Found')
+                raise Resolver404('User Template Not Found')
 
         else:
             raise Resolver404('URL Not Understood')
 
         try:
             name = 'report_' + get_id() + '.pdf'
-            HTML(string=out_put).write_pdf(name)
+            HTML(string=out_put).write_pdf(os.path.join(REPORT_ROOT, name))
 
             return HttpResponse(out_put)
-        except Exception as e:
-            return HttpResponse(e.message)
+        except Exception:
             raise Resolver404('No preview page found')
