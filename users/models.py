@@ -6,8 +6,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from config import settings
+from home.support.support_functions import get_id
 from home.support.validators import FileValidator
-from support.support_functions import get_id
 
 
 class User(AbstractUser):

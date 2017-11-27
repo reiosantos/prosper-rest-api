@@ -20,7 +20,7 @@ from finance.forms import InterestForm
 from finance.models import Interest, Contribution, Loan, Investment
 from home.forms import DetailsForm, ExpensesForm
 from home.models import ClubDetails, Expenses
-from home.support.support_functions import RequiredFormset
+from home.support.support_functions import RequiredFormset, get_id
 from users.models import User
 
 
@@ -507,9 +507,9 @@ class PrintFunction(View):
             raise Resolver404('URL Not Understood')
 
         try:
-            random_time = date.ctime()
+            name = 'report_' + get_id() + '.pdf'
+            HTML(string=out_put).write_pdf(name)
 
-            HTML(string=out_put).write_pdf('report_' + random_time + '.pdf')
             return HttpResponse(out_put)
         except Exception as e:
             return HttpResponse(e.message)
