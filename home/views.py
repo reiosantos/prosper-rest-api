@@ -1,16 +1,20 @@
 from datetime import date
+from dateutil import relativedelta
 from decimal import Decimal
 
-from dateutil import relativedelta
 from django.core.exceptions import PermissionDenied
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.template import TemplateDoesNotExist
+from django.template.loader import get_template
+from django.urls import Resolver404
 from django.utils import timezone
 from django.views import View
 from django.views.decorators.http import require_GET, require_http_methods
+from weasyprint import HTML
 
 from finance.forms import InterestForm
 from finance.models import Interest, Contribution, Loan, Investment
@@ -475,20 +479,38 @@ class PrintFunction(View):
             return redirect('login_user')
 
         if not what:
-            return HttpResponse('Nothing to print')
-
-        response = 'Server Could not process your request due to... Malformed URL'
+            raise Resolver404('Not Found')
+        #env = Environment(loader=django.DjangoTemplates)
 
         if what == 'admin_dashboard':
             if not request.user.user_type == "admin":
                 raise PermissionDenied('permission denied')
 
-            response = 'preparing to print.... the dashboard'
+            temp_vars = {'data': 'my name data'}
+            try:
+                template = get_template('holders/print/dashboard.html')
+                out_put = template.render(temp_vars)
+
+            except TemplateDoesNotExist:
+                raise Resolver404('Admin Template Not Found')
 
         elif what == 'user_profile':
-            response = 'Preparing to print your ugly profile'
+            temp_vars = {'data': 'my name data'}
+            try:
+                template = get_template('holders/print/user_profile.html')
+                out_put = template.render(temp_vars)
 
-        return HttpResponse(response)
+            except TemplateDoesNotExist:
+                raise Resolver404('User Tempolate Not Found')
 
-    def post(self, request, what=None):
-        return redirect('print_function')
+        else:
+            raise Resolver404('URL Not Understood')
+
+        try:
+            random_time = date.ctime()
+
+            HTML(string=out_put).write_pdf('report_' + random_time + '.pdf')
+            return HttpResponse(out_put)
+        except Exception as e:
+            return HttpResponse(e.message)
+            raise Resolver404('No preview page found')

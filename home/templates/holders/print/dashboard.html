@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Summary</title>
+    <style>
+        body{
+            padding: 5px;
+            width: 95%;
+            margin: 10px auto;
+            clear: both;
+            display: table;
+        }
+        table{
+            height: auto;
+            padding: 3px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td{
+            vertical-align: top;
+            padding: 3px;
+            border: 0;
+        }
+        img {
+            vertical-align: middle;
+            border: 0;
+            page-break-inside: avoid;
+            width: 13.6%;
+        }
+    </style>
+</head>
+<body>
+
+<table>
+    <tr>
+        <td colspan="2" style="text-align: center">
+            <img alt="Logo" src="{{ MEDIA_URL }}logo-web.png" class="img" />
+        </td>
+    </tr>
+    <tr><td colspan="2" style="font-size: 18px; font-weight: bolder; "><span style="float: left;">Today : 2017-11-22 {{ today|date:'l dS, N Y' }}</span><span style="float: right; font-weight: lighter; font-style: italic">printed by : @{{ user }}</span></td></tr>
+    <tr>
+        <td style="padding-right: 50px">
+            <table border="1">
+                <tr><td style="text-align: left;">Start Date</td><td style="text-align: right;">12-22-1029 {{ start_date|date:'l dS, N Y' }} </td></tr>
+                <tr><td style="text-align: left;">Months in operation: </td><td style="text-align: right;">{{ months_in_operation }}</td></tr>
+                <tr><td style="text-align: left;">Total Membership: </td><td style="text-align: right;">{{ total_membership }}</td></tr>
+                <tr><td style="text-align: left;">Monthly Contribution:</td><td style="text-align: right;">{{ monthly_rate|floatformat:0 }} UGX</td></tr>
+                <tr><td style="text-align: left;">Loan Rate:</td><td style="text-align: right;">{{ loan_rate|floatformat:0 }} %</td></tr>
+                <tr><td style="text-align: left;">Expected Contributions: </td><td style="text-align: right;">{{ expected_total_contributions|floatformat:0 }} UGX</td></tr>
+            </table>
+        </td>
+        <td>
+            <table border="1">
+                <tr><td colspan="2" style="font-size: 16px; color: rgba(32,89,188,0.79)">Cash At Hand</td></tr>
+                <tr><td style="text-align: left;">Expected Total: </td><td style="text-align: right;">{{ expected_total_cash_at_hand|floatformat:0 }} UGX</td></tr>
+                <tr><td style="text-align: left;">Actual Banked Bal.: </td><td style="text-align: right;">{{ banked_cash_at_hand|floatformat:0 }} UGX</td></tr>
+                <tr><td style="text-align: left;">Unbanked Bal: </td><td style="text-align: right;">{{ unbanked_cash_at_hand|floatformat:0 }} UGX</td></tr>
+                {% if variance and variance < 0 %}
+                    <tr><td style="color: red; font-weight: bolder; text-align: left;">Variance: </td><td style="text-align: right;">{{ variance|floatformat:0 }} UGX</td></tr>
+                {% else %}
+                    <tr><td style="text-align: left;">Variance: </td><td style="text-align: right;">{{ variance|floatformat:0 }} UGX</td></tr>
+                {% endif %}
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

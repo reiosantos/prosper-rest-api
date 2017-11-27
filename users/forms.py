@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelForm, TextInput, RadioSelect, FileInput
 from django.utils.translation import ugettext_lazy
 
-from users.support.support_functions import get_corrected_permissions
+from home.support.support_functions import get_corrected_permissions
 from users.models import User
 
 

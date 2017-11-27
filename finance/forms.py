@@ -9,9 +9,8 @@ from crispy_forms.layout import Layout, Field, Hidden, Fieldset, Div, HTML
 from django.forms import ModelForm, TextInput, FileInput, forms, DateTimeInput, Select, NumberInput
 
 from config.settings import FILE_UPLOAD_MAX_MEMORY_SIZE
-
 from finance.models import Investment, InvestmentFinancialStatement, Contribution, Interest, Loan, LoanPayment
-from finance.support.validators import FileValidator
+from home.support.validators import FileValidator
 
 
 class ContributionForm(ModelForm):

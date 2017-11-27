@@ -5,7 +5,7 @@ from django.forms.models import BaseModelFormSet
 
 
 def get_id():
-    user_id = date.strftime(datetime.now(), "%y%m%d%H%M")
+    user_id = date.strftime(datetime.now(), "%y%m%d%H%M%S")
     return user_id
 
 

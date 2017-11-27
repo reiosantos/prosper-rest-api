@@ -1,11 +1,11 @@
-import magic
 import mimetypes
 from os.path import splitext
 
+import magic
 from django.core.exceptions import ValidationError
+from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
-from django.template.defaultfilters import filesizeformat
 
 
 @deconstructible

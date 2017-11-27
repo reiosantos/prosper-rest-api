@@ -1,12 +1,12 @@
 
 Django==1.11.6
-django-bootstrap-forms==0.1
-django-crispy-forms==1.7.0
-django-excel==0.0.9
-python-magic==0.4.13
-MySQL-python==1.2.3
-mysql-connector-python==1.2.3
-pyexcel==0.5.5
-pytz==2017.2
-Pillow==2.6.1
+django-bootstrap-forms
+django-crispy-forms
+django-excel
+python-magic
+mysql-connector-python
+pyexcel
+pytz
+Pillow
+weasyprint
 

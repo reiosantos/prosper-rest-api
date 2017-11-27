@@ -1,7 +1,7 @@
 from datetime import date
+from dateutil import relativedelta
 from decimal import Decimal
 
-from dateutil import relativedelta
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.db.models import Sum, Count
@@ -15,7 +15,7 @@ from django.views.decorators.http import require_http_methods, require_GET, requ
 
 from finance.models import Contribution, Investment, Loan, LoanPayment
 from home.models import ClubDetails
-from users.support.support_functions import get_corrected_permissions
+from home.support.support_functions import get_corrected_permissions
 from users.forms import UserForm, AdminUserForm
 from users.models import User
 
