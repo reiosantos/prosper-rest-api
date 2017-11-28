@@ -4,23 +4,61 @@
     <meta charset="UTF-8">
     <title>Summary</title>
     <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
         body{
-            padding: 5px;
-            width: 95%;
-            margin: 10px auto;
+            font-family: 'Courier New', Courier, monospace;
+            width: 100%;
             clear: both;
             display: table;
+            font-size: 12px;
         }
         table{
+            max-width: 100%;
+            margin-bottom: 20px;
             height: auto;
             padding: 3px;
             width: 100%;
             border-collapse: collapse;
+            border: 0;
+        }
+        table.dashboard-tables{
+            text-align: right;
+        }
+        .table-striped tbody>tr:nth-child(odd)>td,.table-striped tbody>tr:nth-child(odd)>th{
+            background-color: #ececec;
+        }
+        .table-bordered {
+            border: 1px solid #ddd;
+        }
+        .table-bordered > thead > tr > th,
+        .table-bordered > tbody > tr > th,
+        .table-bordered > tfoot > tr > th,
+        .table-bordered > thead > tr > td,
+        .table-bordered > tbody > tr > td,
+        .table-bordered > tfoot > tr > td {
+          border: 1px solid #ddd;
+        }
+        .table-bordered > thead > tr > th,
+        .table-bordered > thead > tr > td {
+          border-bottom-width: 2px;
+        }
+        table.dashboard-tables.contributions tbody tr:last-child{
+            background: rgba(232,232,232,0.31);
+            font-weight: bolder;
+            text-align: right;
+            border-top: 2px solid black;
+        }
+        table:not(.no-top-border){
+            border-top: 1px solid;
         }
         td{
             vertical-align: top;
             padding: 3px;
             border: 0;
+            height: 100%;
         }
         img {
             vertical-align: middle;
@@ -32,13 +70,16 @@
 </head>
 <body>
 
-<table>
+<table class="no-top-border">
     <tr>
         <td colspan="2" style="text-align: center">
-            <img alt="Logo" src="{{ MEDIA_URL }}logo-web.png" class="img" />
+            <img alt="Logo" src="{{ logo }}" class="img" />
+            <h2>{{ title }}</h2>
+            <h3>ACCOUNTS SUMMARY</h3>
         </td>
     </tr>
-    <tr><td colspan="2" style="font-size: 18px; font-weight: bolder; "><span style="float: left;">Today : 2017-11-22 {{ today|date:'l dS, N Y' }}</span><span style="float: right; font-weight: lighter; font-style: italic">printed by : @{{ user }}</span></td></tr>
+    <tr><td colspan="2" style="font-weight: bolder; "><span style="text-align: left">Print Date : 2017-11-22 17:23:21 {{ today|date:'l dS, N Y' }}</span> <span style="text-align: right; font-weight: lighter; font-style: italic"> by : @{{ user }}</span></td></tr>
+    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">CLUB SUMMARY</td></tr>
     <tr>
         <td style="padding-right: 50px">
             <table border="1">
@@ -64,6 +105,28 @@
             </table>
         </td>
     </tr>
+    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">CONTRIBUTIONS</td></tr>
+    <tr>
+        <td colspan="2">{% include 'holders/contributions.html' %}</td>
+    </tr>
+    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">LOANS</td></tr>
+    <tr>
+        <td colspan="2">{% include 'holders/loans.html' %}</td>
+    </tr>
+    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">INVESTMENTS</td></tr>
+    <tr>
+        <td colspan="2">{% include 'holders/investments.html' %}</td>
+    </tr>
+    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">EXPENSES</td></tr>
+    <tr>
+        <td colspan="2">{% include 'holders/expenses.html' %}</td>
+    </tr>
+    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">INCOME STATEMENT</td></tr>
+    <tr>
+        <td colspan="2">{% include 'holders/income_statement.html' %}</td>
+    </tr>
+
+
 </table>
 
 </body>

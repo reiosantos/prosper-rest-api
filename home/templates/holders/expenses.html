@@ -16,7 +16,7 @@
                     <th>Recouped(UGX)</th>
                     <th>Interest (UGX)</th>
                     </thead>
-                    <tbody>\
+                    <tbody>
                     {% if expenses_forms %}
                         {% for form in expenses_forms %}
                             <tr class="form-set" >
@@ -34,6 +34,8 @@
                                 {% csrf_token %}
                             </tr>
                         {% endfor %}
+                    {% else %}
+                        <tr><td colspan="4">No Expenses incurred</td></tr>
                     {% endif %}
                     </tbody>
                 </table>
