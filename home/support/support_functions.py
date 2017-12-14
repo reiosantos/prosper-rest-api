@@ -307,6 +307,7 @@ def all_contributions(monthly=0, today=None):
     users = User.objects.all()
 
     total = Decimal(0)
+    credit = Decimal(0)
     outstanding = Decimal(0)
 
     data = []
@@ -354,17 +355,26 @@ def all_contributions(monthly=0, today=None):
                 paid = d['totals']
                 if not paid:
                     paid = 0
+
+                expected = calculate_user_expected_amount(user=us, monthly=monthly)
+                uCredit = Decimal(paid - expected)
+                if uCredit.as_tuple().sign == 1:
+                    uCredit = 0
+
                 data.append({
                     'name': us,
                     'status': us.user_status,
                     'paid': paid,
-                    'balance': total_balance
+                    'balance': total_balance,
+                    'credit': uCredit
                 })
                 total += paid
+                credit += uCredit
                 outstanding += total_balance
 
     data.append({
         'total_paid': total,
+        'total_credit': credit,
         'total_balance': outstanding
     })
 

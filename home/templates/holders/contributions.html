@@ -4,6 +4,7 @@
     <th>Name</th>
     <th>Membership Status</th>
     <th>Total Paid (UGX)</th>
+    <th>Credit (UGX)</th>
     <th>Total Outstanding (UGX)</th>
     </thead>
     <tbody>
@@ -14,6 +15,7 @@
                     <td>{{ c.name }}</td>
                     <td>{{ c.status }}</td>
                     <td>{{ c.paid|floatformat:0 }}</td>
+                    <td>{{ c.credit|floatformat:0 }}</td>
                     <td>{{ c.balance|floatformat:0 }}</td>
                 </tr>
             {% endif %}
@@ -24,6 +26,7 @@
                 <td>Totals</td>
                 <td></td>
                 <td>{{ fin.total_paid|floatformat:0 }}</td>
+                <td>{{ fin.total_credit|floatformat:0 }}</td>
                 <td>{{ fin.total_balance|floatformat:0 }}</td>
             </tr>
         {% endwith %}
