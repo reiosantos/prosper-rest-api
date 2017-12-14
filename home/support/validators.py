@@ -113,6 +113,16 @@ def get_corrected_permissions(user=None):
     return perms
 
 
+def get_corrected_permissions_tuples(user=None):
+    permissions = get_corrected_permissions(user)
+    data = {}
+    for perm in permissions:
+        if perm.content_type.model not in data.keys():
+            data[perm.content_type.model] = []
+        data[perm.content_type.model].append((perm.id, perm.name))
+    return data
+
+
 # This class is used to make empty formset forms required
 class RequiredFormset(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
