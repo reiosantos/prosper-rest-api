@@ -8,6 +8,6 @@ urlpatterns = [
 
     url(r'^$', login_required(index), name='home_page'),
     url(r'^no_script/error/cant-load/page/$', login_required(no_script), name='noscript_page'),
-    url(r'^print/(?:(?P<what>\w+))?$', login_required(PrintFunction.as_view()), name='print_function'),
+    url(r'^print/(?:(?P<what>\w+))?/$', login_required(PrintFunction.as_view()), name='print_function'),
 
 ]
