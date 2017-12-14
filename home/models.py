@@ -41,4 +41,4 @@ class Expenses(models.Model):
         return self.particulars
 
     class Meta:
-        default_permissions = ('modify',)
+        default_permissions = ('modify', )

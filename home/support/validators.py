@@ -1,8 +1,15 @@
+import random
+
 import magic
 import mimetypes
 from os.path import splitext
 
+from datetime import datetime, date
+
+from django.contrib.auth.models import Permission
 from django.core.exceptions import ValidationError
+from django.db.models import Q
+from django.forms.models import BaseModelFormSet
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
 from django.template.defaultfilters import filesizeformat
@@ -78,3 +85,37 @@ class FileValidator(object):
                 'allowed_size': filesizeformat(self.min_size)
             }
             raise ValidationError(message)
+
+
+def get_id():
+    user_id = date.strftime(datetime.now(), "%y%m%d%H%M")
+    return user_id
+
+
+def generate_report_filename():
+    return 'report_' + get_id() + '_' + str(random.randint(1, 61)) + str(random.randint(62, 100))
+
+
+def get_corrected_permissions(user=None):
+    """
+    :param user:
+    :return:
+    """
+    fill = (
+            ~Q(content_type__app_label='admin') &
+            ~Q(content_type__app_label='auth') &
+            ~Q(content_type__app_label='contenttypes') &
+            ~Q(content_type__app_label='sessions'))
+
+    perms = Permission.objects.filter(fill)
+    if user is not None and not user.is_superuser:
+        perms = perms.filter(user=user)
+    return perms
+
+
+# This class is used to make empty formset forms required
+class RequiredFormset(BaseModelFormSet):
+    def __init__(self, *args, **kwargs):
+        super(RequiredFormset, self).__init__(*args, **kwargs)
+        for form in self.forms:
+            form.empty_permitted = False

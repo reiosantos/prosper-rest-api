@@ -10,8 +10,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy
 
 from config.settings import FILE_UPLOAD_MAX_MEMORY_SIZE
-from home.support.support_functions import get_id
-from home.support.validators import FileValidator
+from home.support.validators import FileValidator, get_id
 from users.models import User
 
 
@@ -52,7 +51,8 @@ class Investment(models.Model):
     )
     create_date = models.DateTimeField(u'Created on', auto_now=False, default=timezone.now)
     project_name = models.CharField(ugettext_lazy('Project name'), max_length=255, null=False, default='', blank=False)
-    project_manager = models.ForeignKey(User, related_name='project_man', on_delete=models.CASCADE, default=get_id, to_field='account_id')
+    project_manager = models.ForeignKey(User, related_name='project_man', on_delete=models.CASCADE, default=get_id,
+                                        to_field='account_id')
     project_team = models.ManyToManyField(User, verbose_name='team members', blank=True, related_name='team_members',
                                           help_text='Select specific members for this project.')
     start_date = models.DateTimeField('Project start date', auto_now=False, default=timezone.now)
@@ -87,8 +87,8 @@ class Investment(models.Model):
 class InvestmentFinancialStatement(models.Model):
 
     investment = models.ForeignKey(Investment, on_delete=models.CASCADE, default=get_id,
-                                   help_text='select the investment under progres')
-    date = models.DateTimeField(u'Acttivity date', auto_now=False, default=timezone.now,
+                                   help_text='select the investment under progress')
+    date = models.DateTimeField(u'Activity date', auto_now=False, default=timezone.now,
                                 help_text='date of activity instantiation')
     particulars = models.TextField('particulars', default='', null=True, blank=True)
     amount_spent = models.DecimalField('Amount Spent', max_digits=12, decimal_places=2, default=0,
@@ -158,10 +158,7 @@ class Loan(models.Model):
                                        validators=[
                                            MinValueValidator(Decimal('00.00')),
                                        ])
-    outstanding_balance = models.DecimalField('Outstanding Bal.', max_digits=12, decimal_places=2, default=0,
-                                              validators=[
-                                                  MinValueValidator(Decimal('00.00')),
-                                              ])
+    outstanding_balance = models.DecimalField('Outstanding Bal.', max_digits=12, decimal_places=2, default=0)
     profit_earned = models.DecimalField('Profits', max_digits=12, decimal_places=2, default=0,
                                         validators=[
                                             MinValueValidator(Decimal('00.00')),
@@ -187,7 +184,14 @@ class Loan(models.Model):
         self.profit_earned = 0
 
         if self.amount_paid >= self.total_amount:
-            self.profit_earned = (self.amount_paid - self.loan_amount)+self.sur_charge
+            if self.outstanding_balance <= 0:
+                self.loan_status = 'completed'
+                self.profit_earned = ((self.amount_paid - self.loan_amount)+self.sur_charge) + self.outstanding_balance
+            else:
+                self.profit_earned = (self.amount_paid - self.loan_amount) + self.sur_charge
+
+        if self.outstanding_balance <= 0:
+            self.loan_status = 'completed'
 
         return True
 

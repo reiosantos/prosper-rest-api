@@ -27,15 +27,18 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users',
-    'documents',
-    'finance',
-    'home',
-    'message',
-    'others',
-    'settings',
+
     'crispy_forms',
     'django_excel',
+
+    'home',
+    'users',
+    'finance',
+
+    'message',
+    'others',
+    'documents',
+    'settings',
 )
 
 MIDDLEWARE_CLASSES = (

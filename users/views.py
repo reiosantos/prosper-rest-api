@@ -1,11 +1,8 @@
 from datetime import date
 from dateutil import relativedelta
-from decimal import Decimal
 
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
-from django.db.models import Sum, Count
-from django.db.models.functions import TruncMonth
 from django.db.models.query_utils import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -13,9 +10,8 @@ from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 
-from finance.models import Contribution, Investment, Loan, LoanPayment
-from home.models import ClubDetails
-from home.support.support_functions import get_corrected_permissions
+from home.support.support_functions import get_user_contributions, get_user_investments, get_user_loans
+from home.support.validators import get_corrected_permissions
 from users.forms import UserForm, AdminUserForm
 from users.models import User
 
@@ -207,9 +203,9 @@ def profile(request):
 
     today = date.today()
 
-    contribution = get_my_contributions(request, today)
-    investment = get_investments(request)
-    loan = get_loans(request)
+    contribution = get_user_contributions(request.user, today)
+    investment = get_user_investments(request)
+    loan = get_user_loans(request)
 
     return render(request, 'users/profile.html',
                   {
@@ -222,7 +218,7 @@ def profile(request):
                       'others': investment['other'],
                       'on_loan': loan['on_loan'],
                       'on_pay': loan['on_pay'],
-
+                      'credit': loan['credit'],
                   })
 
 
@@ -249,143 +245,3 @@ def profile_graph(request):
                       'no_search': True,
                       'time_spent': time_since,
                   })
-
-
-def get_my_contributions(request, today):
-    """
-    #contributions
-    """
-    try:
-        monthly = ClubDetails.objects.all()
-        if monthly:
-            monthly = monthly[0].monthly_contribution
-        else:
-            monthly = 0
-    except ClubDetails.DoesNotExist:
-        monthly = 0
-
-    this_month = Contribution.objects.filter(user=request.user, contribution_date__month=today.month).aggregate(
-        Sum('total'))
-    if not this_month['total__sum']:
-        this_month['total__sum'] = 0
-
-    balance = Decimal(monthly - this_month['total__sum'])
-    if balance.as_tuple().sign == 1:
-        balance = 0
-
-    months_passed = relativedelta.relativedelta(timezone.now(), request.user.date_joined)
-
-    passed = 0
-    if months_passed.years and months_passed.months:
-        passed = (months_passed.years * 12) + months_passed.months
-    elif months_passed.years and not months_passed.months:
-        passed = (months_passed.years * 12)
-    elif months_passed.months and not months_passed.years:
-        passed = months_passed.months
-    elif not months_passed.months and not months_passed.years:
-        if months_passed.days:
-            num = Contribution.objects.filter(user=request.user).annotate(month=TruncMonth('contribution_date')) \
-                .values('month').annotate(num=Count('month')).order_by('month')
-            if num:
-                passed = num.count()
-                if num[passed - 1]['month'].year == timezone.now().year and num[passed - 1]['month'].month <\
-                        timezone.now().month:
-                    passed += 1
-            else:
-                passed += 1
-        elif months_passed.hours or months_passed.minutes and not months_passed.days:
-            passed += 1
-
-    expected = monthly * passed
-
-    ever_made = Contribution.objects.filter(user=request.user).aggregate(Sum('total'))
-    if not ever_made['total__sum']:
-        ever_made['total__sum'] = 0
-
-    excess = Decimal(ever_made['total__sum'] - expected)
-    if excess.as_tuple().sign == 1:
-        excess = 0
-
-    total_b = Contribution.objects.filter(user=request.user).annotate(month=TruncMonth('contribution_date')) \
-        .values('month').annotate(paid=Sum('total')).order_by('-month')
-
-    total_balance = Decimal(0)
-    for total in total_b:
-        p = total['paid']
-        y = total['month'].year
-        m = total['month'].month
-
-        if y == today.year and m == today.month:
-            continue
-
-        if total_balance.as_tuple().sign == 1:
-            total_balance += 0
-        else:
-            total_balance += Decimal(monthly - p)
-    else:
-        total_balance += balance
-
-    if not months_passed.years and not months_passed.months and not months_passed.days:
-        time_since = str(months_passed.hours) + ' hour(s), and ' + str(months_passed.minutes) +\
-                     ' minutes since you joined the group!!'
-    elif not months_passed.years and not months_passed.months:
-        time_since = str(months_passed.days) + ' day(s), since you joined the group!!'
-    elif not months_passed.years:
-        time_since = str(months_passed.months) + ' month(s) and ' + str(months_passed.days) + \
-                     ' day(s), since you joined the group!!'
-    elif months_passed.years:
-        time_since = str(months_passed.years) + ' year(s), ' + str(months_passed.months) + ' month(s) and ' + str(
-            months_passed.days) + ' day(s), since you joined the group!!'
-    else:
-        time_since = ''
-
-    contributions = Contribution.objects.filter(user=request.user).order_by('-contribution_date')
-
-    summary = {
-        'monthly': monthly,
-        'time_since': time_since,
-        'this_month': this_month['total__sum'],
-        'ever_made': ever_made['total__sum'],
-        'expected': expected,
-        'balance': balance,
-        'total_balance': total_balance,
-        'excess': excess
-    }
-
-    return {
-        'contributions': contributions,
-        'summary': summary
-    }
-
-
-def get_investments(request):
-
-    i_manage = Investment.objects.filter(project_manager=request.user, project_status='in_progress')
-    a_member = Investment.objects.filter(Q(project_status='in_progress') &
-                                         Q(project_team=request.user) &
-                                         ~Q(project_manager=request.user))
-    other = Investment.objects.filter(~Q(project_team=request.user) &
-                                      ~Q(project_manager=request.user))
-    return {
-        'i_manage': i_manage,
-        'a_member': a_member,
-        'other': other,
-    }
-
-
-def get_loans(request):
-
-    loan = Loan.objects.filter(user=request.user, loan_status='running')
-    if loan:
-        on_loan = loan[0]
-        on_pay = LoanPayment.objects.filter(loan=on_loan)
-        if not on_pay:
-            on_pay = None
-    else:
-        on_pay = None
-        on_loan = None
-
-    return {
-        'on_loan': on_loan,
-        'on_pay': on_pay,
-    }

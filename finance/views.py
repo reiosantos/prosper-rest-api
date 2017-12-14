@@ -12,7 +12,8 @@ from django.urls import reverse
 from finance.forms import ContributionForm, ExcelUploadForm, InvestmentForm, InvestmentFinancialStatementForm, \
     InterestForm, LoanForm, LoanPaymentForm
 from finance.models import Contribution, Investment, InvestmentFinancialStatement, Interest, Loan, LoanPayment
-from home.support.support_functions import RequiredFormset
+from home.support.support_functions import save_interest
+from home.support.validators import RequiredFormset
 
 
 def investments(request):
@@ -386,44 +387,6 @@ def contributions(request):
         'message': message,
         'error': error,
     })
-
-
-def save_interest(request, hid=None):
-    try:
-        hid = int(hid)
-    except TypeError:
-        hid = None
-    except ValueError:
-        hid = None
-
-    save = {}
-
-    if hid is not None and hid == 1:
-        try:
-            # ob = Interest.objects.get(pk=hid)
-            ob = Interest.objects.all()
-            interest_form = InterestForm(request.POST)
-            if ob:
-                ob = ob[0]
-                interest_form = InterestForm(request.POST, instance=ob)
-            if interest_form.is_valid():
-                interest_form.save()
-                save['form'] = ''
-                save['status'] = True
-            else:
-                save['form'] = interest_form
-                save['status'] = False
-
-        except Interest.DoesNotExist:
-            interest_form = InterestForm(request.POST)
-            if interest_form.is_valid():
-                interest_form.save()
-                save['form'] = ''
-                save['status'] = True
-            else:
-                save['form'] = interest_form
-                save['status'] = False
-    return save
 
 
 def loans(request):
