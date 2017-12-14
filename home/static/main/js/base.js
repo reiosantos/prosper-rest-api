@@ -263,7 +263,7 @@ $('.admin_loan_form input[name="loan_amount"], ' +
         var paid = parseFloat($('.admin_loan_form input[name="amount_paid"]').val());
         var surcharge = parseFloat($('.admin_loan_form input[name="sur_charge"]').val());
 
-        r = 0;
+        var r = 0;
         if(duration <= 2){
             r = rate/100
         }else{
@@ -410,7 +410,7 @@ function fill_user_form(data) {
         $(form).find("input[name='is_superuser']").prop('checked', false)
     }
     $(form).find("select[name='user_status']").val(data['user_status']).change();
-    $(form).find("select[name='user_permissions']").val(Object.keys(data['user_permissions'])).change()
+    $(form).find("input[name='user_permissions']").val(Object.keys(data['user_permissions'])).change()
 }
 
 
