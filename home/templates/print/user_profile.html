@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User profile</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            @bottom-right{
+                font-size: 14px;
+                content: "Page " counter(page) " of " counter(pages);
+            }
+            @bottom-left {
+                margin: 10pt 0 30pt 0;
+                border-top: .25pt solid #666;
+                font-family: "URW Chancery L";
+                content: "prosper accounts summary";
+                font-size: 9pt;
+                color: #333;
+            }
+        }
+        @page :blank {
+            @top-center{
+                font-family: "URW Chancery L";
+                content: "This page is intentionally left blank.";
+            }
+        }
+         img.logo {
+            vertical-align: middle;
+            border: 0;
+            page-break-inside: avoid;
+            width: 13.6%;
+        }
+        body{
+            font-family: 'Courier New', FreeMono, Courier, monospace;
+            width: 100%;
+            margin-right: auto;
+            margin-left: auto;
+            clear: both;
+            font-size: 12px;
+        }
+        .center-block {
+            display: block;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .img-thumbnail {
+            display: inline-block;
+            max-width: 100%;
+            height: auto;
+            padding: 4px;
+            line-height: 1.42857143;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            -webkit-transition: all .2s ease-in-out;
+            -o-transition: all .2s ease-in-out;
+            transition: all .2s ease-in-out;
+        }
+        table{
+            margin-bottom: 20px;
+            height: auto;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table:not(.no-top-border){
+            border-top: 1px solid;
+        }
+        .row{
+            margin-right: -15px;
+            margin-left: -15px;
+        }
+        .row:before, .row:after{
+            display: block;
+            content: "";
+        }
+        .row:after{
+            clear: both;
+        }
+        div{
+            height: auto;
+        }
+        div.loop-item div{
+            margin: 3px 0;
+            background-color: #f7f9f9;
+            border-bottom: 1px solid #e4e4e4;
+        }
+        td{
+            vertical-align: top;
+            padding: 3px;
+            border: 0;
+            height: 100%;
+        }
+        .tb-header{
+            font-weight: bolder;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            background-color: #d3d5d5;
+        }
+        .col-3, .col-12, .col-4{
+            float: left;
+        }
+        .col-3{
+            width: 25% !important;
+        }
+        .col-4{
+            width: 33.333333333%;
+        }
+        .col-12{
+            width: 100% !important;
+        }
+        ul, ul li{
+            margin-left: 0;
+            padding-left: 0;
+            width: 100%;
+            list-style: none;
+        }
+        ul li{
+            padding-bottom: 5px;
+            text-align: left;
+        }
+        ul li span{
+            float: right;
+            text-align: right;
+        }
+        @media print {
+           div{
+               page-break-before: avoid;
+               page-break-after: avoid;
+               box-decoration-break: slice;
+               -webkit-box-decoration-break: slice;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<table class="no-top-border">
+    <tr>
+        <td colspan="2" style="text-align: center">
+            <img alt="Logo" src="{{ logo }}" class="logo" />
+            <h2>{{ title }}</h2>
+            <h3>USER INFORMATION SHEET</h3>
+        </td>
+    </tr>
+    <tr><td style="font-weight: bolder; text-align: left">Print Date: {{ today|date:'l dS, N Y' }}</td> <td style="text-align: right; font-weight: lighter; font-style: italic">printed by : {{ user }}</td></tr>
+</table>
+
+<div class="row" style="margin: auto; width: 100%; height: auto; border-bottom: 1px solid gray;">
+    <div style="width: 20%; float: left">
+        <img src="{{ MEDIA_URL }}{{ user.photo }}" alt="No User Image Available" class="center-block img-thumbnail" width="100%" height="100%" />
+    </div>
+    <div style="margin-left: 5%; width: 75%; float: left">
+        <table class="table">
+            <tr>
+                <td><b>Account No.:</b> </td><td>{{ user.account_id }}</td>
+            </tr>
+            <tr>
+                <td><b>First Name:</b> </td><td> {{ user.first_name }}</td>
+            </tr>
+            <tr>
+                <td><b>Last Name:</b> </td><td> {{ user.last_name }}</td>
+            </tr>
+            <tr>
+                <td><b>Email:</b> </td><td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <td><b>Contact:</b> </td><td>{{ user.contact }}</td>
+            </tr>
+            <tr>
+                <td><b>Address:</b> </td><td>{{ user.address }}</td>
+            </tr>
+            <tr>
+                <td><b>Date Joined:</b> </td><td>{{ user.date_joined }}</td>
+            </tr>
+            <tr>
+                <td><b>Username:</b> </td><td>{{ user.username }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="color: red; font-weight: bold" >{{ summary.time_since }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div style="width: 100%;">
+    <div style="width: 100%;">
+        <b style="font-size: 16px">Contributions</b>
+        <br>
+
+        <div class="col-12" style="width: 100%; margin-top: 10px">
+            <ul>
+                <li>Monthly Contribution: <span>{{ summary.monthly|floatformat:0 }} UGX</span></li>
+                <li>Contribution this Month: <span>{{ summary.this_month|floatformat:0 }} UGX</span></li>
+                <li>Unpaid Bal. this month: <span>{{ summary.balance|floatformat:0 }} UGX</span></li>
+                <li>Total Unpaid Balances.: <span>{{ summary.total_balance|floatformat:0 }} UGX</span></li>
+                <li>Total Contributions to-date: <span>{{ summary.ever_made|floatformat:0 }} UGX</span></li>
+                <li>Expected Amount to-date: <span>{{ summary.expected|floatformat:0 }} UGX</span></li>
+                <li style="color: darkblue; font-weight: bolder;">Your Balance with us: <span>{{ summary.excess|floatformat:0 }} UGX</span></li>
+            </ul>
+        </div>
+
+        <h4>All Contributions ever made</h4>
+
+        <div style="width: 100%; height: auto; border-bottom: 1px solid gray; border-top: 1px solid gray; background-color: lightgray">
+            <div class="col-3 tb-header">Date</div>
+            <div class="col-3 tb-header">Deposit (UGX)</div>
+            <div class="col-3 tb-header">Penalty (UGX)</div>
+            <div class="col-3 tb-header">Actual Paid (UGX)</div>
+        </div>
+        <div style="width: 100%">
+            {% if contributions %}
+                {% for contribution in contributions %}
+                    <div class="loop-item" style="padding-top: 3px; padding-bottom: 3px; width: 100%; height: auto;">
+                        <div class="col-3">{{ contribution.contribution_date|date:'Y M' }}</div>
+                        <div class="col-3">{{ contribution.deposit|floatformat:0 }}</div>
+                        <div class="col-3">{{ contribution.penalty|floatformat:0 }}</div>
+                        <div class="col-3">{{ contribution.total|floatformat:0 }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="width: 100%; height: auto;">
+                    You have made no Contribution
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="height: auto; margin-top: 50px; padding-bottom: 30px; width: 100%; border-top: 1px solid darkgray;">
+        <b style="font-size: 16px">Investments</b>
+        <br>
+
+        <div class="col-12" style="width: 100%; margin-top: 10px">
+            <div class="col-4" style="height: 100%; border-top: 1px solid darkgray;">
+                <b style="font-size: 13px; font-style: italic; font-weight: bolder">I manage</b>
+                <ul>
+                    {% if i_manage %}
+                        {% for i in i_manage %}
+                            <li class="ref" >{{ i }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li style="color: red; font-weight: bold" >You don't manage any investments</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="col-4" style="height: 100%; border-top: 1px solid darkgray;">
+                <b style="font-size: 13px; font-style: italic; font-weight: bolder">Am attached to</b>
+                <ul>
+                    {% if a_member %}
+                        {% for i in a_member %}
+                            <li class="ref" >{{ i }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li style="color: red; font-weight: bold" >You're not attached to any project</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="col-4" style="height: 100%; border-top: 1px solid darkgray">
+                <b style="font-size: 13px; font-style: italic; font-weight: bolder">Other Investments</b>
+                <ul>
+                    {% if others %}
+                        {% for i in others %}
+                            <li class="ref" >{{ i }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li style="color: red; font-weight: bold" >No other investment(s) Yet</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div style="height: auto; margin: 50px auto auto; width: 100%;">
+        <b style="font-size: 16px;">Loans</b>
+        <br>
+        {% if on_loan %}
+            <ul style="border-top: 1px solid black; padding-top: 10px;">
+                <li>Loan Date: <span>{{ on_loan.loan_date }}</span></li>
+                <li>Duration (months): <span>{{ on_loan.loan_duration }}</span></li>
+                <li>Amount: <span>{{ on_loan.loan_amount|floatformat:0 }} UGX</span></li>
+                <li>Interest.: <span>{{ on_loan.loan_interest|floatformat:0 }} UGX</span></li>
+                <li>Total Amount: <span>{{ on_loan.total_amount|floatformat:0 }} UGX</span></li>
+                <li>Amount returned: <span>{{ on_loan.amount_paid|floatformat:0 }} UGX</span></li>
+                <li>Loan Balance: <span>{{ on_loan.outstanding_balance|floatformat:0 }} UGX</span></li>
+            </ul>
+
+            <h4>Payment Details</h4>
+
+            <div style="width: 100%; height: auto; border-bottom: 1px solid gray; border-top: 1px solid gray; background-color: lightgray">
+                <div class="col-4 tb-header">Loan Number</div>
+                <div class="col-4 tb-header">Payment Date</div>
+                <div class="col-4 tb-header">Amount Paid (UGX)</div>
+            </div>
+
+            <div style="width: 100%;">
+                {% if on_pay %}
+                    {% for pay in on_pay %}
+                        <div class="loop-item" style="width: 100%; height: auto; padding-top: 3px; padding-bottom: 3px;">
+                            <div class="col-4">{{ pay.loan_id }}</div>
+                            <div class="col-4">{{ pay.pay_date }}</div>
+                            <div class="col-4">{{ pay.paid_amount|floatformat:0 }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="width: 100%; height: auto;">
+                        You have not made any payment for the loan
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <ul>
+                <li style="color: green; font-weight: bold" >You don't have any Loan</li>
+                {% if credit %}
+                    <li style="color: green; font-weight: bolder;">Your Loan Credit: <span>{{ credit|floatformat:0 }} UGX</span></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+
+</div>
+
+</body>
+</html>
