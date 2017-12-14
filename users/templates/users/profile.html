@@ -46,7 +46,7 @@
             {% comment %}
             <a class="btn btn-round btn-primary center-block" href="{% url 'profile_graph' %}" ><i class="fa fa-line-chart" ></i> Toggle Graphical</a>
             {% endcomment %}
-            <a class="btn btn-round btn-success center-block long-text" target="_blank" href="{% url 'print_function' what='user_profile' %}" ><i class="fa fa-print" ></i> Print complete profile <i class="fa fa-file-pdf-o" ></i></a>
+            Click <i class="fa fa-hand-o-right"></i> <a href="{% url 'print_function' what='user_profile' %}" target="_blank" class="btn btn-sm btn-round btn-success" ><i class="fa fa-print" ></i> Print <i class="fa fa-file-pdf-o" ></i></a> to print complete user information sheet
 
         </div>
     </div>
@@ -236,6 +236,9 @@
                     {% else %}
                         <ul>
                             <li style="color: green; font-weight: bold" >You don't have any Loan</li>
+                            {% if credit %}
+                                <li style="color: green; font-weight: bolder;">Your Loan Credit: <span>{{ credit|floatformat:0 }} UGX</span></li>
+                            {% endif %}
                         </ul>
                     {% endif %}
 

@@ -10,6 +10,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <link rel="icon" type="image/png; image/ico" href="{{ MEDIA_URL }}logo-web.png" />
     <title>{{ TITLE }}</title>
     <link href="{% static "main/font-awesome/css/font-awesome.css" %}" rel="stylesheet" />
     <link href="{% static "main/css/bootstrap.css" %}" rel="stylesheet" />
@@ -39,7 +40,7 @@
 
 <div class="login-box">
     <div class="login-logo">
-        <img src="{% static 'main/images/logo.jpg' %}" class="img-thumbnail center-block" width="100px" height="100px" />
+        <img src="{{ MEDIA_URL }}logo-web.png" class="img-thumbnail center-block" width="100px" height="100px" />
         <a href="{% url 'home_page' %}"><b>{{ COMPANY_NAME }}</b></a>
     </div>
     <!-- /.login-logo -->

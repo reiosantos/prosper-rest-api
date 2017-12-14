@@ -9,7 +9,7 @@
     <tbody>
     {% if income_statements %}
         {% for year, var_list in income_statements.items %}
-            <tr><td colspan="4" style="text-align: center; background-color: rgba(73,115,180,0.55); font-weight: bolder">{{ year }}</td></tr>
+            <tr><td colspan="4" class="group" style="text-align: center; background-color: rgba(73,115,180,0.55); font-weight: bolder">{{ year }}</td></tr>
             {% for record in var_list %}
                 {% if not forloop.last %}
                     <tr>

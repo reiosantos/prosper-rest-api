@@ -19,7 +19,9 @@
         <meta http-equiv="refresh" content="0;url={% url 'noscript_page' %}" >
     </noscript>
 
-    <title>{{ TITLE }}</title>
+    <link rel="icon" type="image/png; image/ico" href="{{ MEDIA_URL }}logo-web.png" />
+    <title> {{ TITLE }}</title>
+
 
     {% block stylesheets %}
         <link href="{% static "main/font-awesome/css/font-awesome.css" %}" rel="stylesheet" />

@@ -1,59 +1,33 @@
 
-<form class="form-horizontal admin_expense_form item" id="admin_expense_form" enctype="multipart/form-data" action="" method="post" >
-    <div class="form-group">
-        <div class="controls col-sm-12 admin_expense_formset">
-            {% if perms.home.can_modify_expenes and user.is_authenticated and expenses_forms %}
-                <a class="add-row btn-xs btn-success btn-round pull-right" id="add" href="javascript:void(0)"> <i class="fa fa-plus"></i> add expense</a>
-            {% endif %}
-            <fieldset style="overflow-x: auto; width: 100%;">
-                <legend> Expenses</legend>
-                <table class="table dashboard-tables table-bordered table-striped" cellspacing="0" >
-                    <thead>
-                    <th></th>
-                    <th>Date</th>
-                    <th>Particular</th>
-                    <th>Amount Invested (UGX)</th>
-                    <th>Recouped(UGX)</th>
-                    <th>Interest (UGX)</th>
-                    </thead>
-                    <tbody>
-                    {% if expenses_forms %}
-                        {% for form in expenses_forms %}
-                            <tr class="form-set" >
-                                <td>
-                                    <span class="pull-right">
-                                        <a class="delete-row btn btn-xs btn-danger delete" href="javascript:void(0)"><i class="fa fa-trash"></i> &times;</a>
-                                    </span>
-                                </td>
-                                <td>{{ form.date }}{{ form.date.errors }}</td>
-                                <td>{{ form.particulars }}{{ form.particulars.errors }}</td>
-                                <td>{{ form.invested }}{{ form.invested.errors }}</td>
-                                <td>{{ form.recouped }}{{ form.recouped.errors }}</td>
-                                <td>{{ form.interest }}{{ form.interest.errors }}</td>
-                                {{ form.id }}
-                                {% csrf_token %}
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr><td colspan="4">No Expenses incurred</td></tr>
-                    {% endif %}
-                    </tbody>
-                </table>
-            </fieldset>
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="controls col-sm-12">
-            {% if perms.home.can_modify_expenses and user.is_authenticated and expenses_forms %}
-                <div class="form-group">
-                    <div class="aab controls col-sm-3"></div>
-                    <div class="controls col-sm-9">
-                        <input name="submit" value="Save Investment" class="btn btn-primary" id="submit-id-submit" type="submit">
-                        <input name="cancel" value="Clear" class="btn" id="button-id-cancel" type="reset">
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-    {{ expenses_forms.management_form }}
-</form>
+<table class="table dashboard-tables table-bordered table-striped" cellspacing="0" >
+    <thead>
+    <th></th>
+    <th>Date</th>
+    <th>Particular</th>
+    <th>Amount Invested (UGX)</th>
+    <th>Recouped(UGX)</th>
+    <th>Interest (UGX)</th>
+    </thead>
+    <tbody>
+    {% if expenses_forms %}
+        {% for form in expenses_forms %}
+            <tr class="form-set" >
+                <td>
+                    <span class="pull-right">
+                        <a class="delete-row btn btn-xs btn-danger delete" href="javascript:void(0)"><i class="fa fa-trash"></i> &times;</a>
+                    </span>
+                </td>
+                <td>{{ form.date }}{{ form.date.errors }}</td>
+                <td>{{ form.particulars }}{{ form.particulars.errors }}</td>
+                <td>{{ form.invested }}{{ form.invested.errors }}</td>
+                <td>{{ form.recouped }}{{ form.recouped.errors }}</td>
+                <td>{{ form.interest }}{{ form.interest.errors }}</td>
+                {{ form.id }}
+                {% csrf_token %}
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr><td colspan="4">No Expenses incurred</td></tr>
+    {% endif %}
+    </tbody>
+</table>
