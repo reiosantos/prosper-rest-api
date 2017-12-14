@@ -107,6 +107,9 @@ def index(request):
         loan_rate = ir.interest
         i_form = InterestForm(instance=ir)
 
+    monthly_rate, today, start_date, months_in_operation, nform = monthly_rate_today()
+    if not form.errors:
+        form = nform
     total_membership, expected_total_contributions = expected_contributions(monthly_rate)
     banked_cash_at_hand, un_banked_cash_at_hand, expected_total_cash_at_hand, variance = cash_at_hand()
 
