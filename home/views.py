@@ -1,29 +1,29 @@
 import os
 from datetime import date
-from dateutil import relativedelta
 from decimal import Decimal
 
 from django.core.exceptions import PermissionDenied
-from django.db.models import Sum, Count
-from django.db.models.functions import TruncMonth
+from django.core.files.storage import FileSystemStorage
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.urls import Resolver404
-from django.utils import timezone
 from django.views import View
 from django.views.decorators.http import require_GET, require_http_methods
 from weasyprint import HTML
 
-from config.settings import REPORT_ROOT
+from config.prosper import COMPANY_NAME
+from config.settings import REPORT_ROOT, MEDIA_URL
 from finance.forms import InterestForm
-from finance.models import Interest, Contribution, Loan, Investment
-from home.forms import DetailsForm, ExpensesForm
-from home.models import ClubDetails, Expenses
-from home.support.support_functions import RequiredFormset, get_id
-from users.models import User
+from finance.models import Interest
+from home.forms import ExpensesForm
+from home.models import Expenses
+from home.support.support_functions import save_details, save_interest, monthly_rate_today, \
+    expected_contributions, cash_at_hand, all_contributions, all_loans, all_investments, \
+    calculate_income_statement, get_user_contributions, get_user_investments, get_user_loans
+from home.support.validators import generate_report_filename, RequiredFormset
 
 
 @require_GET
@@ -62,9 +62,9 @@ def index(request):
 
     i_form = InterestForm()
     expenses_form = modelformset_factory(Expenses,
-                                            ExpensesForm,
-                                            extra=no_of_forms, can_order=False,
-                                            can_delete=False, formset=RequiredFormset)
+                                         ExpensesForm,
+                                         extra=no_of_forms, can_order=False,
+                                         can_delete=False, formset=RequiredFormset)
 
     admin_expenses_formset = expenses_form(queryset=Expenses.objects.all())
 
@@ -90,7 +90,7 @@ def index(request):
                 error['error'] = 'Failed to complete transaction.'
                 error['form'] = 'details'
         else:
-            #to handle expense formset submissions
+            # to handle expense formset submissions
             admin_expenses_formset = expenses_form(request.POST, request.FILES)
             if admin_expenses_formset.is_valid():
                 Expenses.objects.all().delete()
@@ -107,7 +107,7 @@ def index(request):
         loan_rate = ir.interest
         i_form = InterestForm(instance=ir)
 
-    total_membership, expected_total_contributions = expected_contributions(monthly_rate, today)
+    total_membership, expected_total_contributions = expected_contributions(monthly_rate)
     banked_cash_at_hand, un_banked_cash_at_hand, expected_total_cash_at_hand, variance = cash_at_hand()
 
     return render(request, 'home/dashboard.html',
@@ -137,342 +137,6 @@ def index(request):
                   })
 
 
-def monthly_rate_today():
-    dt = ClubDetails.objects.all()
-
-    today = date.today()
-    start_date = today
-    monthly_rate = 0
-    months_in_operation = 0
-    form = DetailsForm()
-
-    if dt and dt.count() > 0:
-        dt = dt[0]
-        start_date = dt.start_date
-        monthly_rate = dt.monthly_contribution
-        months_passed = relativedelta.relativedelta(timezone.now(), start_date)
-        if months_passed.years:
-            months_in_operation = months_passed.years * 12
-        if months_passed.months:
-            months_in_operation += months_passed.months
-
-        form = DetailsForm(instance=dt)
-
-    return monthly_rate, today, start_date, months_in_operation, form
-
-
-def expected_contributions(monthly_rate=0, today=date.today()):
-    expected_total_contributions = Decimal(0)
-    total_membership = 0
-
-    u = User.objects.all()
-    if u:
-        total_membership = u.count()
-        for user in u:
-            expected_total_contributions += calculate_user_expected_amount(user, monthly_rate)
-
-    return total_membership, expected_total_contributions
-
-
-def save_interest(request, hid=None):
-    try:
-        hid = int(hid)
-    except TypeError:
-        hid = None
-    except ValueError:
-        hid = None
-
-    save = {}
-
-    if hid is not None and hid == 1:
-        try:
-            ob = Interest.objects.all()
-            interest_form = InterestForm(request.POST)
-            if ob:
-                ob = ob[0]
-                interest_form = InterestForm(request.POST, instance=ob)
-            if interest_form.is_valid():
-                interest_form.save()
-                save['form'] = ''
-                save['status'] = True
-            else:
-                save['form'] = interest_form
-                save['status'] = False
-
-        except Interest.DoesNotExist:
-            interest_form = InterestForm(request.POST)
-            if interest_form.is_valid():
-                interest_form.save()
-                save['form'] = ''
-                save['status'] = True
-            else:
-                save['form'] = interest_form
-                save['status'] = False
-    return save
-
-
-def save_details(request, hid=None):
-    try:
-        hid = int(hid)
-    except TypeError:
-        hid = None
-    except ValueError:
-        hid = None
-
-    save = {}
-
-    if hid is not None and hid == 1:
-        try:
-            ob = ClubDetails.objects.all()
-            detail_form = DetailsForm(request.POST)
-            if ob:
-                ob = ob[0]
-                detail_form = DetailsForm(request.POST, instance=ob)
-            if detail_form.is_valid():
-                detail_form.save()
-                save['form'] = ''
-                save['status'] = True
-            else:
-                save['form'] = detail_form
-                save['status'] = False
-
-        except ClubDetails.DoesNotExist:
-            detail_form = DetailsForm(request.POST)
-            if detail_form.is_valid():
-                detail_form.save()
-                save['form'] = ''
-                save['status'] = True
-            else:
-                save['form'] = detail_form
-                save['status'] = False
-    return save
-
-
-def all_investments():
-    investments = Investment.objects.all()
-    if not investments:
-        investments = None
-    return investments
-
-
-def all_contributions(monthly=0, today=None):
-    if not today:
-        today = date.today()
-
-    c = Contribution.objects.all()
-    users = User.objects.all()
-
-    total = Decimal(0)
-    outstanding = Decimal(0)
-
-    data = []
-    if users:
-        for us in users:
-            d = c.filter(user=us).aggregate(totals=Sum('total'))
-            if not d:
-                data.append({
-                    'name': us,
-                    'status': us.user_status,
-                    'paid': 0,
-                    'balance': 0
-                })
-            else:
-
-                this_month = Contribution.objects.filter(user=us, contribution_date__month=today.month)\
-                    .aggregate(Sum('total'))
-                if not this_month['total__sum']:
-                    this_month['total__sum'] = 0
-
-                balance = Decimal(monthly - this_month['total__sum'])
-                if balance.as_tuple().sign == 1:
-                    balance = 0
-
-                total_b = Contribution.objects.filter(user=us).annotate(month=TruncMonth('contribution_date')) \
-                    .values('month').annotate(paid=Sum('total')).order_by('-month')
-
-                total_balance = Decimal(0)
-                for t in total_b:
-                    p = t['paid']
-                    y = t['month'].year
-                    m = t['month'].month
-
-                    if y == today.year and m == today.month:
-                        continue
-
-                    if total_balance.as_tuple().sign == 1:
-                        total_balance += 0
-                    else:
-                        total_balance += Decimal(monthly - p)
-
-                else:
-                    total_balance += balance
-
-                paid = d['totals']
-                if not paid:
-                    paid = 0
-                data.append({
-                    'name': us,
-                    'status': us.user_status,
-                    'paid': paid,
-                    'balance': total_balance
-                })
-                total += paid
-                outstanding += total_balance
-
-    data.append({
-        'total_paid': total,
-        'total_balance': outstanding
-    })
-
-    return data
-
-
-def calculate_user_expected_amount(user=None, monthly=0):
-
-    months_passed = relativedelta.relativedelta(timezone.now(), user.date_joined)
-
-    passed = 0
-    if months_passed.years and months_passed.months:
-        passed = (months_passed.years * 12) + months_passed.months
-    elif months_passed.years and not months_passed.months:
-        passed = (months_passed.years * 12)
-    elif months_passed.months and not months_passed.years:
-        passed = months_passed.months
-    elif not months_passed.months and not months_passed.years:
-        if months_passed.days:
-            num = Contribution.objects.filter(user=user).annotate(month=TruncMonth('contribution_date')) \
-                .values('month').annotate(num=Count('month')).order_by('month')
-            if num:
-                passed = num.count()
-                if num[passed - 1]['month'].year == timezone.now().year and num[passed - 1]['month'].month < \
-                        timezone.now().month:
-                    passed += 1
-            else:
-                passed += 1
-        elif months_passed.hours or months_passed.minutes and not months_passed.days:
-            passed += 1
-
-    expected = monthly * passed
-
-    return expected
-
-
-def all_loans():
-    loans = Loan.objects.all().order_by('user__first_name', 'user__last_name')
-    if not loans:
-        loans = None
-    return loans
-
-
-def cash_at_hand():
-
-    total_expected = 0
-    monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
-
-    contributions = all_contributions(monthly_rate, today)
-    contribution_paid = contributions[-1]['total_paid']
-    contribution_unpaid = contributions[-1]['total_balance']
-
-    total_expected += (contribution_paid + contribution_unpaid)
-
-    project_interest_and_recouped = Investment.objects.aggregate(interest=Sum('interest'),
-                                                                 loss=Sum('loss'), recouped=Sum('amount_returned'))
-
-    if project_interest_and_recouped['interest'] is None:
-        project_interest_and_recouped['interest'] = 0
-    if project_interest_and_recouped['loss'] is None:
-        project_interest_and_recouped['loss'] = 0
-    if project_interest_and_recouped['recouped'] is None:
-        project_interest_and_recouped['recouped'] = 0
-
-    investments_cash = project_interest_and_recouped['interest'] + project_interest_and_recouped['recouped']
-    investments_cash -= project_interest_and_recouped['loss']
-
-    total_expected += project_interest_and_recouped['loss']
-
-    loans = Loan.objects.aggregate(profit=Sum('profit_earned'), paid=Sum('amount_paid'),
-                                   unpaid=Sum('outstanding_balance'), total=Sum('loan_amount'))
-
-    if loans['profit'] is None:
-        loans['profit'] = 0
-    if loans['paid'] is None:
-        loans['paid'] = 0
-    if loans['unpaid'] is None:
-        loans['unpaid'] = 0
-    if loans['total'] is None:
-        loans['total'] = 0
-
-    loan_paid = loans['paid'] + loans['profit']
-    loan_unpaid = loans['unpaid']
-
-    total_expected += loans['total']
-
-    exp = Expenses.objects.aggregate(recouped=Sum('recouped'), interest=Sum('interest'))
-
-    if exp['recouped'] is None:
-        exp['recouped'] = 0
-    if exp['interest'] is None:
-        exp['interest'] = 0
-
-    expenses_paid = exp['recouped'] + exp['interest']
-
-    actual_banked = contribution_paid + investments_cash + loan_paid + expenses_paid
-    actual_unbanked = contribution_unpaid + loan_unpaid
-
-    actual_expected = total_expected
-
-    variance = (actual_banked + actual_unbanked) - actual_expected
-
-    return actual_banked, actual_unbanked, actual_expected, variance
-
-
-def calculate_income_statement():
-    data = {
-        '2015':[
-            {'description':'contributions', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
-            {'description':'expenses', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
-            {'description':'recouped', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
-            {'description':'Bank interest', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
-            {'total_debts':'12000000', 'total_credit':'230000', 'total_cash':'23000000' },
-        ],
-        '2016': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2017': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2018': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2019': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-    }
-
-    """
-    contributions = Contribution.objects.annotate(year=TruncYear('contribution_date')) \
-                    .values('year').annotate(paid=Sum('total')).order_by('-year')
-    """
-
-    return data
-
-
 class PrintFunction(View):
 
     def get(self, request, what=None):
@@ -486,19 +150,67 @@ class PrintFunction(View):
         if what == 'admin_dashboard':
             if not request.user.user_type == "admin":
                 raise PermissionDenied('permission denied')
+            # preparing report data
+            loan_rate = Decimal(0)
+            ir = Interest.objects.all()
+            if ir and ir.count() > 0:
+                ir = ir[0]
+                loan_rate = ir.interest
+            monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
+            total_membership, expected_total_contributions = expected_contributions(monthly_rate)
+            banked_cash_at_hand, un_banked_cash_at_hand, expected_total_cash_at_hand, variance = cash_at_hand()
+            expenses = Expenses.objects.all().order_by('-date')
 
-            temp_vars = {'data': 'my name data'}
+            temp_vars = {'logo': os.path.join(MEDIA_URL, 'logo-web.png'),
+                         'user': request.user, 'title': COMPANY_NAME,
+                         'loan_rate': loan_rate,
+                         'today': today,
+                         'start_date': start_date,
+                         'months_in_operation': months_in_operation,
+                         'total_membership': total_membership,
+                         'monthly_rate': monthly_rate,
+                         'expected_total_contributions': expected_total_contributions,
+                         'expected_total_cash_at_hand': expected_total_cash_at_hand,
+                         'banked_cash_at_hand': banked_cash_at_hand,
+                         'unbanked_cash_at_hand': un_banked_cash_at_hand,
+                         'variance': variance,
+                         'expenses': expenses,
+                         'all_contributions': all_contributions(monthly=monthly_rate, today=today),
+                         'all_loans': all_loans(),
+                         'all_investments': all_investments(),
+                         'income_statements': calculate_income_statement(),
+                         }
             try:
-                template = get_template('holders/print/dashboard.html')
+                template = get_template('print/dashboard.html')
                 out_put = template.render(temp_vars)
 
             except TemplateDoesNotExist:
                 raise Resolver404('Admin Template Not Found')
 
         elif what == 'user_profile':
-            temp_vars = {'data': 'my name data'}
+
+            # preparing report data
+            today = date.today()
+            contribution = get_user_contributions(request.user, today)
+            investment = get_user_investments(request)
+            loan = get_user_loans(request)
+
+            temp_vars = {
+                'logo': os.path.join(MEDIA_URL, 'logo-web.png'),
+                'MEDIA_URL': MEDIA_URL,
+                'user': request.user, 'title': COMPANY_NAME,
+                'today': today,
+                'contributions': contribution['contributions'],
+                'summary': contribution['summary'],
+                'i_manage': investment['i_manage'],
+                'a_member': investment['a_member'],
+                'others': investment['other'],
+                'on_loan': loan['on_loan'],
+                'on_pay': loan['on_pay'],
+                'credit': loan['credit'],
+            }
             try:
-                template = get_template('holders/print/user_profile.html')
+                template = get_template('print/user_profile.html')
                 out_put = template.render(temp_vars)
 
             except TemplateDoesNotExist:
@@ -508,9 +220,15 @@ class PrintFunction(View):
             raise Resolver404('URL Not Understood')
 
         try:
-            name = 'report_' + get_id() + '.pdf'
-            HTML(string=out_put).write_pdf(os.path.join(REPORT_ROOT, name))
+            name = '{0}.pdf'.format(generate_report_filename())
+            HTML(string=out_put, base_url=request.build_absolute_uri()).write_pdf(os.path.join(REPORT_ROOT, name))
 
-            return HttpResponse(out_put)
-        except Exception:
-            raise Resolver404('No preview page found')
+            fs = FileSystemStorage(REPORT_ROOT)
+
+            with fs.open(name) as pdf:
+                response = HttpResponse(pdf, content_type='application/pdf')
+                response['Content-Disposition'] = 'inline; filename={0}.pdf'.format(name)
+                return response
+
+        except Exception as e:
+            raise Resolver404('No preview page found ')
