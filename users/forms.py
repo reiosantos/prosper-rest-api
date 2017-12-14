@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelForm, TextInput, RadioSelect, FileInput
 from django.utils.translation import ugettext_lazy
 
-from home.support.support_functions import get_corrected_permissions
+from home.support.validators import get_corrected_permissions
 from users.models import User
 
 
@@ -62,9 +62,13 @@ class UserForm(ModelForm):
 
 class AdminUserForm(ModelForm):
 
-    user_permissions = forms.ModelMultipleChoiceField(
+    """user_permissions = forms.ModelMultipleChoiceField(
         get_corrected_permissions(),
         help_text=ugettext_lazy('Specific permissions for this user.'),
+    )"""
+    user_permissions = forms.MultipleChoiceField(
+        choices=[(perm.id, perm.name) for perm in get_corrected_permissions()],
+        widget=forms.CheckboxSelectMultiple
     )
     # Uni-form
     helper = FormHelper()
@@ -115,5 +119,4 @@ class AdminUserForm(ModelForm):
             'account_id': TextInput(attrs={'readonly': 'readonly'}),
             'password': TextInput(attrs={'value': '12345abcde'}),
             'photo': FileInput(attrs={'accept': 'image/*'}),
-            'user_permissions': forms.CheckboxSelectMultiple()
         }
