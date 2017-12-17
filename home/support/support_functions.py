@@ -1,4 +1,4 @@
-
+from collections import OrderedDict
 from datetime import date
 from dateutil import relativedelta
 
@@ -36,15 +36,16 @@ def user_time_passed(user):
                 .values('month').annotate(num=Count('month')).order_by('month')
             if num:
                 months_passed = num.count()
-                if num[months_passed - 1]['month'].year == timezone.now().year and num[months_passed - 1]['month'].month < \
+                if num[months_passed - 1]['month'].year == timezone.now().year and num[months_passed - 1][
+                    'month'].month < \
                         timezone.now().month:
                     months_passed += 1
             else:
                 months_passed += 1
         elif time_passed.hours or time_passed.minutes and not time_passed.days:
             months_passed += 1
-            
-    return months_passed,  time_passed
+
+    return months_passed, time_passed
 
 
 def get_user_contributions(user, today=date.today()):
@@ -100,7 +101,7 @@ def get_user_contributions(user, today=date.today()):
         total_balance += balance
 
     if not time_passed.years and not time_passed.months and not time_passed.days:
-        time_since = str(time_passed.hours) + ' hour(s), and ' + str(time_passed.minutes) +\
+        time_since = str(time_passed.hours) + ' hour(s), and ' + str(time_passed.minutes) + \
                      ' minutes since you joined the group!!'
     elif not time_passed.years and not time_passed.months:
         time_since = str(time_passed.days) + ' day(s), since you joined the group!!'
@@ -133,7 +134,6 @@ def get_user_contributions(user, today=date.today()):
 
 
 def get_user_investments(request):
-
     i_manage = Investment.objects.filter(project_manager=request.user, project_status='in_progress')
     a_member = Investment.objects.filter(Q(project_status='in_progress') &
                                          Q(project_team=request.user) &
@@ -148,7 +148,6 @@ def get_user_investments(request):
 
 
 def get_user_loans(request):
-
     loan = Loan.objects.filter(user=request.user, loan_status='running')
     credit = None
     if loan:
@@ -299,11 +298,13 @@ def all_investments():
     return investments
 
 
-def all_contributions(monthly=0, today=None):
+def all_contributions(monthly=0, today=None, year=None):
     if not today:
         today = date.today()
 
     c = Contribution.objects.all()
+    if year:
+        c = Contribution.objects.filter(contribution_date__year=year)
     users = User.objects.all()
 
     total = Decimal(0)
@@ -323,7 +324,7 @@ def all_contributions(monthly=0, today=None):
                 })
             else:
 
-                this_month = Contribution.objects.filter(user=us, contribution_date__month=today.month)\
+                this_month = c.filter(user=us, contribution_date__month=today.month) \
                     .aggregate(Sum('total'))
                 if not this_month['total__sum']:
                     this_month['total__sum'] = 0
@@ -332,7 +333,7 @@ def all_contributions(monthly=0, today=None):
                 if balance.as_tuple().sign == 1:
                     balance = 0
 
-                total_b = Contribution.objects.filter(user=us).annotate(month=TruncMonth('contribution_date')) \
+                total_b = c.filter(user=us).annotate(month=TruncMonth('contribution_date')) \
                     .values('month').annotate(paid=Sum('total')).order_by('-month')
 
                 total_balance = Decimal(0)
@@ -389,7 +390,6 @@ def all_loans():
 
 
 def cash_at_hand():
-
     total_expected = 0
     monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
 
@@ -414,11 +414,9 @@ def cash_at_hand():
 
     total_expected += project_interest_and_recouped['loss']
 
-    loans = Loan.objects.aggregate(profit=Sum('profit_earned'), paid=Sum('amount_paid'),
-                                   unpaid=Sum('outstanding_balance'), total=Sum('loan_amount'))
+    loans = Loan.objects.aggregate(paid=Sum('amount_paid'), unpaid=Sum('outstanding_balance'),
+                                   total=Sum('loan_amount'))
 
-    if loans['profit'] is None:
-        loans['profit'] = 0
     if loans['paid'] is None:
         loans['paid'] = 0
     if loans['unpaid'] is None:
@@ -426,7 +424,7 @@ def cash_at_hand():
     if loans['total'] is None:
         loans['total'] = 0
 
-    loan_paid = loans['paid'] + loans['profit']
+    loan_paid = loans['paid']
     loan_unpaid = loans['unpaid']
 
     total_expected += loans['total']
@@ -451,110 +449,129 @@ def cash_at_hand():
 
 
 def calculate_income_statement():
+
+    data = dict()
+    monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
+    min_year = start_date.year
+    max_year = today.year
+
+    while min_year <= max_year:
+        yearly = yearly_summary(min_year, monthly_rate)
+        temp = [
+            {'description': 'Contributions', 'debit': yearly['c_debit'], 'credit': yearly['c_credit'],
+             'total': yearly['c_total']},
+            {'description': 'Expenses', 'invested': yearly['e_invested'], 'interest': yearly['e_interest'],
+             'recouped': yearly['e_recouped'], 'total': yearly['e_total']},
+            {'description': 'Loans', 'debit': yearly['l_debit'], 'credit': yearly['l_credit'], 'invested': yearly['l_invested'],
+             'interest': yearly['l_interest'], 'total': yearly['l_total']},
+            {'description': 'Investments', 'invested': yearly['i_invested'], 'recouped': yearly['i_recouped'],
+             'interest': yearly['i_interest'], 'total': yearly['i_total']},
+
+            {'total_debts': yearly['tot_debit'], 'total_credit': yearly['tot_credit'],
+             'total_invested': yearly['tot_invested'], 'total_recouped': yearly['tot_recouped'],
+             'total_interest': yearly['tot_interest'], 'total_cash': yearly['tot_cash']}
+        ]
+
+        data[str(min_year)] = temp
+        min_year += 1
+
+    return OrderedDict(sorted(data.items(), key=lambda t: t[0], reverse=True))
+
+
+def yearly_summary(year=None, monthly=0):
+    # contributions
+    c_debit = Decimal(0)
+    c_credit = Decimal(0)
+
+    # expenses
+    e_invested = Decimal(0)
+    e_recouped = Decimal(0)
+    e_interest = Decimal(0)
+
+    # loans
+    l_debit = Decimal(0)
+    l_credit = Decimal(0)
+    l_invested = Decimal(0)
+    l_interest = Decimal(0)
+
+    # investments
+    i_invested = Decimal(0)
+    i_recouped = Decimal(0)
+    i_interest = Decimal(0)
+
+    # totals
+    tot_debit = Decimal(0)
+    tot_credit = Decimal(0)
+    tot_invested = Decimal(0)
+    tot_recouped = Decimal(0)
+    tot_interest = Decimal(0)
+    tot_cash = Decimal(0)
+
+    contributions = all_contributions(monthly=monthly, year=year)
+    if contributions:
+        dic = contributions[-1]
+        c_credit = (dic['total_paid'] + dic['total_balance'])
+        c_debit = dic['total_credit']
+
+        tot_credit += c_credit
+        tot_debit += c_debit
+        tot_cash += c_credit
+
+    expense = Expenses.objects.filter(date__year=year).aggregate(invested=Sum('invested'), recouped=Sum('recouped'),
+                                                                 interest=Sum('interest'))
+    if expense:
+        if expense['invested'] is not None:
+            e_invested = expense['invested']
+        if expense['recouped'] is not None:
+            e_recouped = expense['recouped']
+        if expense['interest'] is not None:
+            e_interest = expense['interest']
+        tot_invested += e_invested
+        tot_interest += e_interest
+        tot_recouped += e_recouped
+        tot_cash += (e_recouped + e_interest)
+
+    investments = Investment.objects.filter(create_date__year=year).aggregate(
+        invested=Sum('total_capital_invested'), recouped=Sum('amount_returned'), interest=Sum('interest'))
+    if investments:
+        if investments['invested'] is not None:
+            i_invested = investments['invested']
+        if investments['recouped'] is not None:
+            i_recouped = investments['recouped']
+        if investments['interest'] is not None:
+            i_interest = investments['interest']
+        tot_invested += i_invested
+        tot_interest += i_interest
+        tot_recouped += i_recouped
+        tot_cash += (i_recouped + i_interest)
+
+    loan = Loan.objects.filter(loan_date__year=year).aggregate(
+        invested=Sum('loan_amount'), credit=Sum('amount_paid'), debts=Sum('outstanding_balance'),
+        interest=Sum('loan_interest'))
+    if loan:
+        if loan['interest'] is not None:
+            l_interest = loan['interest']
+        if loan['invested'] is not None:
+            l_invested = loan['invested']
+        if loan['debts'] is not None:
+            l_debit = loan['debts']
+        if loan['credit'] is not None:
+            l_credit = loan['credit']
+        tot_invested += l_invested
+        tot_interest += l_interest
+        tot_debit += l_debit
+        tot_credit += l_credit
+        tot_cash += l_credit
+
     data = {
-        '2015': [
-            {'description': 'contributions', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
-            {'description': 'expenses', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
-            {'description': 'recouped', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
-            {'description': 'Bank interest', 'debit':'230000', 'credit':'34000000', 'total':'23000000' },
-            {'total_debts': '12000000', 'total_credit':'230000', 'total_cash':'23000000' },
-        ],
-        '2016': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2017': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2018': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2019': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2020': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2021': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2022': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2023': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2024': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2025': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2026': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2027': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
-        '2028': [
-            {'description': 'contributions', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'expenses', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'recouped', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'description': 'Bank interest', 'debit': '230000', 'credit': '34000000', 'total': '23000000'},
-            {'total_debts': '12000000', 'total_credit': '230000', 'total_cash': '23000000'},
-        ],
+        'c_debit': c_debit, 'c_credit': c_credit, 'c_total': c_credit,
+        'e_invested': e_invested, 'e_interest': e_interest, 'e_recouped': e_recouped,
+        'e_total': (e_recouped + e_interest),
+        'l_debit': l_debit, 'l_credit': l_credit, 'l_invested': l_invested, 'l_interest': l_interest,
+        'l_total': l_credit,
+        'i_invested': i_invested, 'i_recouped': i_recouped, 'i_interest': i_interest,
+        'i_total': (i_recouped + i_interest),
+        'tot_debit': tot_debit, 'tot_credit': tot_credit, 'tot_invested': tot_invested,
+        'tot_recouped': tot_recouped, 'tot_interest': tot_interest, 'tot_cash': tot_cash,
     }
-
-    """
-    contributions = Contribution.objects.annotate(year=TruncYear('contribution_date')) \
-                    .values('year').annotate(paid=Sum('total')).order_by('-year')
-    """
-
     return data
