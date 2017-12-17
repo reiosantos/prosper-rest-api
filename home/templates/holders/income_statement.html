@@ -32,7 +32,7 @@
                         <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_interest|floatformat:0 }}</td>
                         <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_credit|floatformat:0 }}</td>
                          <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_debts|floatformat:0 }}</td>
-                        <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_cash }}</td>
+                        <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_cash|floatformat:0 }}</td>
                     </tr>
                 {% endif %}
             {% endfor %}
