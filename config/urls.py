@@ -10,10 +10,10 @@ urlpatterns = [
     url(r'', include('home.urls'), ),
     url(r'^user/', include('users.urls'), ),
     url(r'^finance/', include('finance.urls'), ),
-    url(r'^documents/', include('documents.urls'), ),
-    url(r'^message/', include('message.urls'), ),
-    url(r'^others/', include('others.urls'), ),
-    url(r'^settings/', include('settings.urls'), ),
+    # url(r'^documents/', include('documents.urls'), ),
+    # url(r'^message/', include('message.urls'), ),
+    # url(r'^others/', include('others.urls'), ),
+    # url(r'^settings/', include('settings.urls'), ),
 
 ]
 
