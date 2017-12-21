@@ -673,3 +673,6 @@ function loan_table(data) {
 *
 * */
 $('.form-set td:has(ul.errorlist)').addClass('has-error');
+
+
+$('table.more-tables').dataTable();

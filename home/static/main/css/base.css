@@ -238,3 +238,6 @@ table.dashboard-tables.contributions tbody tr:last-child{
   white-space: normal;
     font-size: 12px;
 }
+table.dataTable th{
+    color: black;
+}

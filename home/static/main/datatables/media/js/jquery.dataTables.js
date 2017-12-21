@@ -55,7 +55,7 @@
 		// Browser
 		factory( jQuery, window, document );
 	}
-};
+}
 (function( $, window, document, undefined ) {
 	"use strict";
 
@@ -15031,7 +15031,7 @@
 	};
 	
 	
-	/*
+	/**
 	 * This is really a good bit rubbish this method of exposing the internal methods
 	 * publicly... - To be fixed in 2.0 using methods on the prototype
 	 */
@@ -15342,5 +15342,4 @@
 	 */
 
 	return $.fn.dataTable;
-});
-)
+}));

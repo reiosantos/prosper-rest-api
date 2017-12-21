@@ -68,13 +68,15 @@
                         <li>Contribution this Month: <span>{{ summary.this_month|floatformat:0 }} UGX</span></li>
                         <li>Unpaid Bal. this month: <span>{{ summary.balance|floatformat:0 }} UGX</span></li>
                         <li>Total Unpaid Balances.: <span>{{ summary.total_balance|floatformat:0 }} UGX</span></li>
-                        <li>Total Contibutions to-date: <span>{{ summary.ever_made|floatformat:0 }} UGX</span></li>
+                        <li>Total Contributions to-date: <span>{{ summary.ever_made|floatformat:0 }} UGX</span></li>
                         <li>Expected Amount to-date: <span>{{ summary.expected|floatformat:0 }} UGX</span></li>
                         <li style="color: blue">Your Balance with us: <span>{{ summary.excess|floatformat:0 }} UGX</span></li>
                     </ul>
                     <div class="row" style="overflow:auto;">
                         <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
                             <h5>All Contributions ever</h5>
+                            <button data-toggle="modal" data-target="#moreContributions" class="pull-right btn btn-success btn-xs" >More
+                                <i class=" fa fa-arrow-right" ></i></button>
                             <table class="table table-bordered">
                                 <thead>
                                 <th>Date</th>
@@ -83,7 +85,7 @@
                                 </thead>
                                 <tbody>
                                 {% if contributions %}
-                                    {% for contribution in contributions %}
+                                    {% for contribution in contributions|slice:":5" %}
                                          <tr><td>{{ contribution.contribution_date|date:'Y M' }}</td><td>{{ contribution.deposit|floatformat:0 }}</td><td>{{ contribution.total|floatformat:0 }}</td></tr>
                                     {% endfor %}
                                 {% else %}
@@ -95,6 +97,47 @@
                                 {% endif %}
                                 </tbody>
                             </table>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="moreContributions" tabindex="-1" role="dialog"
+                                 aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                    aria-hidden="true">×
+                                            </button>
+                                            <h4 class="modal-title" id="myModalLabel">More Contribution Details</h4>
+                                            Click <i class="fa fa-hand-o-right"></i> <a href="{% url 'print_function' what='user_contributions' %}" target="_blank" class="btn btn-sm btn-round btn-success" ><i class="fa fa-print" ></i> Print <i class="fa fa-file-pdf-o" ></i></a> to print Contributions
+                                        </div>
+                                        <div class="modal-body">
+
+                                            <table class="more-tables table-bordered table-stripped">
+                                                <thead>
+                                                <th>Date</th>
+                                                <th>Deposit(UGX)</th>
+                                                <th>Actual(UGX)</th>
+                                                </thead>
+                                                <tbody>
+                                                {% if contributions %}
+                                                    {% for contribution in contributions|slice:":5" %}
+                                                         <tr><td>{{ contribution.contribution_date|date:'Y M' }}</td><td>{{ contribution.deposit|floatformat:0 }}</td><td>{{ contribution.total|floatformat:0 }}</td></tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="3">
+                                                        You have made no Contribution
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div><!-- /.modal-content -->
+                                </div><!-- /.modal-dialog -->
+                            </div><!-- /.modal -->
+
                         </div>
                     </div>
                 </div>
@@ -211,6 +254,8 @@
                         <div class="row" style="overflow:auto;">
                             <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
                                 <h5>Payment Details</h5>
+                                <button data-toggle="modal" data-target="#moreLoans" class="pull-right btn btn-success btn-xs" >More
+                                    <i class=" fa fa-arrow-right" ></i></button>
                                 <table class="table table-bordered">
                                     <thead>
                                     <th>Date</th>
@@ -230,6 +275,46 @@
                                     {% endif %}
                                     </tbody>
                                 </table>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="moreLoans" tabindex="-1" role="dialog"
+                                     aria-labelledby="myModalLabel1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-hidden="true">×
+                                                </button>
+                                                <h4 class="modal-title" id="myModalLabel1">Loan Payment Details</h4>
+                                                Click <i class="fa fa-hand-o-right"></i> <a href="{% url 'print_function' what='user_loans' %}" target="_blank" class="btn btn-sm btn-round btn-success" ><i class="fa fa-print" ></i> Print <i class="fa fa-file-pdf-o" ></i></a> to print Loan Details
+                                            </div>
+                                            <div class="modal-body">
+
+                                                <table class="more-tables table-bordered table-stripped">
+                                                    <thead>
+                                                    <th>Date</th>
+                                                    <th>Amount(UGX)</th>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% if on_pay %}
+                                                        {% for pay in on_pay %}
+                                                             <tr><td>{{ pay.pay_date }}</td><td>{{ pay.paid_amount|floatformat:0 }}</td></tr>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <tr>
+                                                            <td colspan="3">
+                                                            You have not made any payment for the loan
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+                                        </div><!-- /.modal-content -->
+                                    </div><!-- /.modal-dialog -->
+                                </div><!-- /.modal -->
+
                             </div>
                         </div>
 
