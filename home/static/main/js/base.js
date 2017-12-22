@@ -26,7 +26,7 @@ $('#bottom-div').enhsplitter({
     position: '70%',
 });
 
-/*
+/**
 *
 * input types settings
 *
@@ -129,7 +129,7 @@ c = get_color(parseInt(default_slider));
 $('#slider .ui-slider-range').css('background-color', c);
 $('#slider .ui-state-default, .ui-widget-content .ui-state-default').css('background-color', c);
 
-/* this function returns
+/** this function returns
  *
  * color of the slider
  *
@@ -151,7 +151,7 @@ function get_color(value) {
 
 }
 
-/*
+/**
 *
 * these triggers or events
 *
@@ -169,12 +169,14 @@ $(".users_list li").click(function () {
         get_user_object(account_id)
     }
 });
+
 $("#user-table tr").click(function () {
     var account_id = $(this).find('td:eq(0)').attr("data");
     if(account_id !== undefined && account_id){
         get_user_object(account_id)
     }
 });
+
 $("#contribution-table tr").click(function () {
     var slip_url = $(this).find('td:eq(-1)').attr("data");
 
@@ -186,6 +188,7 @@ $("#contribution-table tr").click(function () {
         $("#preview").attr('src', MEDIA_URL+slip_url)
     }
 });
+
 $("#investment-table tr, #loan-table tr, .right-li-links li, " +
     "li.ref, .dashboard-tables tr").click(function () {
     var link = $(this).data("href");
@@ -196,7 +199,7 @@ $("#investment-table tr, #loan-table tr, .right-li-links li, " +
 });
 
 
-/*
+/**
 *
 * image preview
 *
@@ -208,7 +211,7 @@ $("input[name='photo']").change(function () {
     preview_image(this)
 });
 
-/*
+/**
 *
 * function called to
 *
@@ -226,7 +229,7 @@ function preview_image(input) {
     }
 }
 
-/*
+/**
 *
 * auto filling forms
 *
@@ -243,7 +246,7 @@ $('.admin_contribution_form input[name="deposit"], ' +
         var penalt = $('.admin_contribution_form input[name="penalty"]').val();
         $('.admin_contribution_form input[name="total"]').val(deposit-penalt)
 });
-/*
+/**
 *
 * Function that auto fills loan form
 *
@@ -287,7 +290,7 @@ $('.admin_loan_form input[name="loan_amount"], ' +
         $('.admin_loan_form input[name="sub_total"]').val(sub_total.toFixed(1))
 });
 
-/*
+/**
 *
 * this function gets
 *
@@ -312,7 +315,7 @@ function get_cookie(name) {
     return cookie_value
 }
 
-/*
+/**
 *
 * Function that sends
 *
@@ -339,7 +342,7 @@ function get_user_object(acc_id) {
     })
 }
 
-/*
+/**
 *
 * Function that sends
 *
@@ -367,7 +370,7 @@ function get_contrib_object(acc_id) {
     })
 }
 
-/*
+/**
 *
 * Function that populates user
 *
@@ -414,7 +417,7 @@ function fill_user_form(data) {
 }
 
 
-/*
+/**
 *
 * Function that populates contribution
 *
@@ -449,7 +452,7 @@ function fill_contrib_form(data) {
 }
 
 
-/*
+/**
 *
 * Function makes ajax
 *
@@ -492,7 +495,7 @@ function make_search(event) {
     })
 }
 
-/*
+/**
 *
 * Function that regenerates
 *
@@ -533,7 +536,7 @@ function user_table(data) {
     })
 }
 
-/*
+/**
 *
 * Function that regenerates
 *
@@ -571,7 +574,7 @@ function contrib_table(data) {
     })
 }
 
-/*
+/**
 *
 * Function that regenerates
 *
@@ -618,7 +621,7 @@ function invest_table(data) {
     })
 }
 
-/*
+/**
 *
 * Function that regenerates
 *
@@ -665,7 +668,7 @@ function loan_table(data) {
 }
 
 
-/*
+/**
 *
 * events for formsets
 *
@@ -676,3 +679,63 @@ $('.form-set td:has(ul.errorlist)').addClass('has-error');
 
 
 $('table.more-tables').dataTable();
+
+
+/**
+ * Impelementation for styling user permission elements
+ * */
+
+function formatPermissionBoxes() {
+    var main_div = $('#div_id_user_permissions > div.controls');
+    var elements = {};
+
+    main_div.find('div.checkbox').each(function (idx, ele) {
+
+        ele = ele.cloneNode(true);
+        var txt = $(ele).find('label').text().trim();
+        ele = '<div class="checkbox" >' + ele.innerHTML + '</div>';
+        if (txt.toUpperCase() !== 'JUST A MEMBER' && txt.toUpperCase().startsWith('CAN ')){
+
+            var key = txt.split(' ');
+            var temp = "";
+            for (var i=0; i < key.length; i++){
+                if (i > 1 ){ temp = temp.concat(key[i] + '_').trim(); }
+            }
+            key = temp.substr(0, temp.lastIndexOf('_'));
+            if(key !== 'investment_financial_statement'){
+                if(elements[key] === undefined){ elements[key] = []; }
+                elements[key].push(ele);
+            }
+        }else{
+            if(elements.user === undefined){ elements.user = []; }
+            elements.user.push(ele);
+        }
+    });
+    var temp_main = '';
+    var temp_html = null;
+    var count = 1, done = 0;
+
+    for(var key in elements){
+        if(temp_html === null){
+            temp_html = "<div class='row'>";
+        }
+        if(count <= 3){
+            var open =  "<div class='col-sm-4'>" +
+                    "<b style='width: 100%; color: #000; text-decoration: underline;'>" + key + "</b><br/>";
+            for(var i=0; i < elements[key].length; i++){
+                open += elements[key][i];
+            }
+            open += "</div>";
+            temp_html += open;
+            done++;
+            if(count !== 3 && !(done >= Object.keys(elements).length)){ count++; continue; }
+        }
+        temp_html += "</div>";
+        temp_main += temp_html;
+        count = 1;
+        temp_html = null;
+    }
+    main_div.html(temp_main);
+}
+
+formatPermissionBoxes();
