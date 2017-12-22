@@ -1,5 +1,5 @@
 
-<table class="table no-style dashboard-tables table-bordered table-striped">
+<table repeat="1" class="table no-style dashboard-tables table-bordered table-striped">
     <thead>
     <th>Description</th>
     <th>Invested(UGX)</th>
@@ -12,7 +12,7 @@
     <tbody>
     {% if income_statements %}
         {% for year, var_list in income_statements.items %}
-            <tr><td colspan="7" class="group" style="text-align: center; background-color: rgba(73,115,180,0.55); font-weight: bolder">{{ year }}</td></tr>
+            <tr><td colspan="7" class="group" style="text-align: center; background-color: lightgray; font-weight: bolder">{{ year }}</td></tr>
             {% for record in var_list %}
                 {% if not forloop.last %}
                     <tr>
@@ -25,8 +25,8 @@
                         <td>{{ record.total|floatformat:0 }}</td>
                     </tr>
                 {% else %}
-                    <tr style="border-top: solid 2px #d9534f;">
-                        <td style="background: #d9534f; color: #fff; font-weight: bolder;">Totals</td>
+                    <tr style="border-top: solid 2px darkgray;">
+                        <td style="background: lightgray; color: #000; font-weight: bolder;">Totals</td>
                         <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_invested|floatformat:0 }}</td>
                         <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_recouped|floatformat:0 }}</td>
                         <td style="color: #d32828; font-weight: bolder; text-align: right">{{ record.total_interest|floatformat:0 }}</td>

@@ -59,8 +59,9 @@
                             {% if perms.finance.can_add_loan or perms.finance.can_modify_loan or perms.finance.can_view_loan  %}
                                 <li><a href="{% url 'loans' %}">Loans</a></li>
                             {% endif %}
-
+                            {% comment %}
                             <li><a href="{% url 'statements' %}">Statements</a></li>
+                            {% endcomment %}
                         </ul>
                     </li>
                     {% comment %}

@@ -30,11 +30,14 @@ INSTALLED_APPS = (
 
     'crispy_forms',
     'django_excel',
+    'pyexcel',
+    'weasyprint',
+    'xhtml2pdf',
+    'reportlab',
 
     'home',
     'users',
     'finance',
-
     'message',
     'others',
     'documents',

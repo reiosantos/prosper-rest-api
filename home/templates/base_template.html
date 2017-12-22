@@ -51,6 +51,11 @@
                 <div class="page-title ">
                     <div class="title_left">
                         <h3>{{ title }}</h3>
+
+                        {% if not no_search %}
+                            Click <i class="fa fa-hand-o-right"></i> <a href="{% url 'excel_function' what=what_to_print %}" target="_blank" class="btn btn-sm btn-round btn-primary" ><i class="fa fa-file-excel-o" ></i> Export To Excel </a> to download {{ to_print }}
+                        {% endif %}
+
                     </div>
                     {% if not no_search %}
 

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>Summary</title>
     <style>
-        @page {
+
+        /*@page {
             size: A4 portrait;
             @bottom-right{
                 font-size: 14px;
@@ -25,7 +26,18 @@
                 content: "This page is intentionally left blank.";
             }
         }
-         img.logo {
+
+        @media print {
+           div.col-12, ul, div.row{
+               page-break-before: avoid;
+               page-break-after: avoid;
+               page-break-inside: auto;
+               box-decoration-break: clone;
+               -webkit-box-decoration-break: clone;
+               display: block;
+            }
+        }
+        img.logo {
             vertical-align: middle;
             border: 0;
             page-break-inside: avoid;
@@ -34,9 +46,9 @@
         body{
             font-family: 'Courier New', FreeMono, Courier, monospace;
             width: 100%;
-            margin-right: auto;
-            margin-left: auto;
+            margin: 20px;
             clear: both;
+            padding: 10px;
             font-size: 12px;
         }
         table{
@@ -45,7 +57,7 @@
             width: 100%;
             border-collapse: collapse;
         }
-        table:not(.no-top-border){
+        table:not('.no-top-border') {
             border-top: 1px solid;
         }
         .row{
@@ -66,7 +78,7 @@
             vertical-align: top;
             padding: 3px;
             border: 0;
-            height: 100%;
+            /*height: 100%;*
         }
         .tb-header{
             font-weight: bolder;
@@ -113,18 +125,6 @@
             text-transform: uppercase;
             text-align: center;
         }
-        @media print {
-           div.col-12, ul, div.row{
-               page-break-before: avoid;
-               page-break-after: avoid;
-               page-break-inside: auto;
-               box-decoration-break: clone;
-               -webkit-box-decoration-break: clone;
-               display: block;
-            }
-        }
-
-
         fieldset{
             margin-bottom: 20px;
         }
@@ -166,21 +166,33 @@
         .columns > div{
             padding: 2px;
         }
+        table.multiple {
+            margin: 0;
+            padding: 0;
+        }
+        table.multiple td, table.multiple th{
+            width: 12.5% !important;
+            border: 1px solid;
+        }
+        table.multiple tr:first-child, table.multiple thead:first-child{
+            width: 25% !important;
+        }
+        */
 
     </style>
 </head>
 <body>
 
 <table class="no-top-border">
-    <tr>
+    <tr style="margin-bottom: 10px;">
         <td colspan="2" style="text-align: center">
             <img alt="Logo" src="{{ logo }}" class="logo" />
-            <h2>{{ title }}</h2>
-            <h3>ACCOUNTS SUMMARY</h3>
         </td>
     </tr>
+    <tr style="margin: 2px 0;"><td colspan="2" style="text-align: center; font-weight: bolder; font-size: 16px;"> {{ title }} </td></tr>
+    <tr style="margin: 2px 0;"><td colspan="2" style="text-align: center; font-weight: bolder; font-size: 14px;"> ACCOUNTS SUMMARY </td></tr>
     <tr><td style="font-weight: bolder; text-align: left">Print Date: {{ today|date:'l dS, N Y' }}</td> <td style="text-align: right; font-weight: lighter; font-style: italic">printed by : {{ user }}</td></tr>
-    <tr style="margin: 15px 0;"><td colspan="2" style="font-weight: bolder; text-align: center;">CLUB SUMMARY</td></tr>
+    <tr style="margin: 15px 0;"><td colspan="2" style="font-weight: bolder; text-align: center; color: blue;">CLUB SUMMARY</td></tr>
     <tr>
         <td style="padding-right: 50px">
             <table border="1">
@@ -206,109 +218,27 @@
             </table>
         </td>
     </tr>
-    <!--
-    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">CONTRIBUTIONS</td></tr>
-    <tr>
-        <td colspan="2">{% include 'holders/contributions.html' %}</td>
-    </tr>
-    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">LOANS</td></tr>
-    <tr>
-        <td colspan="2">{% include 'holders/loans.html' %}</td>
-    </tr>
-    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">INVESTMENTS</td></tr>
-    <tr>
-        <td colspan="2">{% include 'holders/investments.html' %}</td>
-    </tr>
-    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">EXPENSES</td></tr>
-    <tr>
-        <td colspan="2">{% include 'holders/expenses.html' %}</td>
-    </tr>
-    <tr><td colspan="2" style="font-weight: bolder; text-align: center;">INCOME STATEMENT</td></tr>
-    <tr>
-        <td colspan="2">{% include 'holders/income_statement.html' %}</td>
-    </tr>
-    -->
-
 </table>
 
-    <div class="row">
-        <p class="head" >CONTRIBUTIONS</p>
-        {% include 'holders/contributions.html' %}
-    </div>
-    <div class="row">
-        <p class="head" >LOANS</p>
-        {% include 'holders/loans.html' %}
-    </div>
-    <div class="row">
-        <p class="head" >INVESTMENTS</p>
-        {% include 'holders/investments.html' %}
-    </div>
+<div style="width: 100%;"><span style="font-weight: bolder; text-align: center;">CONTRIBUTIONS</span></div>
 
-    <div class="row">
-        <p class="head" >EXPENSES</p>
-        <div class="columns" style="width: 100%; height: auto;">
-            <div class="tb-header">Date</div>
-            <div class="tb-header">Particular</div>
-            <div class="tb-header">Expended(UGX)</div>
-            <div class="tb-header">Recouped(UGX)</div>
-            <div class="tb-header">Interest(UGX)</div>
-        </div>
+{% include 'holders/contributions.html' %}
 
-        <div style="width: 100%; height: auto">
-            {% if expenses %}
-                {% for form in expenses %}
-                    <div class="columns" >
-                        <div>{{ form.date|date:'dS, N Y' }}</div>
-                        <div>{{ form.particulars }}</div>
-                        <div>{{ form.invested|floatformat:0 }}</div>
-                        <div>{{ form.recouped|floatformat:0 }}</div>
-                        <div>{{ form.interest|floatformat:0 }}</div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <tr><td colspan="4">No Vestment....</td></tr>
-            {% endif %}
+<div style="width: 100%;"><span style="font-weight: bolder; text-align: center;">LOANS</span></div>
 
-        </div>
-    </div>
+{% include 'holders/loans.html' %}
 
-    <div class="row">
-        <p class="head" >INCOME STATEMENT</p>
-        <div style="width: 100%; height: auto">
-            <div class="col-3 tb-header">Description</div>
-            <div class="col-3 tb-header">Debit (UGX)</div>
-            <div class="col-3 tb-header">Credit (UGX)</div>
-            <div class="col-3 tb-header">Total Expected (UGX)</div>
-        </div>
-        <div style="width: 100%; height: auto">
-            {% if income_statements %}
-                {% for year, var_list in income_statements.items %}
-                    <div  class="group col-12" style="margin-top: 20px; text-align: center; background-color: rgba(236,238,235,0.98); font-weight: bolder">{{ year }}</div>
-                    {% for record in var_list %}
-                        {% if not forloop.last %}
-                            <div class="col-12" style="">
-                                <div class="col-3">{{ record.description }}</div>
-                                <div class="col-3">{{ record.debit|floatformat:0 }}</div>
-                                <div class="col-3">{{ record.credit|floatformat:0 }}</div>
-                                <div class="col-3">{{ record.total|floatformat:0 }}</div>
-                            </div>
-                        {% else %}
-                            <div class="col-12" style="border-top: solid 2px #000;">
-                                <div class="col-3" style="background: #7f7f7f; color: #fff; font-weight: bolder;">Totals</div>
-                                <div class="col-3" style="color: #d32828; font-weight: bolder; ">{{ record.total_debts }}</div>
-                                <div class="col-3" style="color: #d32828; font-weight: bolder; ">{{ record.total_credit }}</div>
-                                <div class="col-3" style="color: #d32828; font-weight: bolder; ">{{ record.total_cash }}</div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                {% endfor %}
-            {% else %}
-                <div class="col-12" style="padding: 20px;">No data..</div>
-            {% endif %}
-        </div>
+<div style="width: 100%;"><span style="font-weight: bolder; text-align: center;">INVESTMENTS</span></div>
 
-    </div>
+{% include 'holders/investments.html' %}
 
+<div style="width: 100%;"><span style="font-weight: bolder; text-align: center;">EXPENSES</span></div>
+
+{% include 'holders/expenses_print.html' %}
+
+<div style="width: 100%;"><span style="font-weight: bolder; text-align: center;">INCOME STATEMENT</span></div>
+
+{% include 'holders/income_statement.html' %}
 
 </body>
 </html>

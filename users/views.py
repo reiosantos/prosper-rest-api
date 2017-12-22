@@ -150,6 +150,8 @@ def manage_users(request):
     return render(request, 'users/user_form_admin.html', {
         'title': "User Manager",
         'search_table': 'users',
+        'to_print': 'Members List',
+        'what_to_print': 'users',
         'form': admin_form,
         'new_users': new_users_list,
         'old_users': old_users_list,
