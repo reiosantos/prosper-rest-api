@@ -12,7 +12,7 @@ from django.urls import reverse
 from finance.forms import ContributionForm, ExcelUploadForm, InvestmentForm, InvestmentFinancialStatementForm, \
     InterestForm, LoanForm, LoanPaymentForm
 from finance.models import Contribution, Investment, InvestmentFinancialStatement, Interest, Loan, LoanPayment
-from home.support.support_functions import save_interest
+from home.support.support_functions import save_interest, excel_contributions_upload
 from home.support.validators import RequiredFormset
 
 
@@ -333,8 +333,12 @@ def contributions(request):
             excel_form = ExcelUploadForm(request.POST, request.FILES)
             if excel_form.is_valid():
                 # to handle uploads of excel
+                err, status = excel_contributions_upload(excel_form=excel_form, upload_type='contributions')
+                if status is True and err is None:
+                    message = 'Contributions have been uploaded'
+                elif err:
+                    error = err
 
-                message = 'Contributions have been uploaded'
         elif ids is not None and ids is not False:
             if ids is not None:
                 try:
