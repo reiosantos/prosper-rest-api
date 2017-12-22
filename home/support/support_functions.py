@@ -1,17 +1,114 @@
 from collections import OrderedDict
-from datetime import date
+from datetime import date, datetime
+
+import os
 from dateutil import relativedelta
 
 from decimal import Decimal
+
+from django.core.exceptions import PermissionDenied
+from django.core.files.storage import FileSystemStorage
 from django.db.models import Sum, Count, Q
 from django.db.models.functions import TruncMonth
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.template import TemplateDoesNotExist
+from django.template.loader import get_template
+from django.urls import Resolver404
 from django.utils import timezone
+from django.views import View
 
+import django_excel as excel
+
+from weasyprint import HTML
+from xhtml2pdf import pisa
+
+from config import settings
+from config.prosper import COMPANY_NAME
+from config.settings import REPORT_ROOT, MEDIA_URL
 from finance.forms import InterestForm
 from finance.models import Interest, Investment, Contribution, Loan, LoanPayment
 from home.forms import DetailsForm
 from home.models import ClubDetails, Expenses
+from home.support.validators import generate_report_filename
 from users.models import User
+
+
+my_css = """
+    @page {
+        size: letter portrait;
+        margin: 2cm;
+    }
+    img.logo {
+        vertical-align: middle;
+        border: 0;
+        zoom: 20%;
+    }
+    body{
+        font-family: 'Courier New', FreeMono, Courier, monospace;
+        width: 100%;
+        clear: both;
+        padding: 10px;
+        font-size: 12px;
+    }
+    table{
+        margin-bottom: 20px;
+        height: auto;
+        width: 100%;
+    }
+    .no-top-border tr{
+        margin-bottom: 10px;
+        margin-top: 2cm;
+    }
+        table:not('.no-top-border') {
+            border-top: 1px solid;
+        }
+        td{
+            vertical-align: top;
+            padding: 3px !important;
+            border: 0;
+            /*height: 100%;*/
+        }
+        fieldset{
+            margin-bottom: 20px;
+        }
+        table.dashboard-tables{
+            text-align: right;
+        }
+        .table-striped tbody tr:nth-child(odd) td,
+        .table-striped tbody tr:nth-child(odd) th {
+            background-color: #ececec;
+        }
+        .table-bordered {
+            border: 1px solid #ddd;
+        }
+        .table-bordered > thead > tr > th,
+        .table-bordered > tbody > tr > th,
+        .table-bordered > tfoot > tr > th,
+        .table-bordered > thead > tr > td,
+        .table-bordered > tbody > tr > td,
+        .table-bordered > tr > td,
+        .table-bordered > tr > th,
+        .table-bordered > tfoot > tr > td {
+          border: 1px solid #ddd;
+        }
+        .table-bordered > thead > tr > th,
+        .table-bordered > thead > th,
+        .table-bordered > thead > td,
+        .table-bordered > thead > tr > td {
+          border-bottom-width: 2px;
+        }
+        table.dashboard-tables.contributions tbody tr:last-child{
+            background: rgba(232,232,232,0.31);
+            font-weight: bolder;
+            text-align: right;
+            border-top: 2px solid black !important;
+        }
+        tr, td{
+        border-width: 1px;
+        border-style: solid;
+        }
+    """
 
 
 def user_time_passed(user):
@@ -450,7 +547,106 @@ def cash_at_hand():
 
 def calculate_income_statement():
 
-    data = dict()
+    data = {
+        '2015': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit':100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest':9900, 'total_cash': 690000}
+        ],
+        '2016': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2018': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2020': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2021': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2019': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2022': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2025': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2024': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2023': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2026': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+        '2027': [
+            {'description': 'Contributions', 'debit': 2000, 'credit': 0, 'total': 5000},
+            {'description': 'Expenses', 'invested': 100000, 'interest': 2000, 'recouped': 0, 'total': 67},
+            {'description': 'Loans', 'debit': 0, 'credit': 100000, 'invested': 23000, 'interest': 7, 'total': 50000},
+            {'description': 'Investments', 'invested': 3000, 'recouped': 6000, 'interest': 98, 'total': 7888},
+            {'total_debts': 3000, 'total_credit': 2000, 'total_invested': 2000, 'total_recouped': 8700,
+             'total_interest': 9900, 'total_cash': 690000}
+        ],
+    }
+
+    # data = dict()
     monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
     min_year = start_date.year
     max_year = today.year
@@ -575,3 +771,206 @@ def yearly_summary(year=None, monthly=0):
         'tot_recouped': tot_recouped, 'tot_interest': tot_interest, 'tot_cash': tot_cash,
     }
     return data
+
+
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+    resources
+    """
+    s_url = settings.STATIC_URL
+    s_root = settings.STATIC_ROOT
+    m_url = settings.MEDIA_URL
+    m_root = settings.MEDIA_ROOT
+
+    # convert URIs to absolute system paths
+    if uri.startswith(m_url):
+        path = os.path.join(m_root, uri.replace(m_url, ""))
+    elif uri.startswith(s_url):
+        path = os.path.join(s_root, uri.replace(s_url, ""))
+    else:
+        return uri  # handle absolute uri (ie: http://some.tld/foo.png)
+
+    # make sure that file exists
+    if not os.path.isfile(path):
+        raise Exception(
+            'media URI must start with %s or %s' % (s_url, m_url)
+        )
+    return path
+
+
+class PrintFunction(View):
+
+    global my_css
+
+    def get(self, request, what=None):
+
+        if not request.user.is_authenticated():
+            return redirect('login_user')
+
+        if not what:
+            raise Resolver404('Not Found')
+
+        if what == 'admin_dashboard':
+            if not request.user.user_type == "admin":
+                raise PermissionDenied('permission denied')
+            # preparing report data
+            loan_rate = Decimal(0)
+            ir = Interest.objects.all()
+            if ir and ir.count() > 0:
+                ir = ir[0]
+                loan_rate = ir.interest
+            monthly_rate, today, start_date, months_in_operation, form = monthly_rate_today()
+            total_membership, expected_total_contributions = expected_contributions(monthly_rate)
+            banked_cash_at_hand, un_banked_cash_at_hand, expected_total_cash_at_hand, variance = cash_at_hand()
+            expenses = Expenses.objects.all().order_by('-date')
+
+            temp_vars = {'logo': os.path.join(MEDIA_URL, 'logo-web.png'),
+                         'user': request.user, 'title': COMPANY_NAME,
+                         'loan_rate': loan_rate,
+                         'today': today,
+                         'start_date': start_date,
+                         'months_in_operation': months_in_operation,
+                         'total_membership': total_membership,
+                         'monthly_rate': monthly_rate,
+                         'expected_total_contributions': expected_total_contributions,
+                         'expected_total_cash_at_hand': expected_total_cash_at_hand,
+                         'banked_cash_at_hand': banked_cash_at_hand,
+                         'unbanked_cash_at_hand': un_banked_cash_at_hand,
+                         'variance': variance,
+                         'expenses': expenses,
+                         'all_contributions': all_contributions(monthly=monthly_rate, today=today),
+                         'all_loans': all_loans(),
+                         'all_investments': all_investments(),
+                         'income_statements': calculate_income_statement(),
+                         }
+            try:
+                template = get_template('print/dashboard.html')
+                out_put = template.render(temp_vars)
+
+                # using xhtml2pdf and not weasyprint to generate admin summary PDF file
+                name = '{0}.pdf'.format(generate_report_filename())
+                response = HttpResponse(content_type='application/pdf')
+                response['Content-Disposition'] = 'inline; filename="{0}.pdf"'.format(name)
+
+                pisaStatus = pisa.CreatePDF(out_put, dest=response, link_callback=link_callback,
+                                            default_css=my_css)
+                # if error then show some funy view
+                if pisaStatus.err:
+                    return HttpResponse('We had some errors <pre>' + out_put + '</pre>')
+                return response
+
+            except Exception as ex:
+                raise Resolver404('Error Occurered while creating Admin PDF Template: ' + str(ex.message))
+
+        elif what == 'user_profile':
+
+            # preparing report data
+            today = date.today()
+            contribution = get_user_contributions(request.user, today)
+            investment = get_user_investments(request)
+            loan = get_user_loans(request)
+
+            temp_vars = {
+                'logo': os.path.join(MEDIA_URL, 'logo-web.png'),
+                'MEDIA_URL': MEDIA_URL,
+                'user': request.user, 'title': COMPANY_NAME,
+                'today': today,
+                'contributions': contribution['contributions'],
+                'summary': contribution['summary'],
+                'i_manage': investment['i_manage'],
+                'a_member': investment['a_member'],
+                'others': investment['other'],
+                'on_loan': loan['on_loan'],
+                'on_pay': loan['on_pay'],
+                'credit': loan['credit'],
+            }
+            try:
+                template = get_template('print/user_profile.html')
+                out_put = template.render(temp_vars)
+
+                # using weasyprint to print the user profile PDF page
+                try:
+                    name = '{0}.pdf'.format(generate_report_filename())
+                    HTML(string=out_put, base_url=request.build_absolute_uri()).write_pdf(
+                        os.path.join(REPORT_ROOT, name))
+
+                    fs = FileSystemStorage(REPORT_ROOT)
+
+                    with fs.open(name) as pdf:
+                        response = HttpResponse(pdf, content_type='application/pdf')
+                        response['Content-Disposition'] = 'inline; filename={0}.pdf'.format(name)
+                        return response
+
+                except Exception as e:
+                    raise Resolver404('An Error Occurred... While processing the file' + str(e.message))
+
+            except TemplateDoesNotExist:
+                raise Resolver404('User Template Not Found')
+
+        else:
+            raise Resolver404('URL Not Understood')
+
+
+class ExcelFunction(View):
+
+    file_name = None
+    columns = []
+    query_sets = None
+    file_type = 'xlsx'
+    date_today = str(datetime.today())
+
+    def get(self, request, what=None):
+
+        if not request.user.is_authenticated():
+            return redirect('login_user')
+
+        if not what:
+            raise Resolver404('Not Found')
+
+        if what == 'users':
+            if not request.user.has_perms(['can_view_user']):
+                raise PermissionDenied('permission denied')
+            self.query_sets = User.objects.all()
+            self.columns = ['account_id', 'first_name', 'last_name', 'email',
+                            'contact', 'address', 'date_joined', 'username', 'user_status']
+            self.file_name = 'members-list-' + self.date_today
+
+        elif what == 'contributions':
+            if not request.user.has_perms(['can_view_contributions']):
+                raise PermissionDenied('permission denied')
+            self.query_sets = Contribution.objects.all()
+            self.columns = ['user_id', 'contribution_date', 'deposit', 'penalty', 'total']
+            self.file_name = 'contributions-list-' + self.date_today
+
+        elif what == 'investments':
+            if not request.user.has_perms(['can_view_investments']):
+                raise PermissionDenied('permission denied')
+            self.file_name = 'investments-list-' + self.date_today
+            return excel.make_response_from_a_table(Investment, self.file_type, file_name=self.file_name)
+
+        elif what == 'loans':
+            if not request.user.has_perms(['can_view_loans']):
+                raise PermissionDenied('permission denied')
+            self.query_sets = Loan.objects.all()
+            self.columns = ['user_id', 'loan_date', 'loan_duration', 'loan_amount', 'amount_paid',
+                            'sur_charge', 'sub_total', 'loan_interest', 'total_amount',
+                            'outstanding_balance', 'loan_status']
+            self.file_name = 'Loans-list-' + self.date_today
+
+        elif what == 'user_contributions':
+            self.query_sets = Contribution.objects.filter(user=request.user)
+            self.columns = ['user_id', 'contribution_date', 'deposit', 'penalty', 'total']
+            self.file_name = 'my_contributions-' + self.date_today
+
+        else:
+            raise Resolver404('URL Not Understood')
+
+        if not self.query_sets or not self.columns or not self.file_name:
+            raise Resolver404('Could Not export data')
+
+        try:
+            return excel.make_response_from_query_sets(self.query_sets, self.columns,
+                                                       self.file_type, file_name=self.file_name)
+        except Exception as e:
+            raise e
