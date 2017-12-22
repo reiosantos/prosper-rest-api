@@ -74,8 +74,8 @@ class AdminUserForm(ModelForm):
     )
     # Uni-form
     helper = FormHelper()
-    helper.label_class = 'col-sm-3'
-    helper.field_class = 'col-sm-9'
+    helper.label_class = 'col-sm-2'
+    helper.field_class = 'col-sm-10'
     helper.form_tag = False
     helper.form_show_errors = True
 
