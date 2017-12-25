@@ -974,3 +974,14 @@ class ExcelFunction(View):
                                                        self.file_type, file_name=self.file_name)
         except Exception as e:
             raise e
+
+
+def excel_contributions_upload(excel_form=None, upload_type=None):
+
+    if excel_form is None or upload_type is None:
+        return 'Upload failed: Internal error has occurred', None
+    
+    if upload_type == 'contributions':
+        pass
+
+    return None, True

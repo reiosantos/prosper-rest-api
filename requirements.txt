@@ -6,7 +6,15 @@ django-excel
 python-magic
 mysql-connector-python
 pyexcel
+pyexcel-xls
+pyexcel-xlsx
 pytz
-Pillow
 weasyprint
+
+xhtml2pdf>=0.0.6
+html5lib>=0.999
+httplib2>=0.8
+Pillow>=2.4.0
+pyPdf2>=1.21
+reportlab>=2.7
 
