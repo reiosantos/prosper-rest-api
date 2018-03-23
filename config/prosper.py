@@ -15,7 +15,7 @@
 # Details about the company
 COMPANY_NAME = 'Prosper Investments'
 COMPANY_TITLE = 'prosper investments company'
-COMPANY_CONTACT = '0779104144'
+COMPANY_CONTACT = '1234567890'
 COMPANY_EMAIL = 'ronireiosantos@gmail.com'
 
 # database
@@ -29,7 +29,7 @@ DB_PORT = ''
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = COMPANY_EMAIL
-EMAIL_HOST_PASSWORD = 'ronald507'
+EMAIL_HOST_PASSWORD = '********'
 EMAIL_PORT = 587
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
