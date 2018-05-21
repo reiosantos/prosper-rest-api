@@ -13,23 +13,29 @@
     -> sudo service mysql restart
 """
 # Details about the company
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
 COMPANY_NAME = 'Prosper Investments'
 COMPANY_TITLE = 'prosper investments company'
-COMPANY_CONTACT = '1234567890'
-COMPANY_EMAIL = 'ronireiosantos@gmail.com'
+COMPANY_CONTACT = os.getenv('COMPANY_CONTACT')
+COMPANY_EMAIL = os.getenv('COMPANY_EMAIL')
 
 # database
-DB_NAME = 'prosper'
-DB_USER = 'root'
-DB_PASS = 'santos'
-DB_HOST = 'localhost'
+DB_NAME = os.getenv('DB_NAME')
+DB_USER = os.getenv('DB_USERNAME')
+DB_PASS = os.getenv('DB_PASS')
+DB_HOST = os.getenv('DB_HOST')
 DB_PORT = ''
 
 # email hosting configurations
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = COMPANY_EMAIL
-EMAIL_HOST_PASSWORD = '********'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
