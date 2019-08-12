@@ -101,3 +101,6 @@ ENV/
 .mypy_cache/
 .idea
 .vscode
+/proxy/node_modules/
+tmp-docker-vol/
+elasticsearch/

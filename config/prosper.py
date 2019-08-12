@@ -25,11 +25,11 @@ COMPANY_CONTACT = os.getenv('COMPANY_CONTACT')
 COMPANY_EMAIL = os.getenv('COMPANY_EMAIL')
 
 # database
-DB_NAME = os.getenv('DB_NAME')
-DB_USER = os.getenv('DB_USERNAME')
-DB_PASS = os.getenv('DB_PASS')
-DB_HOST = os.getenv('DB_HOST')
-DB_PORT = ''
+DB_NAME = os.getenv('DB_NAME', 'prosper')
+DB_USER = os.getenv('DB_USERNAME', 'root')
+DB_PASS = os.getenv('DB_PASSWORD', '')
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+DB_PORT = os.getenv('DB_PORT', 3306)
 
 # email hosting configurations
 EMAIL_USE_TLS = True
@@ -40,4 +40,4 @@ EMAIL_PORT = 587
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-HOSTS = ['localhost', '127.0.0.1', '127.0.1.1', '192.168.43.210']
+HOSTS = ['*']
