@@ -14,10 +14,6 @@ router.register('short/organisation', views.UsersInOrganisationShortViewSet,
 router.register('default/organisation', views.UsersInOrganisationDefaultPermissionViewSet,
                 base_name='in-organisation-default', )
 
-organisational_actions = views.UsersInOrganisationViewSet.as_view({
-	'post': 'invite_user',
-	'patch': 'change_company',
-})
 
 urlpatterns = [
 	path('current/', views.CurrentUserView.as_view(), name='current'),

@@ -14,6 +14,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = (
+	# 'grappelli',  # disabled for now
 	'django.apps',
 	'django.contrib.admin',
 	'django.contrib.auth',
@@ -34,6 +35,8 @@ INSTALLED_APPS = (
 
 	'django_elasticsearch_dsl',
 	'django_elasticsearch_dsl_drf',
+	'django_countries',
+	'import_export',
 	'corsheaders',
 	'rest_framework_swagger',
 	'weasyprint',
@@ -71,7 +74,7 @@ DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql',
 		'HOST': os.getenv('DB_HOST', ''),
-		'PORT': os.getenv('DB_PORT', 3306),
+		'PORT': os.getenv('DB_PORT', '3306'),
 		'NAME': os.getenv('DB_NAME', ''),
 		'USER': os.getenv('DB_USERNAME', ''),
 		'PASSWORD': os.getenv('DB_PASSWORD', ''),
@@ -251,6 +254,17 @@ LOGGING = {
 			'filename': '/var/log/prosper_investments/prosper_investments.log',
 			'formatter': 'verbose',
 		},
+		'logstash': {
+			'level': 'DEBUG',
+			'class': 'logstash.TCPLogstashHandler',
+			'host': os.getenv('LOGSTASH_HOST', 'localhost'),
+			'port': os.getenv('LOGSTASH_PORT', '5959'),  # Default value: 5959
+			'version': 1,
+			'message_type': 'django',
+			# 'type' field in logstash message. Default value: 'logstash'.
+			'fqdn': False,  # Fully qualified domain name. Default value: false.
+			'tags': ['django.request'],  # list of tags. Default: None.
+		},
 		'request_handler': {
 			'level': 'DEBUG',
 			'class': 'logging.handlers.RotatingFileHandler',
@@ -267,7 +281,7 @@ LOGGING = {
 			'propagate': True,
 		},
 		'django.request': {
-			'handlers': ['request_handler'],
+			'handlers': ['logstash', 'request_handler'],
 			'level': 'DEBUG',
 			'propagate': False
 		},
@@ -292,6 +306,8 @@ SWAGGER_SETTINGS = {
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+GRAPPELLI_ADMIN_TITLE = 'Prosper Investments'
 
 ELASTICSEARCH_DSL = {
 	'default': {

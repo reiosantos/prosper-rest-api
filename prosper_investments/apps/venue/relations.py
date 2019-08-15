@@ -1,7 +1,7 @@
 from rest_framework import relations
 
 
-class FilterByVenueMixin(object):
+class FilterByVenueMixin:
 
     def filter_by_venue(self, queryset):
         return queryset.filter(venue=self._venue)

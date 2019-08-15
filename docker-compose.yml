@@ -3,7 +3,7 @@ version: "3"
 services:
     proxy:
         image: traefik   # the official Traefik docker image
-        container_name: psp_traefik
+        container_name: pprosper_traefik
         restart: on-failure
         command: --api --docker # enables the web UI and tells Traefik to listen to docker
         ports:
@@ -15,21 +15,34 @@ services:
             - ./proxy/traefik.toml:/etc/traefik/traefik.toml
             - ./proxy/acme.json:/acme.json
 
-    elasticsearch:
+    elastic-kibana:
         tty: true
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
-        container_name: psp_elasticsearch
+        build: ./elasticsearch
+        image: prosper-elastic-kibana
+        container_name: prosper_elastic-kibana
+        restart: always
+        links:
+            - proxy:local.prosperinv.com
         environment:
-            - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
             - ELASTICSEARCH_USERNAME=elastic
             - ELASTICSEARCH_PASSWORD=prosper-inv
         volumes:
-            - ./elasticsearch/data:/usr/share/elasticsearch/data
-            - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-            - ./elasticsearch-setup.sh:/usr/share/elasticsearch/elasticsearch-setup.sh
+            - ./elasticsearch/elasticsearch.yml:/etc/elasticsearch/elasticsearch.yml
+            - ./elasticsearch/data/:/var/lib/elasticsearch/
+            - ./elasticsearch/logs/:/usr/share/elasticsearch/logs/
+            - ./elasticsearch/kibana.yml:/etc/kibana/kibana.yml
+            - ./elasticsearch/kibana/data/:/var/lib/kibana/
+            - ./elasticsearch/kibana/logs/:/var/log/kibana/
+            - ./elasticsearch/logstash.conf:/etc/logstash/conf.d/logstash.conf
+            - ./elasticsearch/logstash.yml:/etc/logstash/logstash.yml
+            - ./elasticsearch/logstash/logs/:/usr/share/logstash/logs/
+            - ./elasticsearch/nginx.conf:/etc/nginx/sites-enabled/default
+            - ./elasticsearch:/opt/elastic/
+        command: bash -c "./elasticsearch-setup.sh"
         ports:
             - 9200:9200
-            - 9300:9300
+            - 9600:9600
+            - 5601:5601
         ulimits:
             memlock:
                 soft: -1
@@ -39,55 +52,35 @@ services:
                 hard: 65536
         labels:
             - traefik.enable=true
-            - traefik.backend=elasticsearch
-            - traefik.port=9200
+            - traefik.backend=elastic-kibana
+            - traefik.port=90
             - traefik.frontend.passHostHeader=true
-            - traefik.frontend.rule=Host:local.prosperinv.com;PathPrefixStrip:/elasticsearch
-
-    kibana:
-        tty: true
-        image: docker.elastic.co/kibana/kibana:7.3.0
-        container_name: psp_kibana
-        restart: always
-        links:
-            - elasticsearch
-        ports:
-            - 5601:5601
-        depends_on:
-          - elasticsearch
-        environment:
-            - ELASTICSEARCH_USERNAME=elastic
-            - ELASTICSEARCH_PASSWORD=prosper-inv
-        volumes:
-            - ./kibana.yml:/usr/share/kibana/config/kibana.yml
-        labels:
-            - traefik.enable=true
-            - traefik.backend=kibana
-            - traefik.port=5601
-            - traefik.frontend.passHostHeader=true
-            - traefik.frontend.rule=Host:local.prosperinv.com;PathPrefixStrip:/kibana
+            - traefik.frontend.rule=Host:local.prosperinv.com;PathPrefix:/kibana
 
     rest-api:
         build: ./
         image: prosper-rest-api
-        container_name: psp_rest-api
+        container_name: prosper_rest-api
         volumes:
             - ./:/usr/src/app/
         environment:
             - DJANGO_SETTINGS_MODULE=prosper_investments.settings.docker
             - ENV=local
-            - ELASTICSEARCH_URL=http://local.prosperinv.com/elasticsearch
+            - LOGSTASH_HOST=elastic-kibana
+            - LOGSTASH_POST=9600
+            - ELASTICSEARCH_URL=http://elastic-kibana:9200
             - DB_HOST=db
             - DB_NAME=prosper_investments
             - DB_USERNAME=prosper_investments
             - DB_PASSWORD=prosper_investments
             - DB_PORT=3306
-            - EMAIL_HOST_PASSWORD=********
+            - EMAIL_HOST_USER=yosam.db@gmail.com
+            - EMAIL_HOST_PASSWORD=ronald@507
             - BASE_URL=http://local.prosperinv.com/api
         links:
             - proxy:local.prosperinv.com
             - db
-            - elasticsearch
+            - elastic-kibana
         labels:
             - traefik.enable=true
             - traefik.port=8000
@@ -102,7 +95,7 @@ services:
 
     db:
         image: mysql:5.7
-        container_name: psp_db
+        container_name: prosper_db
         command: ["--general_log=1", "--log_output=TABLE", "--explicit_defaults_for_timestamp=1"]
         environment:
             - MYSQL_ROOT_PASSWORD=root

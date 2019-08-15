@@ -1,0 +1,10 @@
+node.name: elasticsearch
+config.reload.automatic: true
+log.level: info
+
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.username: ${ELASTICSEARCH_USERNAME}
+xpack.monitoring.elasticsearch.password: ${ELASTICSEARCH_PASSWORD}
+
+xpack.management.elasticsearch.username: ${ELASTICSEARCH_USERNAME}
+xpack.management.elasticsearch.password: ${ELASTICSEARCH_PASSWORD}

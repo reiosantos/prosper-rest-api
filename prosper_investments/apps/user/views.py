@@ -29,7 +29,8 @@ from prosper_investments.apps.user import serializers
 from prosper_investments.apps.user.models import DashboardSection, VenueViewerType
 from prosper_investments.apps.user.pagination import UserInOrganisationPagination
 from prosper_investments.apps.user.utils import (
-	users_venue_permissions, user_exists_as_email, user_exists_as_mobile, filter_order_by)
+	users_venue_permissions, user_exists_as_email, user_exists_as_mobile, filter_order_by,
+	venues_permissions)
 from prosper_investments.apps.venue.models import User
 
 log = logging.getLogger('prosper_investments')
@@ -37,18 +38,33 @@ log = logging.getLogger('prosper_investments')
 
 class CurrentUserView(RetrieveAPIView):
 	"""
-	Info about the current Company User.
+	Info about the current User.
 	"""
 	serializer_class = serializers.UserSerializer
 
 	def get_object(self):
 		return self.request.user
 
+	def get(self, request, *args, **kwargs):
+		resp = self.retrieve(request)
+		if resp and resp.data:
+			log.debug(resp.data)
+			"""
+			Update venues list that user has permission to working
+			"""
+			resp.data['venues'] = venues_permissions(resp.data)
+		return resp
+
 
 class EditProfileView(UpdateAPIView, GenericAPIView):
 	"""
-    Edit the currently logged in user's profile.
-    """
+	Edit the currently logged in user's profile.
+	{
+		"firstName": "Reio",
+		"lastName": "Santos",
+		"mobile": 234567
+	}
+	"""
 	serializer_class = serializers.EditUserSerializer
 
 	def post(self, request):
@@ -66,7 +82,7 @@ class CreateUserView(CreateAPIView):
 	serializer_class = serializers.CreateUserSerializer
 
 	def get_serializer_context(self):
-		return {'is_active': False}
+		return {'is_active': False, **super(CreateUserView, self).get_serializer_context()}
 
 	def perform_create(self, serializer):
 		serializer.save()
@@ -84,6 +100,11 @@ class CreateUserView(CreateAPIView):
 class ActivateUserView(UpdateAPIView):
 	"""
 	Activate a User.
+	{
+		"email": "santos-test@prosperinv.com",
+		"firstName": "Reio",
+		"lastName": "Santos"
+	}
 	"""
 	permission_classes = (AllowAny,)
 	serializer_class = serializers.ActivateUserSerializer
@@ -99,6 +120,7 @@ class ActivateUserView(UpdateAPIView):
 		user_id = self.request.data.get('user_id')
 		if user_id:
 			return User.objects.get(pk=user_id)
+		return None
 
 
 class UserVenuePermissionsView(APIView):
@@ -129,8 +151,8 @@ class UserExistView(APIView):
 			return Response(user_exists_as_mobile(self.request.GET.get('mobile')))
 		elif self.request.GET.get('email', False):
 			return Response(user_exists_as_email(self.request.GET.get('email')))
-		else:
-			return Response(False)
+
+		return Response(False)
 
 
 class DashboardSectionsView(ListAPIView):
@@ -203,7 +225,6 @@ class UsersInOrganisationViewSet(ModelViewSet):
 		if search:
 			queryset = queryset.filter(
 				Q(email__icontains=search) |
-				Q(company__name__icontains=search) |
 				Q(profile__first_name__icontains=search) |
 				Q(profile__last_name__icontains=search)
 			)
@@ -214,9 +235,9 @@ class UsersInOrganisationViewSet(ModelViewSet):
 
 	def perform_destroy(self, instance):
 		"""
-        'Deleting' a user in this context means removing all of their
-        'viewer-types' for the venue in question.
-        """
+		'Deleting' a user in this context means removing all of their
+		'viewer-types' for the venue in question.
+		"""
 		instance.viewer_types.filter(venue=self.request.venue).clear()
 
 
@@ -259,8 +280,8 @@ class PasswordResetView(DjoserPasswordResetView):
 				# noinspection PyUnresolvedReferences
 				self.send_email(**self.get_send_email_kwargs(user))
 			return response.Response(status=status.HTTP_200_OK)
-		else:
-			return response.Response(status=status.HTTP_404_NOT_FOUND)
+
+		return response.Response(status=status.HTTP_404_NOT_FOUND)
 
 	def get_users(self, email):
 		# only active users

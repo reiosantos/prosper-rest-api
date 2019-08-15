@@ -32,13 +32,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 		fields = ('first_name', 'last_name', 'mobile', 'address1', 'address2', 'city', 'country',)
 
 	def update(self, instance, validated_data):
-		if (
-			instance.mobile != validated_data['mobile'] and
-			validated_data.get('mobile_confirmed', False) is not True
-		):
-			validated_data['mobile_confirmed'] = False
+		try:
+			if (
+				instance.mobile != validated_data['mobile'] and
+				validated_data.get('mobile_confirmed', False) is not True
+			):
+				validated_data['mobile_confirmed'] = False
 
-		return super(UserProfileSerializer, self).update(instance, validated_data)
+			return super(UserProfileSerializer, self).update(instance, validated_data)
+		except KeyError as e:
+			raise KeyError(f"Field {str(e)} is required")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -51,15 +54,21 @@ class UserSerializer(serializers.ModelSerializer):
 	country = serializers.CharField(source='profile.country', allow_blank=True, required=False)
 	mobile_confirmed = serializers.CharField(
 		source='profile.mobile_confirmed', allow_blank=True, required=False)
+	venues = UserVenueSerializer(many=True, read_only=True)
+	user_type = serializers.StringRelatedField(source='user_type.name')
+	user_role = serializers.StringRelatedField(source='role.name')
 
 	sections = serializers.SerializerMethodField()
 	permissions = serializers.SerializerMethodField()
+	venues_permissions = serializers.SerializerMethodField()
 
 	class Meta:
 		model = User
 		fields = (
 			'email',
 			'mobile',
+			'user_type',
+			'user_role',
 			'first_name',
 			'last_name',
 			'address1',
@@ -67,7 +76,10 @@ class UserSerializer(serializers.ModelSerializer):
 			'city',
 			'country',
 			'mobile_confirmed',
-			'sections', 'permissions'
+			'sections',
+			'permissions',
+			'venues',
+			'venues_permissions'
 		)
 
 	def get_sections(self, instance):
@@ -80,23 +92,39 @@ class UserSerializer(serializers.ModelSerializer):
 		return instance.viewer_types.filter(venue__url_component=venue) \
 			.values_list('permissions__permission_name', flat=True)
 
+	def get_venues_permissions(self, instance):
+		venues_permissions = {}
+
+		for venue in instance.venues.values():
+			venue_name = venue['url_component']
+			if venue_name:
+				permission = instance.viewer_types.filter(venue__url_component=venue_name) \
+					.values_list('permissions__permission_name', flat=True)
+				if permission:
+					venues_permissions[venue_name] = permission
+		return venues_permissions
+
 
 class EditUserSerializer(UserSerializer):
 	def update(self, instance, validated_data):
 
 		profile_data = None
-
 		try:
 			profile_data = validated_data.pop('profile')
 		except KeyError:
 			if not self.partial:
 				raise ParseError(detail="Missing profile information")
-			else:
-				pass
 
 		super(EditUserSerializer, self).update(instance, validated_data)
 
 		if profile_data:
+			try:
+				profile = instance.profile
+			except User.profile.RelatedObjectDoesNotExist:
+				profile = UserData()
+
+			instance.profile = profile
+			instance.profile.user = instance
 			UserProfileSerializer().update(instance.profile, profile_data)
 
 		return instance
@@ -109,7 +137,6 @@ class CreateUserSerializer(UserSerializer):
 			# Create the user profile
 			profile_data = validated_data.pop('profile', {u'mobile': u''})
 
-			# Create the 'company' user
 			profile_data['user'] = User.objects.create_user(
 				role=Role.objects.get_or_create(name='Role')[0],
 				email=validated_data['email'],
@@ -242,9 +269,7 @@ class VenueViewerTypeSerializer(serializers.ModelSerializer):
 			'value',
 			'display_name',
 			'sections',
-			'permissions',
-			'notify_users',
-			'email_template'
+			'permissions'
 		)
 
 	def create(self, validated_data):

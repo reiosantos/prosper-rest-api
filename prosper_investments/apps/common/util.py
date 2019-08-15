@@ -22,7 +22,7 @@ def validate_date_range_venue(value):
 	return True
 
 
-class SimulatedObject(object):
+class SimulatedObject:
 	object_name = None
 	ref = None
 	skip_props = None

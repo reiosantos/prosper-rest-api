@@ -3,7 +3,7 @@ from calendar import timegm
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.template import Template, Context
+from django.template import Template
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.utils import jwt_response_payload_handler
 
@@ -184,7 +184,7 @@ def filter_order_by(request, sqs):
 	return sqs
 
 
-class CustomTemplate(object):
+class CustomTemplate:
 	"""
 	CustomTemplate class for templating <EXAMPLE> keys with instance values
 	Examples for tamplete string:
@@ -223,7 +223,7 @@ class CustomTemplate(object):
 		for key in self.template_booking_fields:
 			context[key] = self.get_key_value(key)
 
-		return Template(string).render(Context(context))
+		return Template(string).render(context)
 
 	def get_key_value(self, key):
 		"""
@@ -238,7 +238,7 @@ class CustomTemplate(object):
 				# noinspection PyUnresolvedReferences
 				value = value.strftime(self.instance.venue.formatted_date)
 
-			return value
+		return value
 
 	def replace_chars(self, string):
 		string = string.replace('<%', '{{')

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail.message import EmailMessage
 from django.http import QueryDict
-from django.template import Context, TemplateDoesNotExist
+from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.urls import reverse
 
@@ -134,12 +134,10 @@ class ContextEmailMessage(CustomEmailMessage):
 	def get_body(self):
 		request = self.context['request']
 		self.context['browser_name'] = request.META.get('HTTP_USER_AGENT', 'Unknown')
-		return get_template('email/%s.html' % self.template_name).render(
-			Context({
-				'instance': self.instance,
-				'context': self.context
-			})
-		)
+		return get_template('email/%s.html' % self.template_name).render({
+			'instance': self.instance,
+			'context': self.context
+		})
 
 	def get_reply_address(self, instance=None):
 		"""
@@ -148,8 +146,8 @@ class ContextEmailMessage(CustomEmailMessage):
 		request = self.context.get('request')
 		if request and request.venue:
 			return request.venue.support_email_address
-		else:
-			return super(ContextEmailMessage).get_reply_address(instance)
+
+		return super(ContextEmailMessage).get_reply_address(instance)
 
 
 class WelcomeEmail(ContextEmailMessage):
@@ -204,6 +202,7 @@ def site_url(request, uri):
 			'' if uri.startswith('/') else '/',
 			uri
 		)
+	return site
 
 
 # @TODO? handle `site is None`
@@ -281,12 +280,10 @@ class NewRoleEmail(RoleTemplateMixin, BaseEmailMessage):
 		)
 
 	def get_body(self):
-		return get_template('email/%s.html' % self.template_name).render(
-			Context({
-				'instance': self.instance,
-				'context': self.context,
-				'msg': UserCustomTemplate(self.instance).render(
-					self.context['role'].email_template
-				)
-			})
-		)
+		return get_template('email/%s.html' % self.template_name).render({
+			'instance': self.instance,
+			'context': self.context,
+			'msg': UserCustomTemplate(self.instance).render(
+				self.context['role'].email_template
+			)
+		})

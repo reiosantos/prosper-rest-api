@@ -103,4 +103,11 @@ ENV/
 .vscode
 /proxy/node_modules/
 tmp-docker-vol/
-elasticsearch/
+elasticsearch/*
+!elasticsearch/Dockerfile
+!elasticsearch/elasticsearch-setup.sh
+!elasticsearch/elasticsearch.yml
+!elasticsearch/kibana.yml
+!elasticsearch/nginx.conf
+!elasticsearch/logstash.conf
+!elasticsearch/logstash.yml

@@ -3,7 +3,7 @@ from random import randint
 import factory
 from factory import Factory as FakerFactory
 
-from prosper_investments.apps.venue.models import Venue, User, Role, UserData
+from prosper_investments.apps.venue.models import Venue, User, Role, UserData, UsersAdminVenues
 
 
 class VenueFactory(factory.DjangoModelFactory):
@@ -42,9 +42,16 @@ class UserFactory(factory.DjangoModelFactory):
 	class Meta:
 		model = User
 
-	email = factory.Faker('company_email')
+	email = factory.Faker('email')
 	password = factory.PostGenerationMethodCall('set_password', 'default-password')
 	is_active = True
 	is_admin = False
 	role = factory.SubFactory(RoleFactory)
 	profile = factory.RelatedFactory(UserDataFactory, 'user')
+
+
+class UsersAdminVenuesFactory(factory.DjangoModelFactory):
+	class Meta:
+		model = UsersAdminVenues
+
+	venue = factory.SubFactory(VenueFactory)

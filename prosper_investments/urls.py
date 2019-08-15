@@ -33,6 +33,7 @@ from prosper_investments.apps.user import views as userviews
 schema_view = get_swagger_view(title='PSP Rest API')
 
 urlpatterns = [
+	# path('grappelli/', include('grappelli.urls')),  # disabled for now
 	path('admin/', admin.site.urls),
 	path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 	path('jwt/login/', views.obtain_jwt_token),

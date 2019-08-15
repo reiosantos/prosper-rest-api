@@ -4,8 +4,8 @@ from typing import Union
 import pytz
 from django.conf import settings
 from django.conf.global_settings import LANGUAGES
-from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django_countries.fields import CountryField
 from timezone_field import TimeZoneField
@@ -119,6 +119,18 @@ class Role(models.Model):
 		db_table = 'psp_roles'
 
 
+class UserType(models.Model):
+	name = models.CharField(max_length=50)
+	venues = models.ManyToManyField(
+		Venue, related_name='user_types', db_constraint=False, blank=True)
+
+	def __str__(self):
+		return self.name
+
+	class Meta:
+		db_table = 'psp_users_type'
+
+
 class UserManager(BaseUserManager):
 	use_in_migrations = True
 
@@ -161,7 +173,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 	date_joined = models.DateTimeField(db_column='dt', blank=True, null=True, default=datetime.now)
 	role = models.ForeignKey(Role, db_column='psp_roles_id', on_delete=models.SET_NULL, null=True)
 	is_admin = models.NullBooleanField(db_column='isadmin')
+	user_type = models.ForeignKey(
+		UserType, blank=True, null=True, db_column='psp_users_type_id', on_delete=models.SET_NULL
+	)
 	venues = models.ManyToManyField(Venue, through='UsersVenues')
+	admin_venues = models.ManyToManyField(
+		Venue, through='UsersAdminVenues', related_name='admin_users')
 
 	REQUIRED_FIELDS = []
 	USERNAME_FIELD = 'email'
@@ -236,6 +253,18 @@ class UsersVenues(models.Model):
 		verbose_name_plural = 'Users Venues'
 		db_table = 'psp_users_venues'
 		unique_together = (('user', 'venue',),)
+
+
+class UsersAdminVenues(models.Model):
+	"""
+	This method might be useful:
+	"""
+	user = models.ForeignKey(User, db_column='psp_user_id', on_delete=models.CASCADE)
+	venue = models.ForeignKey(Venue, db_column='psp_venue_id', on_delete=models.CASCADE)
+
+	class Meta:
+		verbose_name_plural = 'Admin Venues'
+		db_table = 'psp_users_admin_venues'
 
 
 class VenueSetting(models.Model):

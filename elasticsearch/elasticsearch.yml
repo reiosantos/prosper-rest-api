@@ -14,13 +14,10 @@ http.cors.allow-origin: "*"
 http.cors.allow-methods : OPTIONS, HEAD, GET, POST, PUT, DELETE
 http.cors.allow-headers : X-Requested-With,X-Auth-Token,Content-Type, Content-Length
 
-discovery.seed_hosts: ["localhost", "elasticsearch"]
-#discovery.seed_providers: ''
-#discovery.zen.hosts_provider: ''
+discovery.seed_hosts: ["localhost"]
 
 logger.level: WARN
-network.bind_host: 0.0.0.0
-
+network.host: localhost
 transport.host: localhost
 
 xpack.security.enabled: true
