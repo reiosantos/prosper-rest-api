@@ -24,6 +24,7 @@ INSTALLED_APPS = (
 	'django.contrib.staticfiles',
 	'rest_framework',
 	'djoser',
+	'elasticapm.contrib.django',
 
 	'prosper_investments.apps.venue',
 	'prosper_investments.apps.user',
@@ -58,6 +59,8 @@ DEFAULT_SUPPORT_EMAIL = 'support@prosperinv.com'
 ADMIN_EMAIL = 'admin@prosperinv.com'
 
 MIDDLEWARE = (
+	'elasticapm.contrib.django.middleware.TracingMiddleware',
+	'elasticapm.contrib.django.middleware.Catch404Middleware',
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'corsheaders.middleware.CorsMiddleware',
@@ -162,7 +165,7 @@ WSGI_APPLICATION = 'prosper_investments.wsgi.application'
 
 SECRET_KEY = '(3r#690b&r#!2po+m5n_x(wys7-(z8b+&yq(q2y*l4w$yk5-^%'
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', False)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -265,6 +268,10 @@ LOGGING = {
 			'fqdn': False,  # Fully qualified domain name. Default value: false.
 			'tags': ['django.request'],  # list of tags. Default: None.
 		},
+		'elasticapm': {
+			'level': 'WARNING',
+			'class': 'elasticapm.contrib.django.handlers.LoggingHandler',
+		},
 		'request_handler': {
 			'level': 'DEBUG',
 			'class': 'logging.handlers.RotatingFileHandler',
@@ -276,7 +283,7 @@ LOGGING = {
 	},
 	'loggers': {
 		'prosper_investments': {
-			'handlers': ['console', 'file'],
+			'handlers': ['elasticapm', 'console', 'file'],
 			'level': 'DEBUG',
 			'propagate': True,
 		},
@@ -284,6 +291,11 @@ LOGGING = {
 			'handlers': ['logstash', 'request_handler'],
 			'level': 'DEBUG',
 			'propagate': False
+		},
+		'elasticapm.errors': {
+			'level': 'ERROR',
+			'handlers': ['console'],
+			'propagate': False,
 		},
 	}
 }
@@ -313,6 +325,17 @@ ELASTICSEARCH_DSL = {
 	'default': {
 		'hosts': os.getenv('ELASTICSEARCH_URL', 'http://localhost:9200')
 	},
+}
+
+ELASTIC_APM = {
+	# Set required service name. Allowed characters:
+	# a-z, A-Z, 0-9, -, _, and space
+	'SERVICE_NAME': 'rest-api',
+	# Use if APM Server requires a token
+	'SECRET_TOKEN': '',
+	# Set custom APM Server URL (default: http://localhost:8200)
+	'SERVER_URL': os.getenv('ELASTIC_APM_URL', 'http://localhost:8200'),
+	'DEBUG': DEBUG,
 }
 
 GCP_REGION = 'us-west-2a'

@@ -1,7 +1,11 @@
 # noinspection PyUnresolvedReferences
-from voyage_control.settings import *
+import os
+
+from prosper_investments.settings import *
 
 DEBUG = True
+
+os.putenv('ELASTIC_APM_DISABLE_SEND', True)
 
 SECRET_KEY = "SOMETHINGREALLYRANDOM"
 

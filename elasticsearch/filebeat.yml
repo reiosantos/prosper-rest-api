@@ -1,0 +1,40 @@
+filebeat.inputs:
+    - type: log
+      enabled: true
+      fields_under_root: true
+      scan_frequency: 5s
+      paths:
+          - /var/log/nginx/*.log
+          - /var/log/nginx/*.log
+    - type: tcp
+      enabled: true
+      max_message_size: 10MiB
+      host: "localhost:9000"
+      tags: ["json"]
+
+filebeat.config.modules:
+    reload.enabled: true
+    reload.period: 10s
+
+setup.template.settings:
+    index.number_of_shards: 1
+
+processors:
+    add_host_metadata: ~
+
+output:
+    elasticsearch:
+        enabled: false
+        hosts: ["localhost:9200"]
+        index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+        username: "${ELASTICSEARCH_USERNAME}"
+        password: "${ELASTICSEARCH_PASSWORD}"
+    logstash:
+        enabled: true
+        hosts: ["localhost:5044"]
+
+setup.kibana:
+    enabled: true
+    host: "localhost:5601"
+    username: "${ELASTICSEARCH_USERNAME}"
+    password: "${ELASTICSEARCH_PASSWORD}"

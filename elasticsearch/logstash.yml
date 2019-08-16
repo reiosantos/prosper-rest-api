@@ -1,6 +1,6 @@
 node.name: elasticsearch
 config.reload.automatic: true
-log.level: info
+log.level: warn
 
 xpack.monitoring.enabled: true
 xpack.monitoring.elasticsearch.username: ${ELASTICSEARCH_USERNAME}

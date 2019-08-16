@@ -11,6 +11,9 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
+from django_elasticsearch_dsl_drf.filter_backends import FilteringFilterBackend, \
+	OrderingFilterBackend, DefaultOrderingFilterBackend, SearchFilterBackend
+from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from djoser.views import PasswordResetView as DjoserPasswordResetView
 from rest_framework import response, status
 from rest_framework.exceptions import ValidationError
@@ -21,6 +24,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from prosper_investments.apps.common.mixins import ElasticSearchMixin
 from prosper_investments.apps.email.utils import WelcomeEmail, PasswordResetEmail, site_url, \
 	VerifyUserEmail
 from prosper_investments.apps.permission.permissions import ManagementPermissions
@@ -31,6 +35,7 @@ from prosper_investments.apps.user.pagination import UserInOrganisationPaginatio
 from prosper_investments.apps.user.utils import (
 	users_venue_permissions, user_exists_as_email, user_exists_as_mobile, filter_order_by,
 	venues_permissions)
+from prosper_investments.apps.venue.documents import UserDocument
 from prosper_investments.apps.venue.models import User
 
 log = logging.getLogger('prosper_investments')
@@ -201,8 +206,10 @@ class UsersInOrganisationDefaultPermissionViewSet(ModelViewSet):
 		instance.viewer_types.filter(venue=self.request.venue).clear()
 
 
-class UsersInOrganisationViewSet(ModelViewSet):
+class UsersInOrganisationViewSet(ModelViewSet, ElasticSearchMixin):
 	permission_classes = (ManagementPermissions,)
+	document = UserDocument
+	search_fields = ('email',)
 
 	serializer_class = serializers.UserInOrganisationSerializer
 	pagination_class = UserInOrganisationPagination
@@ -260,9 +267,9 @@ class UsersInOrganisationShortViewSet(ReadOnlyModelViewSet):
 
 	def perform_destroy(self, instance):
 		"""
-        'Deleting' a user in this context means removing all of their
-        'viewer-types' for the venue in question.
-        """
+		'Deleting' a user in this context means removing all of their
+		'viewer-types' for the venue in question.
+		"""
 		instance.viewer_types.filter(venue=self.request.venue).clear()
 
 

@@ -1,7 +1,7 @@
 FROM python:3.7
 
 RUN apt-get update && \
-apt-get install -y --fix-missing mysql-client python3-dev libjpeg-dev nginx supervisor pdftk && \
+apt-get install -y --fix-missing python3-dev libjpeg-dev nginx supervisor pdftk && \
 echo "daemon off;" >> /etc/nginx/nginx.conf && \
 mkdir /var/log/prosper_investments/ && \
 rm -rf /var/lib/apt/lists/*

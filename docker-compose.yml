@@ -36,13 +36,17 @@ services:
             - ./elasticsearch/logstash.conf:/etc/logstash/conf.d/logstash.conf
             - ./elasticsearch/logstash.yml:/etc/logstash/logstash.yml
             - ./elasticsearch/logstash/logs/:/usr/share/logstash/logs/
+            - ./elasticsearch/filebeat.yml:/etc/filebeat/filebeat.yml
+            - ./elasticsearch/filebeat/logs/:/var/log/filebeat/
+            - ./elasticsearch/apm-server.yml:/etc/apm-server/apm-server.yml
+            - ./elasticsearch/apm-server/logs/:/var/log/apm-server
             - ./elasticsearch/nginx.conf:/etc/nginx/sites-enabled/default
             - ./elasticsearch:/opt/elastic/
         command: bash -c "./elasticsearch-setup.sh"
         ports:
-            - 9200:9200
-            - 9600:9600
-            - 5601:5601
+            - 9200:9200 # elasticsearch
+            - 9600:9600 # logstash
+            - 8200:8200 # elastic apm
         ulimits:
             memlock:
                 soft: -1
@@ -67,8 +71,10 @@ services:
             - DJANGO_SETTINGS_MODULE=prosper_investments.settings.docker
             - ENV=local
             - LOGSTASH_HOST=elastic-kibana
-            - LOGSTASH_POST=5959
+            - LOGSTASH_PORT=5959
             - ELASTICSEARCH_URL=http://elastic-kibana:9200
+            - ELASTIC_APM_URL=http://elastic-kibana:8200
+            - DEBUG=true
             - DB_HOST=db
             - DB_NAME=prosper_investments
             - DB_USERNAME=prosper_investments

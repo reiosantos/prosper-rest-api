@@ -1,11 +1,13 @@
 import logging
 
+from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
 from prosper_investments.apps.permission.models import ContributionPermission
 from prosper_investments.apps.user.models import User, DashboardSection, VenueViewerType
 from prosper_investments.apps.user.utils import ensure_user_associated_with_venue
+from prosper_investments.apps.venue.documents import UserDocument
 from prosper_investments.apps.venue.models import Venue, Role, UserData
 from prosper_investments.apps.venue.relations import ForThisVenuePrimaryKeyRelatedField
 
@@ -44,7 +46,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 			raise KeyError(f"Field {str(e)} is required")
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer, DocumentSerializer):
 	mobile = serializers.CharField(source='profile.mobile', allow_blank=True, required=False)
 	first_name = serializers.CharField(source='profile.first_name')
 	last_name = serializers.CharField(source='profile.last_name')
@@ -64,6 +66,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
+		document = UserDocument
 		fields = (
 			'email',
 			'mobile',
@@ -168,7 +171,7 @@ class ActivateUserSerializer(UserSerializer):
 		return instance
 
 
-class UserInOrganisationSerializer(serializers.ModelSerializer):
+class UserInOrganisationSerializer(serializers.ModelSerializer, DocumentSerializer):
 	roles = ForThisVenuePrimaryKeyRelatedField(
 		source='viewer_types',
 		many=True,
@@ -189,6 +192,7 @@ class UserInOrganisationSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
+		document = UserDocument
 		fields = (
 			'id',
 			'roles',

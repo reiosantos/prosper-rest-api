@@ -111,3 +111,5 @@ elasticsearch/*
 !elasticsearch/nginx.conf
 !elasticsearch/logstash.conf
 !elasticsearch/logstash.yml
+!elasticsearch/filebeat.yml
+!elasticsearch/apm-server.yml
