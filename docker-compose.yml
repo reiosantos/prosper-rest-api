@@ -67,7 +67,7 @@ services:
             - DJANGO_SETTINGS_MODULE=prosper_investments.settings.docker
             - ENV=local
             - LOGSTASH_HOST=elastic-kibana
-            - LOGSTASH_POST=9600
+            - LOGSTASH_POST=5959
             - ELASTICSEARCH_URL=http://elastic-kibana:9200
             - DB_HOST=db
             - DB_NAME=prosper_investments
