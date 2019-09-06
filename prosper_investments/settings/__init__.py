@@ -323,7 +323,7 @@ GRAPPELLI_ADMIN_TITLE = 'Prosper Investments'
 
 ELASTICSEARCH_DSL = {
 	'default': {
-		'hosts': os.getenv('ELASTICSEARCH_URL', 'http://localhost:9200')
+		'hosts': os.getenv('ES_URL', 'http://localhost:9200')
 	},
 }
 
@@ -334,8 +334,6 @@ ELASTIC_APM = {
 	# Use if APM Server requires a token
 	'SECRET_TOKEN': '',
 	# Set custom APM Server URL (default: http://localhost:8200)
-	'SERVER_URL': os.getenv('ELASTIC_APM_URL', 'http://localhost:8200'),
+	'SERVER_URL': os.getenv('ES_APM_URL', 'http://localhost:8200'),
 	'DEBUG': DEBUG,
 }
-
-GCP_REGION = 'us-west-2a'

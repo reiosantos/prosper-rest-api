@@ -30,6 +30,6 @@ PSP_REST_API_BASE_URL = 'http://localhost/'
 
 ELASTICSEARCH_DSL = {
 	'default': {
-		'hosts': 'http://elasticsearch:9200'
+		'hosts': 'http://es01:9200'
 	},
 }
