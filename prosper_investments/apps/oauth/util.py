@@ -18,16 +18,13 @@ def get_venue_token(provider=None, venue=None, provider_name='', venue_name=''):
 		return VenueToken.objects.get(provider=provider, venue=venue)
 	except Venue.DoesNotExist:
 		err_msg = 'Venue ' + venue_name + ' not found.'
-		logger.error(err_msg)
-		raise NotFound(err_msg)
+		raise NotFound({'error': err_msg})
 	except OAuthProvider.DoesNotExist:
 		err_msg = 'Unknown provider'
-		logger.error(err_msg)
-		raise NotFound(err_msg)
+		raise NotFound({'error': err_msg})
 	except VenueToken.DoesNotExist:
 		err_msg = 'Venue ' + venue_name + ' is not authenticated for provider ' + provider_name
-		logger.error(err_msg)
-		raise NotFound(err_msg)
+		raise NotFound({'error': err_msg})
 
 
 def _refresh(provider, venue):
@@ -45,10 +42,11 @@ def _refresh(provider, venue):
 			venue_token.refresh_token = resp_json['refresh_token']
 			venue_token.save()
 			return Response(venue_token, status=status.HTTP_200_OK)
-		return Response({"error_description": get_error(resp)}, status=resp.status_code)
+		return Response({"error": get_error(resp)}, status=resp.status_code)
 	except VenueToken.DoesNotExist:
-		raise NotFound(
-			'Venue ' + venue.name + ' is not authenticated for provider ' + provider.name)
+		raise NotFound({
+			'error': 'Venue ' + venue.name + ' is not authenticated for provider ' + provider.name
+		})
 	except Exception as e:
 		return handle_error(e)
 
@@ -66,4 +64,4 @@ def get_error(resp):
 
 
 def handle_error(e: Exception):
-	return Response({"error_description": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+	return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -14,7 +14,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = (
-	# 'grappelli',  # disabled for now
+	'grappelli',  # disabled for now
 	'django.apps',
 	'django.contrib.admin',
 	'django.contrib.auth',
@@ -70,7 +70,9 @@ MIDDLEWARE = (
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
-	'prosper_investments.apps.venue.middleware.VenueMiddleware'
+	'prosper_investments.apps.common.middleware.RequestExceptionHandler',
+	'prosper_investments.apps.venue.middleware.VenueMiddleware',
+	'prosper_investments.apps.venue.middleware.RestrictStaffToAdminMiddleware'
 )
 
 DATABASES = {
@@ -181,6 +183,8 @@ USE_L10N = True
 
 USE_TZ = False
 
+USE_THOUSAND_SEPARATOR = True
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
@@ -191,12 +195,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
 	os.path.join(BASE_DIR, 'public'),
 ]
-
-USE_THOUSAND_SEPARATOR = True
-
-STATICFILES_FINDERS = (
-	'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
 
 MEDIA_URL = 'media/'
 
@@ -213,6 +211,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_PORT = 587
 
+SERVER_EMAIL = 'no-reply@prosperinv.com'
 DEFAULT_FROM_EMAIL = 'no-reply@prosperinv.com'
 
 DJOSER = {
@@ -315,15 +314,12 @@ SWAGGER_SETTINGS = {
 	'base_path': 'local.prosperinv.com/api/docs'
 }
 
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-
 GRAPPELLI_ADMIN_TITLE = 'Prosper Investments'
 
 ELASTICSEARCH_DSL = {
 	'default': {
-		'hosts': os.getenv('ES_URL', 'http://localhost:9200')
+		'hosts': os.getenv('ES_HOST', 'localhost:9200'),
+		'http_auth': (os.getenv('ES_USER', 'elastic'), os.getenv('ES_PASSWORD', 'elastic'))
 	},
 }
 
@@ -337,3 +333,28 @@ ELASTIC_APM = {
 	'SERVER_URL': os.getenv('ES_APM_URL', 'http://localhost:8200'),
 	'DEBUG': DEBUG,
 }
+
+# CELERY STUFF
+RMQ = {
+	'db': {
+		'ROUTING_KEY': 'rest_api.db.%ss.%ss',
+	},
+	'schedule': {
+		'ROUTING_KEY': 'rest_api.schedule.remind',
+	},
+	'QUEUE_NAME': 'vc.q.rest_api',
+	'MASTER_EXCHANGE': 'vc.ex',
+	'TEST_PREFIX': 'test_',
+	'HOST': os.environ['RABBITMQ_HOST'],
+	'admin_user': os.environ['RABBITMQ_DEFAULT_USER'],
+	'admin_pass': os.environ['RABBITMQ_DEFAULT_PASS'],
+}
+
+BROKER_URL = 'amqp://%s:%s@%s/' % (
+	os.environ['RABBITMQ_DEFAULT_USER'],
+	os.environ['RABBITMQ_DEFAULT_PASS'],
+	os.environ['RABBITMQ_HOST']
+)
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

@@ -1,5 +1,6 @@
 import logging
 
+from django.db import transaction
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
@@ -46,7 +47,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 			raise KeyError(f"Field {str(e)} is required")
 
 
-class UserSerializer(serializers.ModelSerializer, DocumentSerializer):
+class UserSerializer(serializers.ModelSerializer):
 	mobile = serializers.CharField(source='profile.mobile', allow_blank=True, required=False)
 	first_name = serializers.CharField(source='profile.first_name')
 	last_name = serializers.CharField(source='profile.last_name')
@@ -116,7 +117,7 @@ class EditUserSerializer(UserSerializer):
 			profile_data = validated_data.pop('profile')
 		except KeyError:
 			if not self.partial:
-				raise ParseError(detail="Missing profile information")
+				raise ParseError({'error': "Missing profile information"})
 
 		super(EditUserSerializer, self).update(instance, validated_data)
 
@@ -138,28 +139,29 @@ class CreateUserSerializer(UserSerializer):
 		try:
 			is_active = self.context.get("is_active", True)
 			# Create the user profile
-			profile_data = validated_data.pop('profile', {u'mobile': u''})
+			profile_data = validated_data.pop('profile', {'mobile': ''})
 
-			profile_data['user'] = User.objects.create_user(
-				role=Role.objects.get_or_create(name='Role')[0],
-				email=validated_data['email'],
-				password=validated_data['password'],
-				is_active=is_active
-			)
-
-			UserData.objects.create(**profile_data)
-
-			# only do this if user signup for venue, if not venue skip it
-			venue = self.context.get("request").venue if self.context.get("request") else None
-			if venue:
-				ensure_user_associated_with_venue(profile_data['user'], venue)
+			with transaction.atomic():
+				profile_data['user'] = User.objects.create_user(
+					role=Role.objects.get_or_create(name='Role')[0],
+					email=validated_data['email'],
+					password=validated_data['password'],
+					is_active=is_active
+				)
+				UserData.objects.create(**profile_data)
+				# only do this if user signup for venue, if not venue skip it
+				venue = self.context.get("request").venue if self.context.get("request") else None
+				if venue:
+					ensure_user_associated_with_venue(profile_data['user'], venue)
 
 			return profile_data['user']
 
 		except KeyError:
-			raise ParseError(detail="Some data was missing")
+			raise ParseError({'error': "Some data was missing"})
 
 	class Meta(UserSerializer.Meta):
+		model = UserSerializer.Meta.model
+		document = UserSerializer.Meta.document
 		fields = UserSerializer.Meta.fields + ('password',)
 		write_only_fields = ('password',)
 

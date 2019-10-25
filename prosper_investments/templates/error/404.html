@@ -1,4 +1,3 @@
-
 {% extends 'error/base.html' %}
 {% load i18n %}
 
@@ -13,7 +12,7 @@
                 404 Error Page
             </h1>
             <ol class="breadcrumb">
-                <li><a href="{% url 'home_page' %}"><i class="fa fa-dashboard"></i> Home</a></li>
+				<li><a href="{% url 'admin:index' %}"><i class="fa fa-dashboard"></i> Home</a></li>
             </ol>
         </section>
 
@@ -25,7 +24,7 @@
                     <h2><i class="fa fa-warning text-yellow"></i> Oops! Page not found.</h2>
                     <p>
                         We're sorry, but the requested page could not be found
-                        Meanwhile, you may <a href="{% url 'home_page' %}">return to our home-page</a>.
+						Meanwhile, you may <a href="{% url 'admin:index' %}">return to our home-page</a>.
                     </p>
                     <!--
                     <form class="search-form">

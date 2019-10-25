@@ -2,144 +2,176 @@
 {% load filters %}
 
 {% block content %}
-<tr>
-	<td align="center" valign="top">
-		<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
-			<tr>
-				<td valign="top" class="headerContainer">
-					<table border="0" cellpadding="0" cellspacing="0" width="100%"
-						   class="mcnCaptionBlock">
-						<tbody class="mcnCaptionBlockOuter">
-						<tr>
-							<td class="mcnCaptionBlockInner" valign="top" style="padding: 0 9px;">
-								<table border="0" cellpadding="0" cellspacing="0"
-									   class="mcnCaptionLeftContentOuter" width="100%">
-									<tbody>
-									<tr>
-										<td valign="top" class="mcnCaptionLeftContentInner"
-											style="padding:0 9px ;">
-											<table class="mcnCaptionLeftTextContentContainer"
-												   align="left" border="0" cellpadding="0"
-												   cellspacing="0" width="396">
-												<tbody>
-												<tr>
-													<td valign="top" class="mcnTextContent">
-														<span style="font-size:18px">Welcome to Prosper Investments</span>
-													</td>
-												</tr>
-												</tbody>
-											</table>
-										</td>
-									</tr>
-									</tbody>
-								</table>
-							</td>
-						</tr>
-						</tbody>
-					</table>
-					<table border="0" cellpadding="0" cellspacing="0" width="100%"
-						   class="mcnDividerBlock">
-						<tbody class="mcnDividerBlockOuter">
-						<tr>
-							<td class="mcnDividerBlockInner" style="padding: 5px 18px;">
-								<table class="mcnDividerContent" border="0" cellpadding="0"
-									   cellspacing="0" width="100%"
-									   style="border-top-width: 1px;border-top-style: solid;border-top-color: #999999;">
-									<tbody>
-									<tr>
-										<td>
-											<span></span>
-										</td>
-									</tr>
-									</tbody>
-								</table>
-							</td>
-						</tr>
-						</tbody>
-					</table>
-				</td>
-			</tr>
-		</table>
-	</td>
-</tr>
-<tr>
-	<td align="center" valign="top">
-		<!-- BEGIN BODY // -->
-		<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
-			<tr>
-				<td valign="top" class="bodyContainer"><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock">
-					<tbody class="mcnTextBlockOuter">
-						<tr>
-							<td valign="top" class="mcnTextBlockInner">
-
-								<table align="left" border="0" cellpadding="0" cellspacing="0" width="600" class="mcnTextContentContainer">
-									<tbody>
+	<tr>
+		<td align="center" valign="top">
+			<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
+				<tr>
+					<td valign="top" class="headerContainer">
+						<table border="0" cellpadding="0" cellspacing="0" width="100%"
+							   class="mcnCaptionBlock">
+							<tbody class="mcnCaptionBlockOuter">
+							<tr>
+								<td class="mcnCaptionBlockInner" valign="top" style="padding: 0 9px;">
+									<table border="0" cellpadding="0" cellspacing="0"
+										   class="mcnCaptionLeftContentOuter" width="100%">
+										<tbody>
 										<tr>
-
-											<td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
-
-												<p style="color:#666; font-size: 12px;">Hi {% if instance.profile.first_name %}{{ instance.profile.first_name }}{% else %}Sir/Madam{% endif %},</p>
-
-												<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">Welcome to the {{ 'EMAIL_booking_system'|translate_for_venue:context.request.venue }} {% if context.request.venue %} for {{ context.request.venue.name }}{% endif %}. This is a free service that has been designed to reduce congestion and manage traffic flows for vehicles delivering and picking up from{% if context.request.venue %} {{ context.request.venue.name }}{% endif %}. </p>
-
-
-												<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">The system allows you to book your vehicle into a time slot at the site, enabling you to come directly to site, reducing any delays. Simply make a booking to get your vehicle pass. </p>
-
-												<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif; margin-bottom:25px;"> Click 'Get Started' below to be taken to the {% if context.request.venue %}{{ context.request.venue.name }}{% endif %} site. </p>
-
-												<table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnButtonBlock">
-													<tbody class="mcnButtonBlockOuter">
-														<tr>
-															<td style="padding-top:0; padding-right:18px; padding-bottom:18px; padding-left:18px;" valign="top" align="center" class="mcnButtonBlockInner">
-																<table border="0" cellpadding="0" cellspacing="0" class="mcnButtonContentContainer" style="border-collapse: separate !important;border: 1px solid #AAAAAA;border-radius: 5px;background-color: #66CC99;">
-																	<tbody>
-																		<tr>
-																			<td align="center" valign="middle" class="mcnButtonContent" style="font-family: Arial; font-size: 14px; padding: 10px;">
-																				<a class="mcnButton " title="*Get Started" href="{{ context.request.venue.dashboard_url }}" target="_blank" style="font-weight: normal;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Get Started</a>
-																			</td>
-																		</tr>
-																	</tbody>
-																</table>
-															</td>
-														</tr>
+											<td valign="top" class="mcnCaptionLeftContentInner"
+												style="padding:0 9px ;">
+												<table class="mcnCaptionLeftTextContentContainer"
+													   align="left" border="0" cellpadding="0"
+													   cellspacing="0" width="396">
+													<tbody>
+													<tr>
+														<td valign="top" class="mcnTextContent">
+															<span style="font-size:18px">Welcome to Prosper Investments</span>
+														</td>
+													</tr>
 													</tbody>
 												</table>
-												{% if context.request %}
-												<p style="color:#666; font-size:12px; line-height: 20px;">
-													You can find our FAQs <a href="{{ context.request }}">here</a>
-												</p>
-												{% endif %}
 											</td>
 										</tr>
-									</tbody>
-								</table>
-								<table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock">
-									<tbody class="mcnTextBlockOuter">
+										</tbody>
+									</table>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+						<table border="0" cellpadding="0" cellspacing="0" width="100%"
+							   class="mcnDividerBlock">
+							<tbody class="mcnDividerBlockOuter">
+							<tr>
+								<td class="mcnDividerBlockInner" style="padding: 5px 18px;">
+									<table class="mcnDividerContent" border="0" cellpadding="0"
+										   cellspacing="0" width="100%"
+										   style="border-top-width: 1px;border-top-style: solid;border-top-color: #999999;">
+										<tbody>
+										<tr>
+											<td>
+												<span></span>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td align="center" valign="top">
+			<!-- BEGIN BODY // -->
+			<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
+				<tr>
+					<td valign="top" class="bodyContainer">
+						<table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock">
+							<tbody class="mcnTextBlockOuter">
+							<tr>
+								<td valign="top" class="mcnTextBlockInner">
+
+									<table align="left" border="0" cellpadding="0" cellspacing="0" width="600"
+										   class="mcnTextContentContainer">
+										<tbody>
+										<tr>
+
+											<td valign="top" class="mcnTextContent"
+												style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+
+												<p style="color:#666; font-size: 12px;">Hi
+                                                    {% if instance.profile.first_name %}
+                                                        {{ instance.profile.first_name }}{% else %}
+														Sir/Madam{% endif %},</p>
+
+												<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">
+													Welcome to the Prosper Platform -
+                                                    {% if context.request.venue %} for
+                                                        {{ context.request.venue.name }}{% endif %}.
+													This is a free service that has been designed to reduce congestion
+													and manage
+													investment flows.
+												</p>
+												<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif; margin-bottom:25px;">
+													Click 'Get Started' below to be taken to the
+                                                    {% if context.request.venue %}
+                                                        {{ context.request.venue.name }}{% endif %}
+													site.
+												</p>
+
+												<table border="0" cellpadding="0" cellspacing="0" width="100%"
+													   class="mcnButtonBlock">
+													<tbody class="mcnButtonBlockOuter">
+													<tr>
+														<td style="padding-top:0; padding-right:18px; padding-bottom:18px; padding-left:18px;"
+															valign="top" align="center" class="mcnButtonBlockInner">
+															<table border="0" cellpadding="0" cellspacing="0"
+																   class="mcnButtonContentContainer"
+																   style="border-collapse: separate !important;border: 1px solid #AAAAAA;border-radius: 5px;background-color: #66CC99;">
+																<tbody>
+																<tr>
+																	<td align="center" valign="middle"
+																		class="mcnButtonContent"
+																		style="font-family: Arial; font-size: 14px; padding: 10px;">
+																		<a class="mcnButton " title="*Get Started"
+																		   href="{{ context.request.venue.dashboard_url }}"
+																		   target="_blank"
+																		   style="font-weight: normal;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Get
+																			Started</a>
+																	</td>
+																</tr>
+																</tbody>
+															</table>
+														</td>
+													</tr>
+													</tbody>
+												</table>
+                                                {% if context.request %}
+													<p style="color:#666; font-size:12px; line-height: 20px;">
+														You can find our FAQs <a href="{{ context.request }}">here</a>
+													</p>
+                                                {% endif %}
+											</td>
+										</tr>
+										</tbody>
+									</table>
+									<table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock">
+										<tbody class="mcnTextBlockOuter">
 										<tr>
 											<td valign="top" class="mcnTextBlockInner">
-												<table align="left" border="0" cellpadding="0" cellspacing="0" width="600" class="mcnTextContentContainer">
+												<table align="left" border="0" cellpadding="0" cellspacing="0"
+													   width="600"
+													   class="mcnTextContentContainer">
 													<tbody>
-														<tr>
+													<tr>
 
-															<td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+														<td valign="top" class="mcnTextContent"
+															style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
 
-																<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif; margin-top:0px;">Regards,</p>
+															<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif; margin-top:0px;">
+																Regards,</p>
 
-																<p style="color:#666; font-size: 12px;">{% if context.request.venue %}{{ context.request.venue.name }} and {% endif %}the PSP Team</p>
-															</td>
-														</tr>
+															<p style="color:#666; font-size: 12px;">
+                                                                {% if context.request.venue %}
+                                                                    {{ context.request.venue.name }}
+																	and {% endif %}the PSP Team</p>
+														</td>
+													</tr>
 													</tbody>
 												</table>
 											</td>
 										</tr>
-									</tbody>
-								</table>
-							</td>
-						</tr>
-					</tbody>
-				</td>
-			</tr>
-		</table>
-	</td>
-</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
 {% endblock %}

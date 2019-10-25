@@ -120,9 +120,12 @@ class Translation(models.Model):
 			conflicting_instance = conflicting_instance.exclude(pk=self.pk)
 
 		if conflicting_instance.exists():
-			raise ValidationError(
-				'Generic translation for this term (%s) and language (%s) already exists.' % (
-					self.term, self.language))
+			raise ValidationError({
+				'error':
+					'Generic translation for this term (%s) and language (%s) already exists.' % (
+						self.term, self.language
+					)
+			})
 
 		super(Translation, self).save(*args, **kwargs)
 

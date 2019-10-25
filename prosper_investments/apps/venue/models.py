@@ -11,11 +11,12 @@ from django_countries.fields import CountryField
 from timezone_field import TimeZoneField
 
 from prosper_investments.apps.common.fields import LowerCaseCharField
+from prosper_investments.apps.common.model_mixins import BaseModelMixin
 from prosper_investments.apps.common.util import convert_to_python_date_string_format
 from prosper_investments.apps.user.constants import VIEWER_TYPE_MANAGER
 
 
-class Venue(models.Model):
+class Venue(BaseModelMixin):
 	# Use this with the datetime.strftime method
 	TIME_FORMAT = '%I:%M %p'
 	WELCOME_TEMPLATE = 'psp-user-welcome-con'
@@ -109,7 +110,7 @@ class Venue(models.Model):
 		return (dt + offset).replace(tzinfo=None)
 
 
-class Role(models.Model):
+class Role(BaseModelMixin):
 	name = models.CharField(max_length=50)
 
 	def __str__(self):
@@ -119,7 +120,7 @@ class Role(models.Model):
 		db_table = 'psp_roles'
 
 
-class UserType(models.Model):
+class UserType(BaseModelMixin):
 	name = models.CharField(max_length=50)
 	venues = models.ManyToManyField(
 		Venue, related_name='user_types', db_constraint=False, blank=True)
@@ -164,15 +165,15 @@ class UserManager(BaseUserManager):
 		return self._create_user(email, password, True, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(BaseModelMixin, AbstractBaseUser, PermissionsMixin):
 	"""
 	Voyage Control user profile
 	"""
 	email = models.EmailField(max_length=100, blank=True, null=True, unique=True, db_index=True)
-	is_active = models.BooleanField(db_column='active')
+	is_active = models.BooleanField(db_column='active', default=False)
 	date_joined = models.DateTimeField(db_column='dt', blank=True, null=True, default=datetime.now)
 	role = models.ForeignKey(Role, db_column='psp_roles_id', on_delete=models.SET_NULL, null=True)
-	is_admin = models.NullBooleanField(db_column='isadmin')
+	is_admin = models.NullBooleanField(db_column='isadmin', default=False)
 	user_type = models.ForeignKey(
 		UserType, blank=True, null=True, db_column='psp_users_type_id', on_delete=models.SET_NULL
 	)
@@ -229,23 +230,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 			return ''
 
 
-class UserData(models.Model):
-	first_name = models.CharField(max_length=100, db_column='name', blank=True, null=True)
-	last_name = models.CharField(max_length=100, db_column='lastname', blank=True, null=True)
+class UserData(BaseModelMixin):
+	first_name = models.CharField(max_length=100, blank=True, null=True)
+	last_name = models.CharField(max_length=100, blank=True, null=True)
 	user = models.OneToOneField(
 		User, db_column='psp_users_id', related_name='profile', on_delete=models.CASCADE)
 	mobile = models.CharField(max_length=45, blank=True, null=True)
-	address1 = models.CharField(max_length=200)
-	address2 = models.CharField(max_length=200)
-	city = models.CharField(max_length=100)
-	country = models.CharField(max_length=100)
+	address1 = models.CharField(max_length=200, blank=True, null=True)
+	address2 = models.CharField(max_length=200, blank=True, null=True)
+	city = models.CharField(max_length=100, blank=True, null=True)
+	country = models.CharField(max_length=100, blank=True, null=True)
 	mobile_confirmed = models.BooleanField(default=False)
 
 	class Meta:
 		db_table = 'psp_users_data'
 
 
-class UsersVenues(models.Model):
+class UsersVenues(BaseModelMixin):
 	user = models.ForeignKey(User, db_column='psp_user_id', on_delete=models.CASCADE)
 	venue = models.ForeignKey(Venue, db_column='psp_venue_id', on_delete=models.CASCADE)
 
@@ -255,7 +256,7 @@ class UsersVenues(models.Model):
 		unique_together = (('user', 'venue',),)
 
 
-class UsersAdminVenues(models.Model):
+class UsersAdminVenues(BaseModelMixin):
 	"""
 	This method might be useful:
 	"""
@@ -267,7 +268,7 @@ class UsersAdminVenues(models.Model):
 		db_table = 'psp_users_admin_venues'
 
 
-class VenueSetting(models.Model):
+class VenueSetting(BaseModelMixin):
 	label = models.CharField(max_length=200, blank=True, null=True)
 	CHOICES_KEY = (
 		('dateFormat.shortTime', 'Time format (e.g. HH:mm)'),
@@ -302,7 +303,7 @@ class VenueSetting(models.Model):
 		return self.DICT_OF_CHOICES.get(self.var_define, self.var_define)
 
 
-class VenueSettingValue(models.Model):
+class VenueSettingValue(BaseModelMixin):
 	setting = models.ForeignKey(VenueSetting, db_column='psp_setting_id', on_delete=models.CASCADE)
 	venue = models.ForeignKey(
 		Venue, db_column='psp_venue_id', related_name='setting_values', on_delete=models.CASCADE)

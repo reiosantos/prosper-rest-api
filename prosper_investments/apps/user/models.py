@@ -5,6 +5,7 @@ import time
 
 from django.db import models
 
+from prosper_investments.apps.common.model_mixins import BaseModelMixin
 from prosper_investments.apps.permission.models import ContributionPermission
 from prosper_investments.apps.user.constants import VIEWER_TYPE_DEFAULT
 from prosper_investments.apps.venue.models import Venue, User
@@ -49,7 +50,7 @@ class DashboardSection(models.Model):
 		return self.name
 
 
-class VenueViewerType(models.Model):
+class VenueViewerType(BaseModelMixin):
 	"""
 	Venues can set different viewer/user types, e.g. 'Booker', who can only
 	use the dashboard for making bookings, or 'Venue Manager', who might be
@@ -74,15 +75,15 @@ class VenueViewerType(models.Model):
 		return '%s at %s' % (self.name, self.venue,)
 
 
-class ApiKey(models.Model):
+class ApiKey(BaseModelMixin):
 	key = models.CharField(max_length=40, primary_key=True)
 	user = models.OneToOneField(User, related_name='auth_token', on_delete=models.CASCADE)
 	created = models.DateTimeField(auto_now_add=True)
 
-	def save(self, *args, **kwargs):
+	def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
 		if not self.key:
 			self.key = self.generate_key()
-		return super(ApiKey, self).save(*args, **kwargs)
+		return super(ApiKey, self).save(force_insert, force_update, using, update_fields)
 
 	def generate_key(self):
 		return binascii.hexlify(os.urandom(20)).decode()
@@ -94,7 +95,7 @@ class ApiKey(models.Model):
 		db_table = "psp_api_key"
 
 
-class TemporaryToken(models.Model):
+class TemporaryToken(BaseModelMixin):
 	user = models.ForeignKey(User, related_name="ge_temporary_token", on_delete=models.CASCADE)
 	key = models.CharField(max_length=255)
 	additional_info = models.TextField(blank=True, null=True)

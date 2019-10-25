@@ -10,11 +10,11 @@ class IsVenueManager(permissions.BasePermission):
 	def has_permission(self, request, view):
 
 		if not request.venue:
-			raise ValidationError('No venue specified')
+			raise ValidationError({'error': 'Venue Not Found'})
 
 		user = request.user
 		if not isinstance(user, User):
-			raise NotAuthenticated()
+			raise NotAuthenticated({'error': 'Authentication credentials were not provided.'})
 
 		return user.is_venue_manager(request.venue)
 
@@ -24,17 +24,18 @@ class IsVenueManagerOrReadOnly(IsVenueManager):
 	def has_permission(self, request, view):
 
 		if not request.venue:
-			raise ValidationError('No venue specified')
+			raise ValidationError({'error': 'Venue Not Found'})
 
 		user = request.user
 		if not isinstance(user, User):
-			raise NotAuthenticated()
+			raise NotAuthenticated({'error': 'Authentication credentials were not provided.'})
 
 		if request.method == 'GET':
 			return True
-
 		elif request.method in ['POST', 'PUT', 'DELETE'] and user.is_venue_manager(request.venue):
 			return True
+
+		return None
 
 
 class AllowGetOnly(permissions.BasePermission):
@@ -53,11 +54,11 @@ class ManagementPermissions(permissions.BasePermission):
 	def has_permission(self, request, view):
 
 		if not request.venue:
-			raise ValidationError('No venue specified')
+			raise ValidationError({'error': 'Venue Not Found'})
 
 		user = request.user
 		if not isinstance(user, User):
-			raise NotAuthenticated()
+			raise NotAuthenticated({'error': 'Authentication credentials were not provided.'})
 
 		return user_has_venue_permission(request.venue, user, 'management')
 
@@ -71,7 +72,7 @@ class ForGetOrOtherPermissions(permissions.BasePermission):
 	def has_permission(self, request, view):
 
 		if not request.venue or not request.user.is_authenticated:
-			raise ValidationError('No venue specified or user not logged in')
+			raise ValidationError({'error': 'Venue Not Found or user not logged in'})
 
 		user = request.user
 		if request.method == 'GET':

@@ -24,7 +24,7 @@ class VenueSettingsView(UpdateModelMixin, ListCreateAPIView):
 	def get_queryset(self):
 		venue = self.request.venue
 		if not venue:
-			raise ValidationError('Invalid venue')
+			raise ValidationError({'error': 'Invalid Venue'})
 		return venue.setting_values.exclude(setting__var_define__isnull=True) \
 			.select_related('setting')
 
@@ -71,12 +71,12 @@ class VenueSettingsUpdateView(RetrieveUpdateAPIView):
 			self.check_object_permissions(self.request, obj)
 			return obj
 		except (TypeError, ValueError) as e:
-			raise ValidationError(e.message)
+			raise ValidationError({'error': e.message})
 
 	def get_queryset(self):
 		venue = self.request.venue
 		if not venue:
-			raise ValidationError('Invalid venue')
+			raise ValidationError({'error': 'Invalid venue'})
 		return venue.setting_values.exclude(setting__var_define__isnull=True)
 
 

@@ -41,23 +41,37 @@ class TemplateMixin:
 		return self.default_template_name
 
 
-class CustomEmailMessage(EmailMessage):
+class BaseEmailMessage(EmailMessage):
 	content_subtype = 'html'
 	"""
-	Templated email message.
+	Checklist email message.
 	"""
 
+	def __init__(self, subject, to, body):
+		super(BaseEmailMessage, self).__init__(
+			subject=subject,
+			to=to,
+			from_email=self.get_from_address,
+			reply_to=self.get_default_reply_address,
+			body=body
+		)
+
+	@property
+	def get_from_address(self):
+		return settings.DEFAULT_FROM_EMAIL
+
+	@property
+	def get_default_reply_address(self):
+		return [settings.DEFAULT_SUPPORT_EMAIL]
+
+
+class CustomEmailMessage(BaseEmailMessage):
 	# noinspection PyBroadException
 	def __init__(self):
 		to = list(map(lambda r: r.address_with_name(), self._addressees()))
-		try:
-			reply_to = self.get_reply_addresses()
-		except Exception:
-			reply_to = None
-
 		# noinspection PyUnresolvedReferences
 		super(CustomEmailMessage, self).__init__(
-			subject=self.get_subject(), to=to, reply_to=reply_to, body=self.get_body())
+			subject=self.get_subject(), to=to, body=self.get_body())
 
 	@property
 	def template_name(self):
@@ -106,12 +120,6 @@ class CustomEmailMessage(EmailMessage):
 			return 0
 		return self.get_connection(fail_silently).send_messages([self])
 
-	def get_reply_addresses(self):
-		return [self.get_reply_address()]
-
-	def get_reply_address(self, instance=None):
-		return settings.DEFAULT_SUPPORT_EMAIL
-
 
 class ContextEmailMessage(CustomEmailMessage):
 	"""
@@ -136,10 +144,11 @@ class ContextEmailMessage(CustomEmailMessage):
 		self.context['browser_name'] = request.META.get('HTTP_USER_AGENT', 'Unknown')
 		return get_template('email/%s.html' % self.template_name).render({
 			'instance': self.instance,
+			'DEFAULT_SUPPORT_EMAIL': settings.DEFAULT_SUPPORT_EMAIL,
 			'context': self.context
 		})
 
-	def get_reply_address(self, instance=None):
+	def get_reply_address(self):
 		"""
 		Try to get the email address from the context's Venue
 		"""
@@ -147,7 +156,7 @@ class ContextEmailMessage(CustomEmailMessage):
 		if request and request.venue:
 			return request.venue.support_email_address
 
-		return super(ContextEmailMessage).get_reply_address(instance)
+		return self.get_default_reply_address
 
 
 class WelcomeEmail(ContextEmailMessage):
@@ -227,24 +236,6 @@ class CardErrorEmail(TemplateMixin, ContextEmailMessage):
 			               self.context.get('user_name', None)),
 			EmailAddressee(self.context.get('venue_admin_email', None)),
 			EmailAddressee(settings.ADMIN_EMAIL)]
-
-
-class BaseEmailMessage(EmailMessage):
-	content_subtype = 'html'
-	"""
-	Checklist email message.
-	"""
-
-	def __init__(self, subject, to, body):
-		super(BaseEmailMessage, self).__init__(
-			subject=subject,
-			to=to,
-			reply_to=self.get_reply_address(),
-			body=body
-		)
-
-	def get_reply_address(self):
-		return [settings.DEFAULT_SUPPORT_EMAIL]
 
 
 class RoleTemplateMixin:

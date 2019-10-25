@@ -102,3 +102,10 @@ ENV/
 .idea
 .vscode
 /proxy/node_modules/
+media/
+static/
+vc-rest-api.iml
+pipeline.gdsl
+/celerybeat.pid
+/supervisord.log
+/supervisord.pid

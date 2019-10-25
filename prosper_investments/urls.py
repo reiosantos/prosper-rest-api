@@ -26,14 +26,18 @@ from rest_framework_jwt import views
 from rest_framework_swagger.views import get_swagger_view
 
 from prosper_investments.apps.common.handlers import (
-	psp_page_not_found, psp_bad_request, psp_permission_denied, psp_server_error)
+	psp_page_not_found,
+	psp_bad_request,
+	psp_permission_denied,
+	psp_server_error
+)
 from prosper_investments.apps.common.views import ApiKeyVerify, HealthCheckView
 from prosper_investments.apps.user import views as userviews
 
 schema_view = get_swagger_view(title='PSP Rest API')
 
 urlpatterns = [
-	# path('grappelli/', include('grappelli.urls')),  # disabled for now
+	path('grappelli/', include('grappelli.urls')),  # disabled for now
 	path('admin/', admin.site.urls),
 	path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 	path('jwt/login/', views.obtain_jwt_token),
@@ -66,11 +70,18 @@ urlpatterns = [
 
 # @TODO in production, serve files differently
 urlpatterns += [
-	# static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
 	re_path(
 		r'^media/(?P<path>.*)$', django.conf.urls.static.serve,
-		{'document_root': settings.MEDIA_ROOT})
+		{'document_root': settings.MEDIA_ROOT}),
+	re_path(
+		r'^static/(?P<path>.*)$', django.conf.urls.static.serve,
+		{'document_root': settings.STATIC_ROOT})
 ]
+
+if 'silk' in settings.INSTALLED_APPS:
+	urlpatterns += [
+		path('silk/', include('silk.urls', namespace='silk'))
+	]
 
 handler400 = psp_bad_request
 handler404 = psp_page_not_found

@@ -1,9 +1,9 @@
 import logging
 
-# Avoid shadowing the login() and logout() views below.
 from django.conf import settings
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
+from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
@@ -11,12 +11,8 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
-from django_elasticsearch_dsl_drf.filter_backends import FilteringFilterBackend, \
-	OrderingFilterBackend, DefaultOrderingFilterBackend, SearchFilterBackend
-from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from djoser.views import PasswordResetView as DjoserPasswordResetView
 from rest_framework import response, status
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView, GenericAPIView, \
 	CreateAPIView, ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -36,7 +32,7 @@ from prosper_investments.apps.user.utils import (
 	users_venue_permissions, user_exists_as_email, user_exists_as_mobile, filter_order_by,
 	venues_permissions)
 from prosper_investments.apps.venue.documents import UserDocument
-from prosper_investments.apps.venue.models import User
+from prosper_investments.apps.venue.models import User, Venue
 
 log = logging.getLogger('prosper_investments')
 
@@ -54,9 +50,7 @@ class CurrentUserView(RetrieveAPIView):
 		resp = self.retrieve(request)
 		if resp and resp.data:
 			log.debug(resp.data)
-			"""
-			Update venues list that user has permission to working
-			"""
+			# Update venues list that user has permission to working
 			resp.data['venues'] = venues_permissions(resp.data)
 		return resp
 
@@ -89,6 +83,7 @@ class CreateUserView(CreateAPIView):
 	def get_serializer_context(self):
 		return {'is_active': False, **super(CreateUserView, self).get_serializer_context()}
 
+	@transaction.atomic
 	def perform_create(self, serializer):
 		serializer.save()
 		user = serializer.instance
@@ -141,7 +136,7 @@ class UserVenuePermissionsView(APIView):
 
 	def get(self, request):
 		if not request.venue:
-			raise ValidationError('No venue specified')
+			raise Venue.DoesNotExist
 
 		user_permissions = users_venue_permissions(request.venue, request.user)
 

@@ -1,6 +1,6 @@
 {% load filters %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<!-- NAME: 1 COLUMN -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -13,6 +13,10 @@
 			margin: 0;
 			padding: 0;
 			width: 100% !important;
+		}
+
+		body {
+			margin: auto;
 		}
 
 		table {
@@ -52,8 +56,8 @@
 		}
 
 		table, td {
-			mso-table-lspace: 0pt;
-			mso-table-rspace: 0pt;
+			mso-table-lspace: 0;
+			mso-table-rspace: 0;
 		}
 
 		#outlook a {
@@ -122,7 +126,7 @@
 			color: #606060 !important;
 			display: block;
 			/*@editable*/
-			font-family: Helvetica;
+			font-family: Helvetica Serif;
 			/*@editable*/
 			font-size: 40px;
 			/*@editable*/
@@ -149,7 +153,7 @@
 			color: #404040 !important;
 			display: block;
 			/*@editable*/
-			font-family: Helvetica;
+			font-family: Helvetica Serif;
 			/*@editable*/
 			font-size: 26px;
 			/*@editable*/
@@ -176,7 +180,7 @@
 			color: #606060 !important;
 			display: block;
 			/*@editable*/
-			font-family: Helvetica;
+			font-family: Helvetica Serif;
 			/*@editable*/
 			font-size: 18px;
 			/*@editable*/
@@ -203,7 +207,7 @@
 			color: #808080 !important;
 			display: block;
 			/*@editable*/
-			font-family: Helvetica;
+			font-family: Helvetica Serif;
 			/*@editable*/
 			font-size: 16px;
 			/*@editable*/
@@ -242,7 +246,7 @@
 			/*@editable*/
 			color: #606060;
 			/*@editable*/
-			font-family: Helvetica;
+			font-family: Helvetica Serif;
 			/*@editable*/
 			font-size: 11px;
 			/*@editable*/
@@ -288,7 +292,7 @@
 			/*@editable*/
 			color: #606060;
 			/*@editable*/
-			font-family: Helvetica;
+			font-family: Helvetica Serif;
 			/*@editable*/
 			font-size: 15px;
 			/*@editable*/
@@ -334,7 +338,7 @@
 			/*@editable*/
 			color: #606060;
 			/*@editable*/
-			font-family: Helvetica;
+			font-family: Helvetica Serif;
 			/*@editable*/
 			font-size: 15px;
 			/*@editable*/
@@ -380,7 +384,7 @@
 			/*@editable*/
 			color: #606060;
 			/*@editable*/
-			font-family: Helvetica;
+			font-family: Helvetica, serif;
 			/*@editable*/
 			font-size: 11px;
 			/*@editable*/
@@ -402,11 +406,13 @@
 			/*@editable*/
 			text-decoration: underline;
 		}
+
 		.social-btn {
 			height: 24px;
 			width: 24px;
 			margin: 0 2px;
 		}
+
 		.footer-info {
 			position: absolute;
 			top: 50%;
@@ -415,7 +421,7 @@
 			text-align: center;
 			color: #FFFFFF;
 			font-size: 11px;
-			font-family: Helvetica;
+			font-family: Helvetica, serif;
 		}
 
 		@media only screen and (max-width: 480px) {
@@ -764,149 +770,169 @@
 
 </head>
 <body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0">
-<center>
-	<table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
-		<tr>
-			<td align="center" valign="top" id="bodyCell">
-				<!-- BEGIN TEMPLATE // -->
-				<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateContainer">
-					<!-- BEGIN PREHEADER // -->
-					<tr>
-						<td align="center" valign="top">
-							<table border="0" cellpadding="0" cellspacing="0" width="600" id="templatePreheader">
-								<tr>
-									<td valign="top" class="preheaderContainer" style="padding-top:9px;">
-										<table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnImageBlock">
-											<tbody class="mcnImageBlockOuter">
-												<tr>
-													<td valign="top" style="padding:9px" class="mcnImageBlockInner">
-														<table align="left" width="100%" border="0" cellpadding="0" cellspacing="0" class="mcnImageContentContainer">
-															<tbody>
+<table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
+	<tr>
+		<td align="center" valign="top" id="bodyCell">
+			<!-- BEGIN TEMPLATE // -->
+			<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateContainer">
+				<!-- BEGIN PREHEADER // -->
+				<tr>
+					<td align="center" valign="top">
+						<table border="0" cellpadding="0" cellspacing="0" width="600" id="templatePreheader">
+							<tr>
+								<td valign="top" class="preheaderContainer" style="padding-top:9px;">
+									<table border="0" cellpadding="0" cellspacing="0" width="100%"
+										   class="mcnImageBlock">
+										<tbody class="mcnImageBlockOuter">
+										<tr>
+											<td valign="top" style="padding:9px" class="mcnImageBlockInner">
+												<table align="left" width="100%" border="0" cellpadding="0"
+													   cellspacing="0" class="mcnImageContentContainer">
+													<tbody>
+													<tr>
+														<td class="mcnImageContent" valign="top"
+															style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0;">
+															<img align="left" alt=""
+																 src="{% full_url context.request 'images/header.jpg' %}"
+																 width="564"
+																 style="max-width:800px; padding-bottom: 0; display: inline !important; vertical-align: bottom;"
+																 class="mcnImage">
+														</td>
+													</tr>
+													</tbody>
+												</table>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<!-- // END PREHEADER -->
+
+				<!-- BEGIN HEADER // -->
+				<tr>
+					<td align="center" valign="top">
+						<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
+							<tr>
+								<td valign="top" class="headerContainer">
+									<table border="0" cellpadding="0" cellspacing="0" width="100%"
+										   class="mcnCaptionBlock">
+										<tbody class="mcnCaptionBlockOuter">
+										<tr>
+											<td class="mcnCaptionBlockInner" valign="top" style="padding:0 9px;">
+												<table border="0" cellpadding="0" cellspacing="0"
+													   class="mcnCaptionLeftContentOuter" width="100%">
+													<tbody>
+													<tr>
+														<td valign="top" class="mcnCaptionLeftContentInner"
+															style="padding:0 9px ;">
+															<table align="right" border="0" cellpadding="0"
+																   cellspacing="0"
+																   class="mcnCaptionLeftImageContentContainer">
+																<tbody>
 																<tr>
-																	<td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0;">
-																		<img align="left" alt="" src="{% full_url context.request 'images/header.jpg' %}" width="564" style="max-width:800px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+																	<td class="mcnCaptionLeftImageContent"
+																		valign="top">
+																		<img alt="Venue Logo" src="
+
+
+
+
+
+                                                                                {% if context.request.venue %}{{ context.request.venue.logo_url }}{% elif booking.detail.event.venue %}{{ booking.detail.event.venue.logo_url }}{% endif %}"
+																			 height="55" style="max-width:100%;"
+																			 class="mcnImage">
 																	</td>
 																</tr>
-															</tbody>
-														</table>
-													</td>
-												</tr>
-											</tbody>
-										</table>
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<!-- // END PREHEADER -->
+																</tbody>
+															</table>
+														</td>
+													</tr>
+													</tbody>
+												</table>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</table>
 
-					<!-- BEGIN HEADER // -->
-					<tr>
-						<td align="center" valign="top">
-							<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
-								<tr>
-									<td valign="top" class="headerContainer">
-										<table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnCaptionBlock">
-											<tbody class="mcnCaptionBlockOuter">
-												<tr>
-													<td class="mcnCaptionBlockInner" valign="top" style="padding:0 9px;">
-														<table border="0" cellpadding="0" cellspacing="0" class="mcnCaptionLeftContentOuter" width="100%">
-															<tbody>
+					</td>
+				</tr>
+				<!-- // END HEADER -->
+
+				<!-- BEGIN CONTENT -->
+                {% block content %}{% endblock %}
+				<!-- // END CONTENT -->
+				<tr>
+					<td align="center" valign="top">
+						<!-- BEGIN BODY // -->
+						<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
+							<tr>
+								<td valign="top" class="bodyContainer">
+									<table border="0" cellpadding="0" cellspacing="0" width="100%"
+										   class="mcnTextBlock">
+										<tbody class="mcnTextBlockOuter">
+										<tr>
+											<td valign="top" class="mcnTextBlockInner">
+												<table border="0" cellpadding="0" cellspacing="0" width="100%"
+													   class="mcnDividerBlock">
+													<tbody class="mcnDividerBlockOuter">
+													<tr>
+														<td class="mcnDividerBlockInner" style="padding: 18px;">
+															<table class="mcnDividerContent" border="0"
+																   cellpadding="0" cellspacing="0" width="100%"
+																   style="border-top-width: 4px;border-top-style: solid;border-top-color: #999999;">
+																<tbody>
 																<tr>
-																	<td valign="top" class="mcnCaptionLeftContentInner" style="padding:0 9px ;">
-																		<table align="right" border="0" cellpadding="0" cellspacing="0" class="mcnCaptionLeftImageContentContainer">
-																			<tbody>
-																				<tr>
-																					<td class="mcnCaptionLeftImageContent" valign="top">
-																						<img alt="Venue Logo" src="{% if context.request.venue %}{{ context.request.venue.logo_url }}{% elif booking.detail.event.venue %}{{ booking.detail.event.venue.logo_url }}{% endif %}" height="55" style="max-width:100%;" class="mcnImage">
-																					</td>
-																				</tr>
-																			</tbody>
-																		</table>
+																	<td>
+																		<span></span>
 																	</td>
 																</tr>
-															</tbody>
-														</table>
-													</td>
-												</tr>
-											</tbody>
-										</table>
-									</td>
-								</tr>
-							</table>
+																</tbody>
+															</table>
+														</td>
+													</tr>
+													</tbody>
+												</table>
+												<table border="0" cellpadding="0" cellspacing="0" width="100%"
+													   class="mcnTextBlock">
+													<tbody class="mcnTextBlockOuter">
+													<tr>
+														<td valign="top" class="mcnTextBlockInner">
 
-						</td>
-					</tr>
-					<!-- // END HEADER -->
+															<table align="left" border="0" cellpadding="0"
+																   cellspacing="0" width="600"
+																   class="mcnTextContentContainer">
+																<tbody>
+																<tr>
 
-					<!-- BEGIN CONTENT -->
-					{% block content %}{% endblock %}
-					<!-- // END CONTENT -->
-					<tr>
-						<td align="center" valign="top">
-							<!-- BEGIN BODY // -->
-							<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
-								<tr>
-									<td valign="top" class="bodyContainer">
-										<table border="0" cellpadding="0" cellspacing="0" width="100%"
-											   class="mcnTextBlock">
-											<tbody class="mcnTextBlockOuter">
-											<tr>
-												<td valign="top" class="mcnTextBlockInner">
-													<table border="0" cellpadding="0" cellspacing="0" width="100%"
-														   class="mcnDividerBlock">
-														<tbody class="mcnDividerBlockOuter">
-														<tr>
-															<td class="mcnDividerBlockInner" style="padding: 18px;">
-																<table class="mcnDividerContent" border="0"
-																	   cellpadding="0" cellspacing="0" width="100%"
-																	   style="border-top-width: 4px;border-top-style: solid;border-top-color: #999999;">
-																	<tbody>
-																	<tr>
-																		<td>
-																			<span></span>
-																		</td>
-																	</tr>
-																	</tbody>
-																</table>
-															</td>
-														</tr>
-														</tbody>
-													</table>
-													<table border="0" cellpadding="0" cellspacing="0" width="100%"
-														   class="mcnTextBlock">
-														<tbody class="mcnTextBlockOuter">
-														<tr>
-															<td valign="top" class="mcnTextBlockInner">
-
-																<table align="left" border="0" cellpadding="0"
-																	   cellspacing="0" width="600"
-																	   class="mcnTextContentContainer">
-																	<tbody>
-																	<tr>
-
-																		<td valign="top" class="mcnTextContent"
-																			style="padding-top:1px; padding-right: 18px; padding-bottom: 1px; padding-left: 18px;">
+																	<td valign="top" class="mcnTextContent"
+																		style="padding-top:1px; padding-right: 18px; padding-bottom: 1px; padding-left: 18px;">
 
 
-																			<table border="0" cellpadding="0"
-																				   cellspacing="0" width="100%"
-																				   class="mcnFollowBlock">
-																				<tbody class="mcnFollowBlockOuter">
-																				<tr>
-																					<td align="center" valign="top"
-																						style="padding:1px"
-																						class="mcnFollowBlockInner">
-																						<table border="0"
-																							   cellpadding="0"
-																							   cellspacing="0"
-																							   width="100%"
-																							   class="mcnFollowContentContainer">
-																							<tbody>
-																							<tr>
-																								<td align="center"
-																									style="padding-left:9px;padding-right:9px;">
-																									{% block social_buttons %}
+																		<table border="0" cellpadding="0"
+																			   cellspacing="0" width="100%"
+																			   class="mcnFollowBlock">
+																			<tbody class="mcnFollowBlockOuter">
+																			<tr>
+																				<td align="center" valign="top"
+																					style="padding:1px"
+																					class="mcnFollowBlockInner">
+																					<table border="0"
+																						   cellpadding="0"
+																						   cellspacing="0"
+																						   width="100%"
+																						   class="mcnFollowContentContainer">
+																						<tbody>
+																						<tr>
+																							<td align="center"
+																								style="padding-left:9px;padding-right:9px;">
+                                                                                                {% block social_buttons %}
 																									<table border="0"
 																										   cellpadding="0"
 																										   cellspacing="0"
@@ -918,96 +944,103 @@
 																											<td align="center"
 																												valign="top"
 																												style="padding-top:9px; padding-right:9px; padding-left:9px;">
-																												<a href="https://www.facebook.com/voyagecontrol/"><img src="{% full_url context.request 'images/facebook.png' %}" class="social-btn" /></a>
-																												<a href="https://twitter.com/VoyageControl"><img src="{% full_url context.request 'images/twitter.png' %}" class="social-btn" /></a>
-																												<a href="https://www.instagram.com/voyage_control/"><img src="{% full_url context.request 'images/instagram.png' %}" class="social-btn" /></a>
-																												<a href="https://www.linkedin.com/company-beta/274726/"><img src="{% full_url context.request 'images/linkedin.png' %}" class="social-btn" /></a>
+																												<a href="https://www.facebook.com/prosperinv/"><img
+																														src="{% full_url context.request 'images/facebook.png' %}"
+																														class="social-btn"/></a>
+																												<a href="https://twitter.com/prosperinv"><img
+																														src="{% full_url context.request 'images/twitter.png' %}"
+																														class="social-btn"/></a>
+																												<a href="https://www.instagram.com/prosperinv/"><img
+																														src="{% full_url context.request 'images/instagram.png' %}"
+																														class="social-btn"/></a>
 																											</td>
 																										</tr>
 																										</tbody>
 																									</table>
-																									{% endblock %}
-																								</td>
-																							</tr>
-																							</tbody>
-																						</table>
+                                                                                                {% endblock %}
+																							</td>
+																						</tr>
+																						</tbody>
+																					</table>
 
-																					</td>
-																				</tr>
-																				</tbody>
-																			</table>
-																		</td>
-																	</tr>
-																</table>
-																<!-- // END BODY -->
-															</td>
-														</tr>
-														<tr>
-															<td align="center" valign="top">
-																<!-- BEGIN FOOTER // -->
-																<table border="0" cellpadding="0" cellspacing="0"
-																	   width="600" id="templateFooter">
-																	<tr>
-																		<td valign="top" class="footerContainer"
-																			style="padding-bottom:9px;">
-																			<table border="0" cellpadding="0"
-																				   cellspacing="0" width="100%"
-																				   class="mcnImageBlock">
-																				<tbody class="mcnImageBlockOuter">
-																				<tr>
-																					<td valign="top" style="padding:9px"
-																						class="mcnImageBlockInner">
-																						<table align="left" width="100%"
-																							   border="0"
-																							   cellpadding="0"
-																							   cellspacing="0"
-																							   class="mcnImageContentContainer">
-																							<tbody>
-																							<tr>
-																								<td class="mcnImageContent"
-																									valign="top"
-																									style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; position: relative;">
+																				</td>
+																			</tr>
+																			</tbody>
+																		</table>
+																	</td>
+																</tr>
+															</table>
+															<!-- // END BODY -->
+														</td>
+													</tr>
+													<tr>
+														<td align="center" valign="top">
+															<!-- BEGIN FOOTER // -->
+															<table border="0" cellpadding="0" cellspacing="0"
+																   width="600" id="templateFooter">
+																<tr>
+																	<td valign="top" class="footerContainer"
+																		style="padding-bottom:9px;">
+																		<table border="0" cellpadding="0"
+																			   cellspacing="0" width="100%"
+																			   class="mcnImageBlock">
+																			<tbody class="mcnImageBlockOuter">
+																			<tr>
+																				<td valign="top" style="padding:9px"
+																					class="mcnImageBlockInner">
+																					<table align="left" width="100%"
+																						   border="0"
+																						   cellpadding="0"
+																						   cellspacing="0"
+																						   class="mcnImageContentContainer">
+																						<tbody>
+																						<tr>
+																							<td class="mcnImageContent"
+																								valign="top"
+																								style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; position: relative;">
 
 
-																									<img align="left"
-																										 alt=""
-																										 src="{% full_url context.request 'images/footer.jpg' %}"
-																										 width="564"
-																										 style="max-width:600px; padding-bottom: 0; display: inline !important; vertical-align: bottom;"
-																										 class="mcnImage">
-																									<div class="footer-info">
-																										&#169; {% now 'Y' %} Voyage Control Ltd. All rights reserved.
-																									</div>
-																								</td>
-																							</tr>
-																							</tbody>
-																						</table>
-																					</td>
-																				</tr>
-																				</tbody>
-																			</table>
-																		</td>
-																	</tr>
-																</table>
-																<!-- // END FOOTER -->
-															</td>
-														</tr>
-													</table>
+																								<img align="left"
+																									 alt=""
+																									 src="{% full_url context.request 'images/footer.jpg' %}"
+																									 width="564"
+																									 style="max-width:600px; padding-bottom: 0; display: inline !important; vertical-align: bottom;"
+																									 class="mcnImage">
+																								<div class="footer-info">
+																									&#169; {% now 'Y' %}
+																									prosper Investments
+																									Ltd. All rights
+																									reserved.
+																								</div>
+																							</td>
+																						</tr>
+																						</tbody>
+																					</table>
+																				</td>
+																			</tr>
+																			</tbody>
+																		</table>
+																	</td>
+																</tr>
+															</table>
+															<!-- // END FOOTER -->
+														</td>
+													</tr>
+												</table>
 
-												</td>
-											</tr>
-											</tbody>
-										</table>
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</table>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
 
-			</td>
-		</tr>
-	</table>
-</center>
+		</td>
+	</tr>
+</table>
 </body>
 </html>

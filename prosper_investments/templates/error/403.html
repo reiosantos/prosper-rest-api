@@ -1,7 +1,7 @@
 
 {% extends 'error/base.html' %}
 {% load i18n %}
-
+x
 {% block main %}
 
     <!-- Content Wrapper. Contains page content -->
@@ -13,7 +13,7 @@
                 403 Error Page
             </h1>
             <ol class="breadcrumb">
-                <li><a href="{% url 'home_page' %}"><i class="fa fa-dashboard"></i> Home</a></li>
+				<li><a href="{% url 'admin:logout' %}"><i class="fa fa-sign-out"></i> Logout</a></li>
             </ol>
         </section>
 
@@ -27,7 +27,7 @@
                         We're sorry, but you are not allowed to access the requested page..<br>
                         You do not have permissions to view this page...<br>
                         Contact the administrators for more information.....<br>
-                        Meanwhile, you may <a href="{% url 'home_page' %}">return to our home-page</a>.
+						Meanwhile, you may <a href="{% url 'admin:index' %}">return to our home-page</a>.
                     </p>
 
                 </div>

@@ -1,6 +1,9 @@
 #!/bin/bash
 
-if [[ $ENV == 'local' ]]; then
+if [[ $CELERY == 'worker' ]]; then
+	celery -A prosper_investments.celery worker -E
+
+elif [[ $ENV == 'local' ]]; then
 	#statements
 	echo "ENV LOCAL -------------------"
 	python manage.py makemigrations
