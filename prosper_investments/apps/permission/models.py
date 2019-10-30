@@ -90,11 +90,12 @@ class ContributionPermission(models.Model):
 		(PERMISSION_PAYMENT, 'Can make payment for a contribution'),
 		(PERMISSION_REFUND, 'Can refund a charge for a contribution'),
 
-		(ContributionStatus.action_create(ContributionStatus.STATUS_APPROVED),
-		 'Can approve the contribution'),
-		(ContributionStatus.action_delete(ContributionStatus.STATUS_APPROVED),
-		 'Can cancel approval'),
-
+		(
+			ContributionStatus.action_create(ContributionStatus.STATUS_APPROVED),
+			'Can approve the contribution'),
+		(
+			ContributionStatus.action_delete(ContributionStatus.STATUS_APPROVED),
+			'Can cancel approval'),
 	)
 	permission_name = models.CharField(max_length=100, unique=True)
 

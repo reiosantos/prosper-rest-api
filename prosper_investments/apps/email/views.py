@@ -18,7 +18,11 @@ class CardErrorNotification(APIView):
 	permission_classes = (AllowAny,)
 
 	def post(self, request):
-		setting = VenueSetting.objects.get(var_define='VENUE_ADMIN_EMAIL')
+		try:
+			setting = VenueSetting.objects.get(var_define='VENUE_ADMIN_EMAIL')
+		except VenueSetting.DoesNotExist:
+			raise VenueSetting.DoesNotExist("Venue Setting 'VENUE_ADMIN_EMAIL' is not set.")
+
 		try:
 			venue_admin_email = VenueSettingValue.objects.get(
 				setting=setting, venue=self.request.venue).value

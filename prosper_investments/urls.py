@@ -16,11 +16,10 @@ Including another URLconf
 import django
 from django.conf import settings
 from django.conf.urls import include
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 from django.urls import re_path, path
-from djoser import views as djoser_views
 from djoser.views import SetPasswordView
 from rest_framework_jwt import views
 from rest_framework_swagger.views import get_swagger_view
@@ -31,41 +30,49 @@ from prosper_investments.apps.common.handlers import (
 	psp_permission_denied,
 	psp_server_error
 )
-from prosper_investments.apps.common.views import ApiKeyVerify, HealthCheckView
-from prosper_investments.apps.user import views as userviews
+from prosper_investments.apps.common.views import HealthCheckView
 
 schema_view = get_swagger_view(title='PSP Rest API')
 
 urlpatterns = [
 	path('grappelli/', include('grappelli.urls')),  # disabled for now
 	path('admin/', admin.site.urls),
-	path('auth/', include('rest_framework.urls', namespace='rest_framework')),
+	path('accounts/', include('rest_framework.urls', namespace='rest_framework')),
 	path('jwt/login/', views.obtain_jwt_token),
 	path('jwt/verify/', views.verify_jwt_token),
-	path('apikey/verify/', ApiKeyVerify.as_view({'post': 'post'}), name='apikey-verify'),
 	path('health/', HealthCheckView.as_view({'get': 'get'}), name='health_check'),
 	path('docs/', schema_view),
-	path('user/', include('prosper_investments.apps.user.urls', namespace='user')),
-	path('password/reset/', userviews.PasswordResetView.as_view(), name='password_reset'),
-	path('password/reset-form/', userviews.password_reset, name='password_reset_form'),
 	path(
-		'password/reset/confirm/', djoser_views.PasswordResetConfirmView.as_view(),
-		name='password_reset_confirm'),
+		'password/change/',
+		login_required(auth_views.PasswordChangeView.as_view()), name='password_change'),
 	path(
-		'password/reset/done/', auth_views.PasswordResetCompleteView.as_view(),
-		name='password_reset_complete'),
+		'password/change/done/',
+		login_required(auth_views.PasswordChangeDoneView.as_view()), name='password_change_done'),
+	path('password/reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+	path(
+		'password/reset/done/', auth_views.PasswordResetDoneView.as_view(),
+		name='password_reset_done'),
+	re_path(
+		r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+		auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+	path(
+		'reset/done/',
+		auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 	re_path(
 		r'password/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
 		auth_views.PasswordResetConfirmView.as_view(), name='password_reset_token'),
 	path('password/set/', SetPasswordView.as_view(), name='password_set'),
-	path('venue/', include('prosper_investments.apps.venue.urls', namespace='venue')),
-	path('oauth/', include('prosper_investments.apps.oauth.urls', namespace='oauth')),
+
+	# Done with general routes
 	path(
 		'permission/', include('prosper_investments.apps.permission.urls', namespace='permission')),
 	path(
 		'terminology/',
 		include('prosper_investments.apps.terminology.urls', namespace='terminology')),
 	path('email/', include('prosper_investments.apps.email.urls', namespace='email')),
+	path('oauth/', include('prosper_investments.apps.oauth.urls', namespace='oauth')),
+	path('user/', include('prosper_investments.apps.user.urls', namespace='user')),
+	path('venue/', include('prosper_investments.apps.venue.urls', namespace='venue')),
 ]
 
 # @TODO in production, serve files differently

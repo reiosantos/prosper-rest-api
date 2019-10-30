@@ -1,6 +1,4 @@
-import binascii
 import hashlib
-import os
 import time
 
 from django.db import models
@@ -73,26 +71,6 @@ class VenueViewerType(BaseModelMixin):
 
 	def __str__(self):
 		return '%s at %s' % (self.name, self.venue,)
-
-
-class ApiKey(BaseModelMixin):
-	key = models.CharField(max_length=40, primary_key=True)
-	user = models.OneToOneField(User, related_name='auth_token', on_delete=models.CASCADE)
-	created = models.DateTimeField(auto_now_add=True)
-
-	def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-		if not self.key:
-			self.key = self.generate_key()
-		return super(ApiKey, self).save(force_insert, force_update, using, update_fields)
-
-	def generate_key(self):
-		return binascii.hexlify(os.urandom(20)).decode()
-
-	def __str__(self):
-		return self.key
-
-	class Meta:
-		db_table = "psp_api_key"
 
 
 class TemporaryToken(BaseModelMixin):

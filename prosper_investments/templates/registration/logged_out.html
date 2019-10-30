@@ -1,0 +1,15 @@
+{% extends 'registration/base_registration.html' %}
+{% load i18n %}
+
+{% block title %} Logged Out {% endblock %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs"><a href="{{ home_page }}">{% trans 'Home' %}</a></div>{% endblock %}
+
+{% block reg_content %}
+
+	<p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
+
+	<p><a href="{% url 'rest_framework:login' %}">{% trans 'Log in again' %}</a></p>
+
+{% endblock %}

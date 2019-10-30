@@ -102,7 +102,7 @@ ENV/
 .idea
 .vscode
 /proxy/node_modules/
-media/
+#media/
 static/
 vc-rest-api.iml
 pipeline.gdsl

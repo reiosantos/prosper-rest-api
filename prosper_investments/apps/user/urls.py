@@ -11,8 +11,6 @@ router.register('organisation', views.UsersInOrganisationViewSet, base_name='in-
 router.register('viewer-types', views.VenueViewerTypesViewSet, base_name='viewer-types', )
 router.register('short/organisation', views.UsersInOrganisationShortViewSet,
                 base_name='in-organisation-short', )
-router.register('default/organisation', views.UsersInOrganisationDefaultPermissionViewSet,
-                base_name='in-organisation-default', )
 
 
 urlpatterns = [

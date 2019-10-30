@@ -46,7 +46,7 @@ def token(req):
 		provider = OAuthProvider.objects.get(name=provider_name)
 		redirect_url = provider.redirect_url
 		if os.environ.get('ENV') != 'local':
-			redirect_url = redirect_url % req.venue.url_component
+			redirect_url = redirect_url % venue.url_component
 
 		logger.info('OAuthProvider.redirect_url:  %s' % redirect_url)
 		resp = requests.post(provider.token_url, verify=False, params={

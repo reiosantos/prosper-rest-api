@@ -1,7 +1,6 @@
 import logging
 
 from django.db import transaction
-from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
@@ -37,7 +36,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 	def update(self, instance, validated_data):
 		try:
 			if (
-				instance.mobile != validated_data['mobile'] and
+				instance.mobile != validated_data.get('mobile', instance.mobile) and
 				validated_data.get('mobile_confirmed', False) is not True
 			):
 				validated_data['mobile_confirmed'] = False
@@ -68,6 +67,7 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		document = UserDocument
+		extra_kwargs = {'password': {'read_only': True}}
 		fields = (
 			'email',
 			'mobile',
@@ -160,10 +160,8 @@ class CreateUserSerializer(UserSerializer):
 			raise ParseError({'error': "Some data was missing"})
 
 	class Meta(UserSerializer.Meta):
-		model = UserSerializer.Meta.model
-		document = UserSerializer.Meta.document
 		fields = UserSerializer.Meta.fields + ('password',)
-		write_only_fields = ('password',)
+		extra_kwargs = {'password': {'write_only': True}}
 
 
 class ActivateUserSerializer(UserSerializer):
@@ -173,7 +171,7 @@ class ActivateUserSerializer(UserSerializer):
 		return instance
 
 
-class UserInOrganisationSerializer(serializers.ModelSerializer, DocumentSerializer):
+class UserInOrganisationSerializer(UserSerializer):
 	roles = ForThisVenuePrimaryKeyRelatedField(
 		source='viewer_types',
 		many=True,
@@ -192,9 +190,7 @@ class UserInOrganisationSerializer(serializers.ModelSerializer, DocumentSerializ
 		except UserData.DoesNotExist:
 			return ''
 
-	class Meta:
-		model = User
-		document = UserDocument
+	class Meta(UserSerializer.Meta):
 		fields = (
 			'id',
 			'roles',
@@ -213,7 +209,7 @@ class UserInOrganisationSerializer(serializers.ModelSerializer, DocumentSerializ
 		)
 
 
-class UserInOrganisationShortSerializer(serializers.ModelSerializer):
+class UserInOrganisationShortSerializer(UserSerializer):
 	first_name = serializers.CharField(source='profile.first_name', read_only=True)
 	last_name = serializers.CharField(source='profile.last_name', read_only=True)
 
@@ -223,8 +219,7 @@ class UserInOrganisationShortSerializer(serializers.ModelSerializer):
 		except UserData.DoesNotExist:
 			return ''
 
-	class Meta:
-		model = User
+	class Meta(UserSerializer.Meta):
 		fields = (
 			'id',
 			'email',

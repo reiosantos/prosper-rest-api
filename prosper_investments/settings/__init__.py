@@ -23,7 +23,6 @@ INSTALLED_APPS = (
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'rest_framework',
-	'djoser',
 	'elasticapm.contrib.django',
 
 	'prosper_investments.apps.venue',
@@ -43,6 +42,7 @@ INSTALLED_APPS = (
 	'weasyprint',
 	'xhtml2pdf',
 	'reportlab',
+	'crispy_forms'
 )
 
 SITE_ID = 1
@@ -70,7 +70,6 @@ MIDDLEWARE = (
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
-	'prosper_investments.apps.common.middleware.RequestExceptionHandler',
 	'prosper_investments.apps.venue.middleware.VenueMiddleware',
 	'prosper_investments.apps.venue.middleware.RestrictStaffToAdminMiddleware'
 )
@@ -121,6 +120,7 @@ TEMPLATES = [
 				'django.template.context_processors.static',
 				'django.template.context_processors.tz',
 				'django.contrib.messages.context_processors.messages',
+				'prosper_investments.apps.common.tpl_context.site_vars',
 			],
 		},
 	},
@@ -137,7 +137,6 @@ REST_FRAMEWORK = {
 	),
 	'DEFAULT_AUTHENTICATION_CLASSES': (
 		'prosper_investments.apps.user.authentication.JSONWebTokenAuthenticationPost',
-		'prosper_investments.apps.user.authentication.ApiKeyAuthentication',
 	),
 	'EXCEPTION_HANDLER': 'prosper_investments.apps.common.exception_handler'
 }
@@ -196,7 +195,7 @@ STATICFILES_DIRS = [
 	os.path.join(BASE_DIR, 'public'),
 ]
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -213,11 +212,6 @@ EMAIL_PORT = 587
 
 SERVER_EMAIL = 'no-reply@prosperinv.com'
 DEFAULT_FROM_EMAIL = 'no-reply@prosperinv.com'
-
-DJOSER = {
-	'PASSWORD_RESET_CONFIRM_URL': 'password/reset/{uid}/{token}',
-	'SITE_NAME': 'Prosper Investments'
-}
 
 FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.TemporaryFileUploadHandler',)
 

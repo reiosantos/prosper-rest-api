@@ -173,19 +173,6 @@ class WelcomeEmail(ContextEmailMessage):
 		return [EmailAddressee(self.instance.email, self.instance.full_name)]
 
 
-class PasswordResetEmail(ContextEmailMessage):
-	"""
-	An email which is sent when a user asks for password reset
-	"""
-	template_name = 'psp-password-reset-v2'
-
-	def get_subject(self):
-		return 'Password Reset for Prosper Investments'
-
-	def get_addressees(self):
-		return [EmailAddressee(self.instance.email, self.instance.full_name)]
-
-
 class VerifyUserEmail(ContextEmailMessage):
 	"""
 	An email which is sent when a usercreate a new account

@@ -1,18 +1,7 @@
 import logging
 
-from django.conf import settings
-from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponseRedirect
-from django.shortcuts import resolve_url
-from django.template.response import TemplateResponse
-from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.csrf import csrf_protect
-from djoser.views import PasswordResetView as DjoserPasswordResetView
-from rest_framework import response, status
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView, GenericAPIView, \
 	CreateAPIView, ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -20,9 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from prosper_investments.apps.common.mixins import ElasticSearchMixin
-from prosper_investments.apps.email.utils import WelcomeEmail, PasswordResetEmail, site_url, \
-	VerifyUserEmail
+from prosper_investments.apps.email.utils import WelcomeEmail, site_url, VerifyUserEmail
 from prosper_investments.apps.permission.permissions import ManagementPermissions
 from prosper_investments.apps.permission.serializers import ContributionPermissionSerializer
 from prosper_investments.apps.user import serializers
@@ -31,7 +18,6 @@ from prosper_investments.apps.user.pagination import UserInOrganisationPaginatio
 from prosper_investments.apps.user.utils import (
 	users_venue_permissions, user_exists_as_email, user_exists_as_mobile, filter_order_by,
 	venues_permissions)
-from prosper_investments.apps.venue.documents import UserDocument
 from prosper_investments.apps.venue.models import User, Venue
 
 log = logging.getLogger('prosper_investments')
@@ -101,9 +87,7 @@ class ActivateUserView(UpdateAPIView):
 	"""
 	Activate a User.
 	{
-		"email": "santos-test@prosperinv.com",
-		"firstName": "Reio",
-		"lastName": "Santos"
+		"user_id": "1" # gotten from the verifyEmail param from frontend link sent to first email
 	}
 	"""
 	permission_classes = (AllowAny,)
@@ -136,7 +120,7 @@ class UserVenuePermissionsView(APIView):
 
 	def get(self, request):
 		if not request.venue:
-			raise Venue.DoesNotExist
+			raise Venue.DoesNotExist('Venue was not passed to the request.')
 
 		user_permissions = users_venue_permissions(request.venue, request.user)
 
@@ -174,43 +158,17 @@ class VenueViewerTypesViewSet(ModelViewSet):
 			.prefetch_related('permissions', 'sections')
 
 
-class UsersInOrganisationDefaultPermissionViewSet(ModelViewSet):
-	permission_classes = (IsAuthenticated,)
-
-	serializer_class = serializers.UserInOrganisationSerializer
-	pagination_class = UserInOrganisationPagination
-
-	def get_queryset(self):
-		queryset = User.objects.filter(venue=self.request.venue)
-
-		search = self.request.query_params.get('search', None)
-		if search:
-			queryset = queryset.filter(
-				Q(email__icontains=search) |
-				Q(profile__first_name__icontains=search) |
-				Q(profile__last_name__icontains=search)
-			)
-
-		return queryset
-
-	def perform_destroy(self, instance):
-		"""
-		'Deleting' a user in this context means removing all of their
-		'viewer-types' for the venue in question.
-		"""
-		instance.viewer_types.filter(venue=self.request.venue).clear()
-
-
-class UsersInOrganisationViewSet(ModelViewSet, ElasticSearchMixin):
+class UsersInOrganisationViewSet(ModelViewSet):
 	permission_classes = (ManagementPermissions,)
-	document = UserDocument
-	search_fields = ('email',)
-
 	serializer_class = serializers.UserInOrganisationSerializer
 	pagination_class = UserInOrganisationPagination
 
 	def get_queryset(self):
-
+		"""
+		search users in the organization
+		query param: search, black, roles
+		:return:
+		"""
 		search = self.request.query_params.get('search', None)
 		blank_role = self.request.query_params.get('blank', None)
 		roles = self.request.GET.getlist('roles', None)
@@ -266,94 +224,3 @@ class UsersInOrganisationShortViewSet(ReadOnlyModelViewSet):
 		'viewer-types' for the venue in question.
 		"""
 		instance.viewer_types.filter(venue=self.request.venue).clear()
-
-
-class PasswordResetView(DjoserPasswordResetView):
-	"""
-	A view which sends a templated email to the posted email address with a password reset link
-	"""
-
-	def action(self, serializer):
-		users = self.get_users(serializer.data['email'])
-
-		# send 404 if no users found
-		if users:
-			for user in users:
-				# noinspection PyUnresolvedReferences
-				self.send_email(**self.get_send_email_kwargs(user))
-			return response.Response(status=status.HTTP_200_OK)
-
-		return response.Response(status=status.HTTP_404_NOT_FOUND)
-
-	def get_users(self, email):
-		# only active users
-		active_users = User.objects.filter(email__iexact=email, is_active=True)
-		return active_users
-
-	def send_email(self, to_email, from_email, context):
-		link = site_url(self.request, context['url'])
-		user = User.objects.get(email=to_email)
-		context.update({
-			'request': self.request,
-			'to': to_email,
-			'link': link
-		})
-		return PasswordResetEmail(user, context).send()
-
-
-@csrf_protect
-def password_reset(
-	request,
-	template_name='registration/password_reset_form.html',
-	email_template_name='registration/password_reset_email.html',
-	subject_template_name='registration/password_reset_subject.txt',
-	password_reset_form=PasswordResetForm,
-	token_generator=default_token_generator,
-	post_reset_redirect='http://127.0.0.1:8000/login',
-	from_email=None,
-	current_app=None,
-	extra_context=None,
-	html_email_template_name=None
-):
-	"""
-	a version of the password reset view from django.contrib.auth.views which accepts the
-	email parameter in the querystring
-	of a get request as well as the normal post. Not currently used.
-	"""
-	context = {}
-
-	if post_reset_redirect is None:
-		post_reset_redirect = reverse('password_reset_done')
-	else:
-		post_reset_redirect = resolve_url(post_reset_redirect)
-
-	if request.method == "POST" or request.method == "GET":
-		data = request.POST if request.method == "POST" else request.GET
-
-		form = password_reset_form(data)
-		if form.is_valid():
-			opts = {
-				'use_https': settings.SSL_ENABLED,
-				'token_generator': token_generator,
-				'from_email': from_email,
-				'email_template_name': email_template_name,
-				'subject_template_name': subject_template_name,
-				'request': request,
-				'html_email_template_name': html_email_template_name,
-				'domain_override': request.get_host(),
-			}
-			form.save(**opts)
-			return HttpResponseRedirect(post_reset_redirect)
-	else:
-		form = password_reset_form()
-		context = {
-			'form': form,
-			'title': _('Password reset'),
-		}
-		if extra_context is not None:
-			context.update(extra_context)
-
-		if current_app is not None:
-			request.current_app = current_app
-
-	return TemplateResponse(request, template_name, context)
