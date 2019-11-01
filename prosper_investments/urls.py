@@ -13,14 +13,13 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-import django
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.urls import re_path, path
-from djoser.views import SetPasswordView
+from django.views.static import serve
 from rest_framework_jwt import views
 from rest_framework_swagger.views import get_swagger_view
 
@@ -50,18 +49,14 @@ urlpatterns = [
 		login_required(auth_views.PasswordChangeDoneView.as_view()), name='password_change_done'),
 	path('password/reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
 	path(
-		'password/reset/done/', auth_views.PasswordResetDoneView.as_view(),
-		name='password_reset_done'),
+		'password/reset/done/',
+		auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
 	re_path(
 		r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
 		auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 	path(
 		'reset/done/',
 		auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-	re_path(
-		r'password/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-		auth_views.PasswordResetConfirmView.as_view(), name='password_reset_token'),
-	path('password/set/', SetPasswordView.as_view(), name='password_set'),
 
 	# Done with general routes
 	path(
@@ -77,12 +72,8 @@ urlpatterns = [
 
 # @TODO in production, serve files differently
 urlpatterns += [
-	re_path(
-		r'^media/(?P<path>.*)$', django.conf.urls.static.serve,
-		{'document_root': settings.MEDIA_ROOT}),
-	re_path(
-		r'^static/(?P<path>.*)$', django.conf.urls.static.serve,
-		{'document_root': settings.STATIC_ROOT})
+	re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+	re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT})
 ]
 
 if 'silk' in settings.INSTALLED_APPS:
