@@ -339,15 +339,15 @@ RMQ = {
 	'QUEUE_NAME': 'vc.q.rest_api',
 	'MASTER_EXCHANGE': 'vc.ex',
 	'TEST_PREFIX': 'test_',
-	'HOST': os.environ['RABBITMQ_HOST'],
-	'admin_user': os.environ['RABBITMQ_DEFAULT_USER'],
-	'admin_pass': os.environ['RABBITMQ_DEFAULT_PASS'],
+	'HOST': os.getenv('RABBITMQ_HOST', 'localhost'),
+	'admin_user': os.getenv('RABBITMQ_DEFAULT_USER', ''),
+	'admin_pass': os.getenv('RABBITMQ_DEFAULT_PASS', ''),
 }
 
 BROKER_URL = 'amqp://%s:%s@%s/' % (
-	os.environ['RABBITMQ_DEFAULT_USER'],
-	os.environ['RABBITMQ_DEFAULT_PASS'],
-	os.environ['RABBITMQ_HOST']
+	os.getenv('RABBITMQ_DEFAULT_USER', ''),
+	os.getenv('RABBITMQ_DEFAULT_PASS', ''),
+	os.getenv('RABBITMQ_HOST', 'localhost')
 )
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
