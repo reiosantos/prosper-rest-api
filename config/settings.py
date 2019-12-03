@@ -21,7 +21,6 @@ ALLOWED_HOSTS = HOSTS
 
 # Application definition
 INSTALLED_APPS = (
-    'django.apps',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -124,8 +123,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = [
-    # os.path.join(MAIN_HOME_DIR, 'static'),
+    os.path.join(MAIN_HOME_DIR, 'static'),
 ]
+
 
 TEMPLATES = [
     {
