@@ -1,12 +1,15 @@
 
+from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 
-from django.conf.urls import url
+from django.conf.urls import include, url
 
 from users.views import login_user, logout_user, profile, add_user, manage_users, ajax, profile_graph
 
 urlpatterns = [
+
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^login/$', login_user, name='login_user'),
     url(r'^logout/$', login_required(logout_user), name='logout_user'),
     url(r'^password/change/$', login_required(auth_views.PasswordChangeView.as_view()), name='password_change'),
