@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block main %}
+	<div class="login-box">
+		<div class="login-logo">
+			<img src="{{ media_url }}logo.png" class="img-thumbnail center-block" width="100px" height="100px"
+				 alt=""/>
+			<a href="{{ home_page }}"><b>Prosper Investments</b></a>
+		</div>
+		<!-- /.login-logo -->
+		<div class="login-box-body">
+            {% block reg_content %}{% endblock %}
+		</div>
+		<!-- /.login-box-body -->
+	</div>
+    <!-- /.login-box -->
+{% endblock %}

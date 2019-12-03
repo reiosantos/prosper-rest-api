@@ -1,0 +1,155 @@
+{% extends 'email/base.html' %}
+{% load filters %}
+
+{% block content %}
+<tr>
+	<td align="center" valign="top">
+		<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
+			<tr>
+				<td valign="top" class="headerContainer">
+					<table border="0" cellpadding="0" cellspacing="0" width="100%"
+						   class="mcnCaptionBlock">
+						<tbody class="mcnCaptionBlockOuter">
+						<tr>
+							<td class="mcnCaptionBlockInner" valign="top" style="padding: 0 9px;">
+								<table border="0" cellpadding="0" cellspacing="0"
+									   class="mcnCaptionLeftContentOuter" width="100%">
+									<tbody>
+									<tr>
+										<td valign="top" class="mcnCaptionLeftContentInner"
+											style="padding:0 9px ;">
+											<table class="mcnCaptionLeftTextContentContainer"
+												   align="left" border="0" cellpadding="0"
+												   cellspacing="0" width="396">
+												<tbody>
+												<tr>
+													<td valign="top" class="mcnTextContent">
+														<span style="font-size:18px">{{ 'PAYMENT_REFUNDED_booking'|translate_for_venue:instance.detail.event.venue }}</span>
+													</td>
+												</tr>
+												</tbody>
+											</table>
+										</td>
+									</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+						</tbody>
+					</table>
+					<table border="0" cellpadding="0" cellspacing="0" width="100%"
+						   class="mcnDividerBlock">
+						<tbody class="mcnDividerBlockOuter">
+						<tr>
+							<td class="mcnDividerBlockInner" style="padding: 5px 18px;">
+								<table class="mcnDividerContent" border="0" cellpadding="0"
+									   cellspacing="0" width="100%"
+									   style="border-top-width: 1px;border-top-style: solid;border-top-color: #999999;">
+									<tbody>
+									<tr>
+										<td>
+											<span></span>
+										</td>
+									</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</td>
+</tr>
+<tr>
+	<td align="center" valign="top">
+		<!-- BEGIN BODY // -->
+		<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
+			<tr>
+				<td valign="top" class="bodyContainer">
+					<table border="0" cellpadding="0" cellspacing="0" width="100%"
+						   class="mcnTextBlock">
+						<tbody class="mcnTextBlockOuter">
+						<tr>
+							<td valign="top" class="mcnTextBlockInner">
+
+								<table align="left" border="0" cellpadding="0" cellspacing="0"
+									   width="600" class="mcnTextContentContainer">
+									<tbody>
+									<tr>
+
+										<td valign="top" class="mcnTextContent"
+											style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+
+											<p style="color:#666; font-size: 12px;">Dear,
+                                                Sir/Madam</p>
+
+											<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">Payment charged by {{ instance.detail.event.venue.name }} has been refunded..</p>
+                                            <p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">This relates to booking reference: </p>
+                                                <br>
+
+											<p style="font-size: 18px;line-height: 20px;color: #CC0000;font-family: Arial, Helvetica, sans-serif;">
+												{{ instance|format_booking_ref }}</p>
+                                                <br>
+
+											<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">
+                                                Description Amount</p>
+                                            <p style="font-size: 12px; color: #666666; line-height:20px; font-family: Arial, Helvetica, sans-serif;">
+                                                Booking ref {{ instance|format_booking_ref }} charged {{ context.amount }} {{ context.currency }}
+                                            </p>
+                                            <p style="font-size: 12px; color: #666666; line-height:20px; font-family: Arial, Helvetica, sans-serif;">
+                                                Date: {{ context.date }}
+                                            </p>
+                                            <p style="font-size: 12px; color: #666666; line-height:20px; font-family: Arial, Helvetica, sans-serif;">Thank you,</p>
+                                            <p style="font-size: 12px; color: #666666; line-height:20px; font-family: Arial, Helvetica, sans-serif;">Voyage Control</p>
+										</td>
+									</tr>
+									</tbody>
+								</table>
+
+							</td>
+						</tr>
+						</tbody>
+					</table>
+					<table border="0" cellpadding="0" cellspacing="0" width="100%"
+						   class="mcnTextBlock">
+						<tbody class="mcnTextBlockOuter">
+						<tr>
+							<td valign="top" class="mcnTextBlockInner">
+
+								<table align="left" border="0" cellpadding="0" cellspacing="0"
+									   width="600" class="mcnTextContentContainer">
+									<tbody>
+									<tr>
+										<td valign="top" class="mcnTextContent"
+											style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+											{% if instance.detail.event.venue %}
+											<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">
+											Click <a href="{{ instance.detail.event.venue.dashboard_url }}">here</a> to log in
+											and view your {{ 'EMAIL_booking'|translate_for_venue:instance.detail.event.venue }}s.</p>
+											{% endif %}
+											{% if instance|zendesk_url %}
+											<p style="color:#666; font-size:12px; line-height: 20px;">
+												You can find our FAQs <a href="{{ instance|zendesk_url }}">here</a>
+											</p>
+											{% endif %}
+											<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">
+												Thanks,</p>
+											<p style="color:#666; font-size: 12px;">
+												{% if instance.detail.event.venue.name %}{{ instance.detail.event.venue.name }} and {% endif %}the
+												Voyage Control Team</p>
+
+										</td>
+									</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</td>
+</tr>
+{% endblock %}

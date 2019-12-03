@@ -1,0 +1,102 @@
+{% extends 'email/base.html' %}
+{% load filters %}
+
+{% block content %}
+	<tr>
+		<td align="center" valign="top">
+			<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
+				<tr>
+					<td valign="top" class="headerContainer">
+						<table border="0" cellpadding="0" cellspacing="0" width="100%"
+							   class="mcnCaptionBlock">
+							<tbody class="mcnCaptionBlockOuter">
+							<tr>
+								<td class="mcnCaptionBlockInner" valign="top" style="padding: 0 9px;">
+									<table border="0" cellpadding="0" cellspacing="0"
+										   class="mcnCaptionLeftContentOuter" width="100%">
+										<tbody>
+										<tr>
+											<td valign="top" class="mcnCaptionLeftContentInner"
+												style="padding:0 9px ;">
+												<table class="mcnCaptionLeftTextContentContainer"
+													   align="left" border="0" cellpadding="0"
+													   cellspacing="0" width="396">
+													<tbody>
+													<tr>
+														<td valign="top" class="mcnTextContent">
+															<span style="font-size:18px">{{ 'EMAIL_newRole'|translate_for_venue:context.request.venue }}</span>
+														</td>
+													</tr>
+													</tbody>
+												</table>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+						<table border="0" cellpadding="0" cellspacing="0" width="100%"
+							   class="mcnDividerBlock">
+							<tbody class="mcnDividerBlockOuter">
+							<tr>
+								<td class="mcnDividerBlockInner" style="padding: 5px 18px;">
+									<table class="mcnDividerContent" border="0" cellpadding="0"
+										   cellspacing="0" width="100%"
+										   style="border-top-width: 1px;border-top-style: solid;border-top-color: #999999;">
+										<tbody>
+										<tr>
+											<td>
+												<span></span>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td align="center" valign="top">
+			<!-- BEGIN BODY // -->
+			<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
+				<tr>
+					<td valign="top" class="bodyContainer">
+						<table border="0" cellpadding="0" cellspacing="0" width="100%"
+							   class="mcnTextBlock">
+							<tbody class="mcnTextBlockOuter">
+							<tr style="float: left">
+								<td valign="top" class="mcnTextBlockInner">
+
+									<table align="left" border="0" cellpadding="0" cellspacing="0"
+										   width="600" class="mcnTextContentContainer">
+										<tbody>
+										<tr>
+
+											<td valign="top" class="mcnTextContent"
+												style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+
+												<p style="font-size: 12px;line-height: 20px;color: #666666;font-family: Arial, Helvetica, sans-serif;">
+                                                    {{ msg }}
+												</p>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+{% endblock %}

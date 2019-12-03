@@ -1,0 +1,3 @@
+VIEWER_TYPE_MANAGER = 'Venue Manager'
+
+VIEWER_TYPE_DEFAULT = 'Default'

@@ -8,9 +8,8 @@ from django import forms
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelForm, TextInput, RadioSelect, FileInput
-from django.utils.translation import ugettext_lazy
 
-from home.support.validators import get_corrected_permissions, get_corrected_permissions_tuples
+from home.support.validators import get_corrected_permissions_tuples
 from users.models import User
 
 
