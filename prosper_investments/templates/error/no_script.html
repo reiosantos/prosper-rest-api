@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %} Error-Page {% endblock %}
+
+{% block main %}
+
+    <!-- Content Wrapper. Contains page content -->
+	<div class="error">
+		<!-- Content Header (Page header) -->
+		<section class="content-header">
+			<h1>
+				Error Page
+			</h1>
+			<ol class="breadcrumb">
+				<li><a href="{{ home_page }}"><i class="fa fa-dashboard"></i> Home</a></li>
+			</ol>
+		</section>
+
+		<!-- Main content -->
+		<section class="content">
+			<div class="error-page">
+				<h2 class="headline text-yellow">Er !</h2>
+				<div class="error-content">
+					<h3><i class="fa fa-warning text-yellow"></i> Oops! Something went wrong.</h3>
+					<h3><i class="fa fa-file-code-o text-yellow"></i> JavaScript.</h3>
+
+					<p>
+						Your browser does not support Javascript OR it has been disabled.<br>
+						Enable Javascript and try again loading the <a href="{{ home_page }}">main page..</a>
+						Meanwhile, you may <a href="{{ home_page }}">return to our home-page</a>
+					</p>
+				</div>
+			</div>
+			<!-- /.error-page -->
+		</section>
+		<!-- /.content -->
+	</div>
+    <!-- /.content-wrapper -->
+
+{% endblock %}
+
+
+
