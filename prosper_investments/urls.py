@@ -68,6 +68,7 @@ urlpatterns = [
 	path('oauth/', include('prosper_investments.apps.oauth.urls', namespace='oauth')),
 	path('user/', include('prosper_investments.apps.user.urls', namespace='user')),
 	path('venue/', include('prosper_investments.apps.venue.urls', namespace='venue')),
+	path('account/', include('prosper_investments.apps.account.urls', namespace='account')),
 ]
 
 # @TODO in production, serve files differently

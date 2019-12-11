@@ -11,7 +11,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from prosper_investments.apps.email.utils import WelcomeEmail, site_url, VerifyUserEmail
 from prosper_investments.apps.permission.permissions import ManagementPermissions
-from prosper_investments.apps.permission.serializers import ContributionPermissionSerializer
+from prosper_investments.apps.permission.serializers import VenuePermissionSerializer
 from prosper_investments.apps.user import serializers
 from prosper_investments.apps.user.models import DashboardSection, VenueViewerType
 from prosper_investments.apps.user.pagination import UserInOrganisationPagination
@@ -116,7 +116,7 @@ class UserVenuePermissionsView(APIView):
 	"""
 	permission_classes = (IsAuthenticated,)
 
-	serializer_class = ContributionPermissionSerializer
+	serializer_class = VenuePermissionSerializer
 
 	def get(self, request):
 		if not request.venue:

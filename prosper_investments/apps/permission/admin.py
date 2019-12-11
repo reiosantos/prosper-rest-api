@@ -1,7 +1,5 @@
 from django.contrib import admin
 
-from .models import (
-	ContributionPermission,
-)
+from .models import VenuePermission
 
-admin.site.register(ContributionPermission)
+admin.site.register(VenuePermission)
