@@ -19,13 +19,13 @@ def validate_perm(request):
 class AccountsView(permissions.BasePermission):
 	def has_permission(self, request, view):
 		user = validate_perm(request)
-		return user.is_staff() and user_has_venue_permission(request.venue, user, 'accounts:view')
+		return user.is_staff() and user_has_venue_permission(request.venue, user, 'account:view')
 
 
 class AccountsCreate(permissions.BasePermission):
 	def has_permission(self, request, view):
 		user = validate_perm(request)
-		return user.is_staff() and user_has_venue_permission(request.venue, user, 'accounts:create')
+		return user.is_staff() and user_has_venue_permission(request.venue, user, 'account:create')
 
 
 class IsVenueManager(permissions.BasePermission):

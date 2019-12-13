@@ -2,9 +2,14 @@ from django.db import transaction
 from rest_framework import serializers
 
 from prosper_investments.apps.account.models import Account
+from prosper_investments.apps.user.serializers import UserProfileSerializer
 
 
 class AccountSerializer(serializers.ModelSerializer):
+	venue = serializers.PrimaryKeyRelatedField(read_only=True, required=False)
+	email = serializers.CharField(source="user.email", read_only=True)
+	profile = UserProfileSerializer(source="user.profile", read_only=True)
+
 	class Meta:
 		model = Account
 		fields = '__all__'
