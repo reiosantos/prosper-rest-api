@@ -4,7 +4,7 @@ import time
 from django.db import models
 
 from prosper_investments.apps.common.model_mixins import BaseModelMixin
-from prosper_investments.apps.permission.models import ContributionPermission
+from prosper_investments.apps.permission.models import VenuePermission
 from prosper_investments.apps.user.constants import VIEWER_TYPE_DEFAULT
 from prosper_investments.apps.venue.models import Venue, User
 
@@ -63,7 +63,7 @@ class VenueViewerType(BaseModelMixin):
 	users = models.ManyToManyField(User, related_name='viewer_types')
 
 	# The permissions this viewer-type grants on Bookings at its venue
-	permissions = models.ManyToManyField(ContributionPermission)
+	permissions = models.ManyToManyField(VenuePermission)
 
 	class Meta:
 		db_table = 'psp_venue_viewer_type'

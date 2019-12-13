@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from prosper_investments.apps.permission.models import ContributionPermission
+from prosper_investments.apps.permission.models import VenuePermission
 
 
-class ContributionPermissionSerializer(serializers.ModelSerializer):
+class VenuePermissionSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = ContributionPermission
+		model = VenuePermission
 		fields = ('permission_name',)

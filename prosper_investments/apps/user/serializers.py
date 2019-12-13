@@ -4,7 +4,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
-from prosper_investments.apps.permission.models import ContributionPermission
+from prosper_investments.apps.permission.models import VenuePermission
 from prosper_investments.apps.user.models import User, DashboardSection, VenueViewerType
 from prosper_investments.apps.user.utils import ensure_user_associated_with_venue
 from prosper_investments.apps.venue.documents import UserDocument
@@ -259,7 +259,7 @@ class VenueViewerTypeSerializer(serializers.ModelSerializer):
 
 	permissions = serializers.SlugRelatedField(
 		slug_field='permission_name',
-		queryset=ContributionPermission.objects.all(),
+		queryset=VenuePermission.objects.all(),
 		many=True,
 		required=False
 	)

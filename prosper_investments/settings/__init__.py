@@ -27,6 +27,7 @@ INSTALLED_APPS = (
 
 	'prosper_investments.apps.venue',
 	'prosper_investments.apps.user',
+	'prosper_investments.apps.account',
 	'prosper_investments.apps.common',
 	'prosper_investments.apps.email',
 	'prosper_investments.apps.oauth',
@@ -336,8 +337,8 @@ RMQ = {
 	'schedule': {
 		'ROUTING_KEY': 'rest_api.schedule.remind',
 	},
-	'QUEUE_NAME': 'vc.q.rest_api',
-	'MASTER_EXCHANGE': 'vc.ex',
+	'QUEUE_NAME': 'psp.q.rest_api',
+	'MASTER_EXCHANGE': 'psp.ex',
 	'TEST_PREFIX': 'test_',
 	'HOST': os.getenv('RABBITMQ_HOST', 'localhost'),
 	'admin_user': os.getenv('RABBITMQ_DEFAULT_USER', ''),

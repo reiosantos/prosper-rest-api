@@ -1,6 +1,6 @@
 import factory
 
-from prosper_investments.apps.permission.models import ContributionPermission
+from prosper_investments.apps.permission.models import VenuePermission
 from prosper_investments.apps.user.models import DashboardSection, VenueViewerType
 
 
@@ -28,9 +28,7 @@ class VenueViewerTypeFactory(factory.DjangoModelFactory):
 
 		if extracted:
 			for permission_name in extracted:
-				permission = ContributionPermission.objects.get(
-					permission_name=permission_name
-				)
+				permission = VenuePermission.objects.get(permission_name=permission_name)
 				self.permissions.add(permission)
 
 	@factory.post_generation
