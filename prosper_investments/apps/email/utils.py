@@ -219,8 +219,10 @@ class CardErrorEmail(TemplateMixin, ContextEmailMessage):
 
 	def get_addressees(self):
 		return [
-			EmailAddressee(self.context.get('user_email', None),
-			               self.context.get('user_name', None)),
+			EmailAddressee(
+				self.context.get('user_email', None),
+				self.context.get('user_name', None)
+			),
 			EmailAddressee(self.context.get('venue_admin_email', None)),
 			EmailAddressee(settings.ADMIN_EMAIL)]
 

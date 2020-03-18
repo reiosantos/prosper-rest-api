@@ -7,7 +7,6 @@ from rest_framework.exceptions import ParseError
 from prosper_investments.apps.permission.models import VenuePermission
 from prosper_investments.apps.user.models import User, DashboardSection, VenueViewerType
 from prosper_investments.apps.user.utils import ensure_user_associated_with_venue
-from prosper_investments.apps.venue.documents import UserDocument
 from prosper_investments.apps.venue.models import Venue, Role, UserData
 from prosper_investments.apps.venue.relations import ForThisVenuePrimaryKeyRelatedField
 
@@ -66,7 +65,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		document = UserDocument
 		extra_kwargs = {'password': {'read_only': True}}
 		fields = (
 			'email',
