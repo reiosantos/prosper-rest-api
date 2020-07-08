@@ -17,24 +17,16 @@ class AccountsListView(ListAPIView):
 	permission_classes = (IsAuthenticated, AccountsView)
 
 	def get_queryset(self):
+		personal = self.request.query_params.get('personal', 'false') == 'true'
+		active = self.request.query_params.get('active', 'false') == 'true'
+
+		if personal:
+			return Account.objects.filter(
+				venue=self.request.venue, user=self.request.user, status=Account.STATUS_ACTIVE)
+		if active:
+			return Account.objects.filter(venue=self.request.venue, status=Account.STATUS_ACTIVE)
+
 		return Account.objects.filter(venue=self.request.venue)
-
-
-class AccountsListActiveView(ListAPIView):
-	serializer_class = AccountSerializer
-	permission_classes = (IsAuthenticated, AccountsView)
-
-	def get_queryset(self):
-		return Account.objects.filter(venue=self.request.venue, status=Account.STATUS_ACTIVE)
-
-
-class AccountsListPersonalView(ListAPIView):
-	serializer_class = AccountSerializer
-	permission_classes = (IsAuthenticated,)
-
-	def get_queryset(self):
-		return Account.objects.filter(
-			venue=self.request.venue, user=self.request.user,  status=Account.STATUS_ACTIVE)
 
 
 class AccountCreateView(CreateAPIView):

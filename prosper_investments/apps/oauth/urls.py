@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 
 from prosper_investments.apps.oauth import views
 
-app_name = 'voyage_control.apps.oauth'
+app_name = 'prosper_investments.apps.oauth'
 
 venue_token_router = DefaultRouter()
 venue_token_router.register('venue_token', views.VenueTokenViewSet, base_name='venue_token')

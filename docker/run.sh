@@ -11,7 +11,7 @@ else
 		#statements
 		echo "ENV LOCAL -------------------"
 		python manage.py migrate --noinput
-		python manage.py loaddata proser_investments/fixtures/*.json
+		python manage.py loaddata prosper_investments/fixtures/*.json
 		python manage.py runserver 0.0.0.0:8000
 	else
 		cp /usr/src/app/nginx.conf /etc/nginx/conf.d/default.conf

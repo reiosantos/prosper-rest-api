@@ -1,0 +1,44 @@
+[
+	{
+		"fields": {
+			"permission_name": "account"
+		},
+		"model": "permission.VenuePermission",
+		"pk": 1
+	},
+	{
+		"fields": {
+			"permission_name": "account:view"
+		},
+		"model": "permission.VenuePermission",
+		"pk": 2
+	},
+	{
+		"fields": {
+			"permission_name": "account:create"
+		},
+		"model": "permission.VenuePermission",
+		"pk": 3
+	},
+	{
+		"fields": {
+			"permission_name": "account:delete"
+		},
+		"model": "permission.VenuePermission",
+		"pk": 4
+	},
+	{
+		"fields": {
+			"permission_name": "account:update"
+		},
+		"model": "permission.VenuePermission",
+		"pk": 5
+	},
+	{
+		"fields": {
+			"permission_name": "management"
+		},
+		"model": "permission.VenuePermission",
+		"pk": 6
+	}
+]

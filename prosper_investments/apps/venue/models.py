@@ -71,8 +71,8 @@ class Venue(BaseModelMixin):
 
 	@property
 	def rest_api_url(self):
-		return settings.PSP_REST_API_BASE_URL % self.url_component \
-			if "%s" in settings.PSP_REST_API_BASE_URL else settings.PSP_REST_API_BASE_URL
+		return settings.PSP_BASE_URL % self.url_component \
+			if "%s" in settings.PSP_BASE_URL else settings.PSP_BASE_URL
 
 	@property
 	def formatted_time(self):
@@ -167,7 +167,7 @@ class UserManager(BaseUserManager):
 
 class User(BaseModelMixin, AbstractBaseUser, PermissionsMixin):
 	"""
-	Voyage Control user profile
+	prosper_investments user profile
 	"""
 	email = models.EmailField(max_length=100, blank=True, null=True, unique=True, db_index=True)
 	is_active = models.BooleanField(db_column='active', default=False)

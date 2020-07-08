@@ -3,8 +3,10 @@ from functools import reduce
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from prosper_investments.apps.common.model_mixins import BaseModelMixin
 
-class Term(models.Model):
+
+class Term(BaseModelMixin):
 	key = models.CharField(
 		max_length=150, blank=False, help_text='The key used in the front-end, e.g. `INDEX_title`')
 	description = models.TextField(blank=True, help_text='Optional explanation of the key')
@@ -17,7 +19,7 @@ class Term(models.Model):
 		ordering = ('key',)
 
 
-class Language(models.Model):
+class Language(BaseModelMixin):
 	code = models.CharField(max_length=10, unique=True)
 	name = models.CharField(max_length=100, unique=True)
 	active = models.BooleanField(default=True)
@@ -38,7 +40,7 @@ class TranslationManager(models.Manager):
 		translation for a venue-type then fall back on the default translation
 		(where venue-type is null).
 		Args:
-			venue (voyage_control.apps.legacy.models.Venue): The venue for
+			venue (prosper_investments.apps.venue.models.Venue): The venue for
 			which to fetch translations.
 
 			Returns:
@@ -87,7 +89,7 @@ class TranslationManager(models.Manager):
 		return key
 
 
-class Translation(models.Model):
+class Translation(BaseModelMixin):
 	term = models.ForeignKey(Term, on_delete=models.CASCADE)
 	language = models.ForeignKey(Language, on_delete=models.CASCADE)
 	value = models.TextField()

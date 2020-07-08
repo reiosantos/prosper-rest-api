@@ -1,9 +1,10 @@
 from django.db import models
 
+from prosper_investments.apps.common.model_mixins import BaseModelMixin
 from prosper_investments.apps.venue.models import Venue
 
 
-class OAuthProvider(models.Model):
+class OAuthProvider(BaseModelMixin):
 	name = models.CharField(max_length=100, null=False)
 	client_id = models.CharField(max_length=100, null=False)
 	client_secret = models.CharField(max_length=100, null=False)
@@ -21,7 +22,7 @@ class OAuthProvider(models.Model):
 		db_table = 'psp_oauth_providers'
 
 
-class VenueToken(models.Model):
+class VenueToken(BaseModelMixin):
 	provider = models.ForeignKey(
 		OAuthProvider, db_column='oauth_provider_id', related_name='venue_tokens',
 		on_delete=models.CASCADE

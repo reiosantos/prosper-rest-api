@@ -1,5 +1,5 @@
 """
-WSGI config for voyage_control project.
+WSGI config for prosper_investments project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

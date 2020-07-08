@@ -1,7 +1,9 @@
 from django.db import models
 
+from prosper_investments.apps.common.model_mixins import BaseModelMixin
 
-class VenuePermission(models.Model):
+
+class VenuePermission(BaseModelMixin):
 	PERMISSION_READ = 'read'
 	PERMISSION_REPORT = 'report'
 	PERMISSION_DELETE = 'delete'

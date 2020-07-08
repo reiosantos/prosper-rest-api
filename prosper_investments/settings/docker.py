@@ -19,9 +19,6 @@ DATABASES['default'].update({
 	'PORT': DB_PORT,
 })
 
-PSP_DASHBOARD_URL = 'http://local.prosperinv.com/dashboard/'
-PSP_REST_API_BASE_URL = 'http://local.prosperinv.com/api/'
-
 SSL_ENABLED = False
 
 INSTALLED_APPS += [

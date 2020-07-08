@@ -4,10 +4,11 @@ from django.db import transaction
 from django.db.models import Q
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView, GenericAPIView, \
 	CreateAPIView, ListAPIView
+from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, GenericViewSet
 
 from prosper_investments.apps.email.utils import WelcomeEmail, site_url, VerifyUserEmail
 from prosper_investments.apps.permission.permissions import ManagementPermissions
@@ -21,6 +22,15 @@ from prosper_investments.apps.user.utils import (
 from prosper_investments.apps.venue.models import User, Venue
 
 log = logging.getLogger('prosper_investments')
+
+
+class RetrieveUserView(RetrieveModelMixin, GenericViewSet):
+	"""
+	Info about the current User.
+	"""
+	queryset = User.objects.all()
+	permission_classes = (IsAuthenticated,)
+	serializer_class = serializers.UserSerializer
 
 
 class CurrentUserView(RetrieveAPIView):

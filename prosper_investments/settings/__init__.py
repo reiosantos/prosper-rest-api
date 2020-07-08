@@ -211,6 +211,9 @@ MEDIA_URL = f'/{URL_PREFIX}/media/' if URL_PREFIX else '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+PSP_BASE_URL = os.getenv('BASE_URL', 'http://local.prosperinv.com')
+PSP_DASHBOARD_URL = f'{PSP_BASE_URL}dashboard/'
+
 FIXTURE_DIRS = [
 	os.path.join(BASE_DIR, 'fixtures'),
 	os.path.join(BASE_DIR, 'fixtures/test'),

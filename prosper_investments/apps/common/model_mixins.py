@@ -4,8 +4,8 @@ from rest_framework.viewsets import GenericViewSet
 
 
 class BaseModelMixin(models.Model):
-	created_date = models.DateTimeField(auto_now=True, editable=False)
-	modified_date = models.DateTimeField(auto_now=True)
+	created_date = models.DateTimeField(auto_now=True, editable=False, null=True)
+	modified_date = models.DateTimeField(auto_now=True, null=True)
 
 	class Meta:
 		abstract = True

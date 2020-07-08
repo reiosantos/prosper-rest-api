@@ -21,5 +21,6 @@ urlpatterns = [
 	path('dashboard-sections/', views.DashboardSectionsView.as_view(), name='dashboard-sections'),
 	path('venue-permissions/', views.UserVenuePermissionsView.as_view(), name='dashboard-sections'),
 	path('verify-exists/', views.UserExistView.as_view(), name='verify-user'),
-	path('', include(router.urls))
+	path('', include(router.urls)),
+	path('<int:pk>/', views.RetrieveUserView.as_view({'get': 'retrieve'}), name='user-details'),
 ]

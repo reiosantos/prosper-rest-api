@@ -30,7 +30,7 @@ class DashboardSectionManager(models.Manager):
 			return self.filter(is_visible_to_all=True)
 
 
-class DashboardSection(models.Model):
+class DashboardSection(BaseModelMixin):
 	"""
 	A section/page/route on the front-end dashboard.
 	"""

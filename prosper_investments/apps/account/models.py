@@ -33,6 +33,9 @@ class Account(BaseModelMixin):
 	class Meta:
 		db_table = 'psp_account'
 
+	def __str__(self):
+		return '{} - {}'.format(self.account_number, self.user)
+
 	def delete(self, using=None, keep_parents=False):
 		assert self.pk is not None, (
 			"%s object can't be deleted because its %s attribute is set to None." %
