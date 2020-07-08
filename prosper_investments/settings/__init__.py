@@ -38,24 +38,25 @@ INSTALLED_APPS = [
 	'import_export',
 	'corsheaders',
 	'rest_framework_swagger',
-	'weasyprint',
-	'xhtml2pdf',
-	'reportlab',
 	'crispy_forms'
 ]
 
 SITE_ID = 1
 
+URL_PREFIX = 'api'
+
 AUTH_USER_MODEL = 'venue.User'
 
 PASSWORD_HASHERS = [
-	'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+	"django.contrib.auth.hashers.PBKDF2PasswordHasher",
 ]
 
 # The default customer support email address
 DEFAULT_SUPPORT_EMAIL = 'support@prosperinv.com'
 
 ADMIN_EMAIL = 'admin@prosperinv.com'
+SERVER_EMAIL = 'no-reply@prosperinv.com'
+DEFAULT_FROM_EMAIL = 'no-reply@prosperinv.com'
 
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
@@ -128,7 +129,10 @@ REST_FRAMEWORK = {
 	'DEFAULT_RENDERER_CLASSES': (
 		'prosper_investments.apps.common.psp_camel_case.render.CamelCaseJSONRenderer',),
 	'DEFAULT_PARSER_CLASSES': (
-		'prosper_investments.apps.common.psp_camel_case.parser.CamelCaseJSONParser',),
+		'prosper_investments.apps.common.psp_camel_case.parser.CamelCaseJSONParser',
+		'rest_framework.parsers.MultiPartParser',
+		'rest_framework.parsers.FormParser',
+	),
 	'DEFAULT_PERMISSION_CLASSES': (
 		'rest_framework.permissions.IsAuthenticated',
 	),
@@ -138,7 +142,15 @@ REST_FRAMEWORK = {
 	'DEFAULT_FILTER_BACKENDS': (
 		'django_filters.rest_framework.DjangoFilterBackend',
 	),
-	'EXCEPTION_HANDLER': 'prosper_investments.apps.common.exception_handler'
+	'EXCEPTION_HANDLER': 'prosper_investments.apps.common.exception_handler',
+	'DEFAULT_THROTTLE_CLASSES': [
+		'rest_framework.throttling.AnonRateThrottle',
+		'rest_framework.throttling.UserRateThrottle'
+	],
+	'DEFAULT_THROTTLE_RATES': {
+		'anon': '20/minute',
+		'user': '400/minute'
+	}
 }
 
 JWT_AUTH = {
@@ -187,7 +199,7 @@ USE_THOUSAND_SEPARATOR = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = f'/{URL_PREFIX}/static/' if URL_PREFIX else '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Additional locations of static files
@@ -195,7 +207,7 @@ STATICFILES_DIRS = [
 	os.path.join(BASE_DIR, 'public'),
 ]
 
-MEDIA_URL = '/media/'
+MEDIA_URL = f'/{URL_PREFIX}/media/' if URL_PREFIX else '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -210,15 +222,12 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_PORT = 587
 
-SERVER_EMAIL = 'no-reply@prosperinv.com'
-DEFAULT_FROM_EMAIL = 'no-reply@prosperinv.com'
-
 FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.TemporaryFileUploadHandler']
 
 FILE_UPLOAD_MAX_ATTACH_NUM = 10
 
 # in bytes, see https://docs.djangoproject.com/en/1.8/ref/files/file/#django.core.files.File.size
-FILE_UPLOAD_MAX_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_SIZE = 10 * 1024 * 1024 # 10MB
 
 FILE_UPLOAD_TYPES = [
 	'application/pdf', 'image/png', 'image/jpeg', 'application/msword',
@@ -340,3 +349,4 @@ BROKER_URL = 'amqp://%s:%s@%s/' % (
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = BROKER_URL

@@ -1,0 +1,17 @@
+[run]
+omit =
+    */site-packages/*
+    */distutils/*
+    tests/*
+    venv/*
+
+[report]
+omit =
+    */site-packages/*
+    */distutils/*
+    tests/*
+    venv/*
+
+[paths]
+source =
+	prosper_investments/*

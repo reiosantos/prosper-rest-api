@@ -53,8 +53,8 @@ class UserSerializer(serializers.ModelSerializer):
 	address2 = serializers.CharField(source='profile.address2', allow_blank=True, required=False)
 	city = serializers.CharField(source='profile.city', allow_blank=True, required=False)
 	country = serializers.CharField(source='profile.country', allow_blank=True, required=False)
-	mobile_confirmed = serializers.CharField(
-		source='profile.mobile_confirmed', allow_blank=True, required=False)
+	mobile_confirmed = serializers.BooleanField(
+		source='profile.mobile_confirmed', default=False, required=False)
 	venues = UserVenueSerializer(many=True, read_only=True)
 	user_type = serializers.StringRelatedField(source='user_type.name')
 	user_role = serializers.StringRelatedField(source='role.name')

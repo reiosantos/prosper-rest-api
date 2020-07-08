@@ -109,3 +109,5 @@ pipeline.gdsl
 /celerybeat.pid
 /supervisord.log
 /supervisord.pid
+*.pid
+
