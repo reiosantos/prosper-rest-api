@@ -5,6 +5,7 @@ from django.utils.deprecation import MiddlewareMixin
 from prosper_investments.apps.venue.models import Venue
 
 
+# noinspection PyMethodMayBeStatic
 class VenueMiddleware(MiddlewareMixin):
 	"""
 	Add the Venue object to the request, if a venue query parameter is
@@ -16,6 +17,7 @@ class VenueMiddleware(MiddlewareMixin):
 			if venue_url_component else None
 
 
+# noinspection PyMethodMayBeStatic
 class RestrictStaffToAdminMiddleware(MiddlewareMixin):
 	"""
 	A middleware that restricts staff members access to administration panels.

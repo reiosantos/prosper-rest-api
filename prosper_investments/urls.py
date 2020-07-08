@@ -36,7 +36,8 @@ schema_view = get_swagger_view(title='PSP Rest API')
 urlpatterns = [
 	path('grappelli/', include('grappelli.urls')),  # disabled for now
 	path('admin/', admin.site.urls),
-	path('accounts/', include('rest_framework.urls', namespace='rest_framework')),
+	# no need for rest-framework urls, nor used here
+	# path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 	path('jwt/login/', views.obtain_jwt_token),
 	path('jwt/verify/', views.verify_jwt_token),
 	path('health/', HealthCheckView.as_view({'get': 'get'}), name='health_check'),
@@ -81,6 +82,9 @@ if 'silk' in settings.INSTALLED_APPS:
 	urlpatterns += [
 		path('silk/', include('silk.urls', namespace='silk'))
 	]
+
+if settings.URL_PREFIX:
+	urlpatterns = [path(f'{settings.URL_PREFIX}/', include(urlpatterns))]
 
 handler400 = psp_bad_request
 handler404 = psp_page_not_found

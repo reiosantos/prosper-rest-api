@@ -17,3 +17,4 @@ max_line_length = 100
 
 [*.yml]
 indent_style = space
+indent_size = 2

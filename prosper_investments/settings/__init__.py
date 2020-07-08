@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED_HOSTS = []
 
 # Application definition
-INSTALLED_APPS = (
+INSTALLED_APPS = [
 	'grappelli',  # disabled for now
 	'django.apps',
 	'django.contrib.admin',
@@ -23,7 +23,6 @@ INSTALLED_APPS = (
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'rest_framework',
-	'elasticapm.contrib.django',
 
 	'prosper_investments.apps.venue',
 	'prosper_investments.apps.user',
@@ -34,34 +33,32 @@ INSTALLED_APPS = (
 	'prosper_investments.apps.permission',
 	'prosper_investments.apps.terminology',
 
-	'django_elasticsearch_dsl',
-	'django_elasticsearch_dsl_drf',
+	'django_filters',
 	'django_countries',
 	'import_export',
 	'corsheaders',
 	'rest_framework_swagger',
-	'weasyprint',
-	'xhtml2pdf',
-	'reportlab',
 	'crispy_forms'
-)
+]
 
 SITE_ID = 1
+
+URL_PREFIX = 'api'
 
 AUTH_USER_MODEL = 'venue.User'
 
 PASSWORD_HASHERS = [
-	'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+	"django.contrib.auth.hashers.PBKDF2PasswordHasher",
 ]
 
 # The default customer support email address
 DEFAULT_SUPPORT_EMAIL = 'support@prosperinv.com'
 
 ADMIN_EMAIL = 'admin@prosperinv.com'
+SERVER_EMAIL = 'no-reply@prosperinv.com'
+DEFAULT_FROM_EMAIL = 'no-reply@prosperinv.com'
 
-MIDDLEWARE = (
-	'elasticapm.contrib.django.middleware.TracingMiddleware',
-	'elasticapm.contrib.django.middleware.Catch404Middleware',
+MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'corsheaders.middleware.CorsMiddleware',
@@ -73,7 +70,7 @@ MIDDLEWARE = (
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 	'prosper_investments.apps.venue.middleware.VenueMiddleware',
 	'prosper_investments.apps.venue.middleware.RestrictStaffToAdminMiddleware'
-)
+]
 
 DATABASES = {
 	'default': {
@@ -90,13 +87,13 @@ DATABASES = {
 }
 
 # Languages available for translation; used by locale middleware.
-LANGUAGES = (
+LANGUAGES = [
 	('en-gb', 'British English'),
 	('en-us', 'American English'),
 	('en-ca', 'Canadian English'),
 	('fr', 'French'),
 	('es', 'Spanish'),
-)
+]
 
 AUTHENTICATION_BACKENDS = [
 	'django.contrib.auth.backends.ModelBackend',
@@ -132,14 +129,28 @@ REST_FRAMEWORK = {
 	'DEFAULT_RENDERER_CLASSES': (
 		'prosper_investments.apps.common.psp_camel_case.render.CamelCaseJSONRenderer',),
 	'DEFAULT_PARSER_CLASSES': (
-		'prosper_investments.apps.common.psp_camel_case.parser.CamelCaseJSONParser',),
+		'prosper_investments.apps.common.psp_camel_case.parser.CamelCaseJSONParser',
+		'rest_framework.parsers.MultiPartParser',
+		'rest_framework.parsers.FormParser',
+	),
 	'DEFAULT_PERMISSION_CLASSES': (
 		'rest_framework.permissions.IsAuthenticated',
 	),
 	'DEFAULT_AUTHENTICATION_CLASSES': (
 		'prosper_investments.apps.user.authentication.JSONWebTokenAuthenticationPost',
 	),
-	'EXCEPTION_HANDLER': 'prosper_investments.apps.common.exception_handler'
+	'DEFAULT_FILTER_BACKENDS': (
+		'django_filters.rest_framework.DjangoFilterBackend',
+	),
+	'EXCEPTION_HANDLER': 'prosper_investments.apps.common.exception_handler',
+	'DEFAULT_THROTTLE_CLASSES': [
+		'rest_framework.throttling.AnonRateThrottle',
+		'rest_framework.throttling.UserRateThrottle'
+	],
+	'DEFAULT_THROTTLE_RATES': {
+		'anon': '20/minute',
+		'user': '400/minute'
+	}
 }
 
 JWT_AUTH = {
@@ -151,7 +162,7 @@ JWT_AUTH = {
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ALLOW_HEADERS = (
+CORS_ALLOW_HEADERS = [
 	'x-requested-with',
 	'content-type',
 	'accept',
@@ -161,7 +172,7 @@ CORS_ALLOW_HEADERS = (
 	'user-agent',
 	'accept-encoding',
 	'if-modified-since',
-)
+]
 
 WSGI_APPLICATION = 'prosper_investments.wsgi.application'
 
@@ -188,7 +199,7 @@ USE_THOUSAND_SEPARATOR = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = f'/{URL_PREFIX}/static/' if URL_PREFIX else '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Additional locations of static files
@@ -196,7 +207,7 @@ STATICFILES_DIRS = [
 	os.path.join(BASE_DIR, 'public'),
 ]
 
-MEDIA_URL = '/media/'
+MEDIA_URL = f'/{URL_PREFIX}/media/' if URL_PREFIX else '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -211,19 +222,17 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_PORT = 587
 
-SERVER_EMAIL = 'no-reply@prosperinv.com'
-DEFAULT_FROM_EMAIL = 'no-reply@prosperinv.com'
-
-FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.TemporaryFileUploadHandler',)
+FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.TemporaryFileUploadHandler']
 
 FILE_UPLOAD_MAX_ATTACH_NUM = 10
 
 # in bytes, see https://docs.djangoproject.com/en/1.8/ref/files/file/#django.core.files.File.size
-FILE_UPLOAD_MAX_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_SIZE = 10 * 1024 * 1024 # 10MB
 
 FILE_UPLOAD_TYPES = [
 	'application/pdf', 'image/png', 'image/jpeg', 'application/msword',
-	'application/vnd.ms-excel', 'application/vnd.ms-office']
+	'application/vnd.ms-excel', 'application/vnd.ms-office'
+]
 
 LOGGING = {
 	'version': 1,
@@ -237,6 +246,10 @@ LOGGING = {
 			'format': '[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
 			'datefmt': '%Y-%m-%d %H:%M:%S'
 		},
+		'django.server': {
+			'()': 'django.utils.log.ServerFormatter',
+			'format': '[%(server_time)s] %(message)s',
+		}
 	},
 	'handlers': {
 		'console': {
@@ -262,10 +275,6 @@ LOGGING = {
 			'fqdn': False,  # Fully qualified domain name. Default value: false.
 			'tags': ['django.request'],  # list of tags. Default: None.
 		},
-		'elasticapm': {
-			'level': 'WARNING',
-			'class': 'elasticapm.contrib.django.handlers.LoggingHandler',
-		},
 		'request_handler': {
 			'level': 'DEBUG',
 			'class': 'logging.handlers.RotatingFileHandler',
@@ -273,24 +282,29 @@ LOGGING = {
 			'maxBytes': 1024 * 1024 * 5,  # 5MB
 			'backupCount': 5,
 			'formatter': 'simple'
-		}
+		},
+		'django.server': {
+			'level': 'INFO',
+			'class': 'logging.StreamHandler',
+			'formatter': 'django.server',
+		},
 	},
 	'loggers': {
 		'prosper_investments': {
-			'handlers': ['elasticapm', 'console', 'file'],
+			'handlers': ['console', 'file'],
 			'level': 'DEBUG',
 			'propagate': True,
 		},
 		'django.request': {
-			'handlers': ['logstash', 'request_handler'],
+			'handlers': ['request_handler'],
 			'level': 'DEBUG',
 			'propagate': False
 		},
-		'elasticapm.errors': {
-			'level': 'ERROR',
-			'handlers': ['console'],
+		'django.server': {
+			'handlers': ['django.server'],
+			'level': 'INFO',
 			'propagate': False,
-		},
+		}
 	}
 }
 
@@ -310,24 +324,6 @@ SWAGGER_SETTINGS = {
 }
 
 GRAPPELLI_ADMIN_TITLE = 'Prosper Investments'
-
-ELASTICSEARCH_DSL = {
-	'default': {
-		'hosts': os.getenv('ES_HOST', 'localhost:9200'),
-		'http_auth': (os.getenv('ES_USER', 'elastic'), os.getenv('ES_PASSWORD', 'elastic'))
-	},
-}
-
-ELASTIC_APM = {
-	# Set required service name. Allowed characters:
-	# a-z, A-Z, 0-9, -, _, and space
-	'SERVICE_NAME': 'rest-api',
-	# Use if APM Server requires a token
-	'SECRET_TOKEN': '',
-	# Set custom APM Server URL (default: http://localhost:8200)
-	'SERVER_URL': os.getenv('ES_APM_URL', 'http://localhost:8200'),
-	'DEBUG': DEBUG,
-}
 
 # CELERY STUFF
 RMQ = {
@@ -353,3 +349,4 @@ BROKER_URL = 'amqp://%s:%s@%s/' % (
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = BROKER_URL

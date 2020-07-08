@@ -27,9 +27,3 @@ PSP_DASHBOARD_URL = 'https://test-%s.prosperinv.com/dashboard/'
 # url actually does not exist
 
 PSP_REST_API_BASE_URL = 'http://localhost/'
-
-ELASTICSEARCH_DSL = {
-	'default': {
-		'hosts': 'http://es01:9200'
-	},
-}

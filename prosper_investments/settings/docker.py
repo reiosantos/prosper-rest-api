@@ -24,14 +24,11 @@ PSP_REST_API_BASE_URL = 'http://local.prosperinv.com/api/'
 
 SSL_ENABLED = False
 
-ELASTIC_APM['SERVICE_NAME'] = 'rest_api_docker'
-ELASTIC_APM['DEBUG'] = True
-
-INSTALLED_APPS += (
+INSTALLED_APPS += [
 	'silk',
-)
+]
 
-MIDDLEWARE = ('silk.middleware.SilkyMiddleware',) + MIDDLEWARE
+MIDDLEWARE = ['silk.middleware.SilkyMiddleware'] + MIDDLEWARE
 
 SILKY_META = True
 SILKY_PYTHON_PROFILER = True

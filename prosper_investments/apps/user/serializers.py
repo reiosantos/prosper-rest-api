@@ -7,7 +7,6 @@ from rest_framework.exceptions import ParseError
 from prosper_investments.apps.permission.models import VenuePermission
 from prosper_investments.apps.user.models import User, DashboardSection, VenueViewerType
 from prosper_investments.apps.user.utils import ensure_user_associated_with_venue
-from prosper_investments.apps.venue.documents import UserDocument
 from prosper_investments.apps.venue.models import Venue, Role, UserData
 from prosper_investments.apps.venue.relations import ForThisVenuePrimaryKeyRelatedField
 
@@ -54,8 +53,8 @@ class UserSerializer(serializers.ModelSerializer):
 	address2 = serializers.CharField(source='profile.address2', allow_blank=True, required=False)
 	city = serializers.CharField(source='profile.city', allow_blank=True, required=False)
 	country = serializers.CharField(source='profile.country', allow_blank=True, required=False)
-	mobile_confirmed = serializers.CharField(
-		source='profile.mobile_confirmed', allow_blank=True, required=False)
+	mobile_confirmed = serializers.BooleanField(
+		source='profile.mobile_confirmed', default=False, required=False)
 	venues = UserVenueSerializer(many=True, read_only=True)
 	user_type = serializers.StringRelatedField(source='user_type.name')
 	user_role = serializers.StringRelatedField(source='role.name')
@@ -66,7 +65,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		document = UserDocument
 		extra_kwargs = {'password': {'read_only': True}}
 		fields = (
 			'email',
