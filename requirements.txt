@@ -82,7 +82,7 @@ python-dotenv==0.10.3
 python-magic==0.4.15
 python3-logstash==0.4.80
 pytz==2019.2
-PyYAML==5.1.2
+PyYAML==5.4
 reportlab==3.5.23
 requests==2.22.0
 simplejson==3.16.0
