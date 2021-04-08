@@ -16,7 +16,7 @@ cssselect2==0.2.1
 decorator==4.4.0
 defusedxml==0.6.0
 diff-match-patch==20181111
-Django==2.2.3
+Django==2.2.20
 django-appconf==1.0.3
 django-cors-headers==3.0.2
 django-countries==5.3.3
