@@ -83,7 +83,7 @@ python-magic==0.4.15
 python3-logstash==0.4.80
 pytz==2019.2
 PyYAML==5.1.2
-reportlab==3.5.23
+reportlab==3.5.55
 requests==2.22.0
 simplejson==3.16.0
 six==1.12.0
