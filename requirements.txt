@@ -52,7 +52,7 @@ Jinja2==2.10.1
 kombu==4.6.3
 lazy-object-proxy==1.4.1
 lml==0.0.9
-lxml==4.4.0
+lxml==4.9.1
 MarkupSafe==1.1.1
 mccabe==0.6.1
 mysqlclient==1.4.2
